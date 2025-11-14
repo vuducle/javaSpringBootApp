@@ -10,15 +10,10 @@ import java.util.Optional;
 
 @Repository
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
-    public
-
-    UserRepository getUserRepository();
-    Optional<RefreshToken> findByUserAndToken(User user, String token);
     // Suche den Token-Eintrag anhand des langen Token-Strings
     Optional<RefreshToken> findByToken(String token);
 
-    // Lösche den Token für diesen Benutzer, z.B. bei Logout
-
+    // Löscht alle Tokens für den User und gibt die Anzahl der gelöschten Zeilen zurück
     @Transactional
     int deleteByUser(User user);
 }

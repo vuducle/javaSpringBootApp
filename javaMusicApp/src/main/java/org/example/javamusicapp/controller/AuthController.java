@@ -5,8 +5,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.javamusicapp.auth.JwtUtil;
 import org.example.javamusicapp.dto.AuthResponse;
 import org.example.javamusicapp.dto.LoginRequest;
+import org.example.javamusicapp.model.RefreshToken;
 import org.example.javamusicapp.model.User;
 import org.example.javamusicapp.repository.UserRepository;
+import org.example.javamusicapp.service.RefreshTokenService;
 import org.example.javamusicapp.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,18 +32,22 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
 
     public AuthController(
             AuthenticationManager authenticationManager,
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             JwtUtil jwtUtil,
-            UserService userService) {
+            UserService userService,
+            RefreshTokenService refreshTokenService
+    ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.userService = userService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     // --- 1. REGISTRIERUNG ---
@@ -83,10 +89,11 @@ public class AuthController {
 
         // 3. JWT-Token generieren
         String token = jwtUtil.generateToken(userDetails);
-
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken((User) userDetails);
         // 4. Antwort an Flutter zurückgeben
         AuthResponse response = new AuthResponse();
-        response.setToken(token);
+        response.setAccessToken(token);
+        response.setRefreshToken(refreshToken.getToken());
         response.setUsername(request.getUsername());
 
         // Token im Format { "token": "DEIN_JWT_HIER", "username": "..." } zurücksenden

@@ -41,14 +41,14 @@ public class RefreshTokenService {
         String token = UUID.randomUUID().toString();
         Instant expiryDate = Instant.now().plusSeconds((long) refreshExpirationDays * 24 * 60 * 60);
 
-        RefreshToken refreshToken = RefreshToken.builder().user(user).token(token).expiryDate(Date.from(expiryDate)).build();
+        RefreshToken refreshToken = RefreshToken.builder().user(user).token(token).expiryDate(expiryDate).build();
 
         return refreshTokenRepository.save(refreshToken);
     }
 
     /**
      * Sucht den Refresh Token in der Datenbank.
-     * @param token Der String des Refresh Tokens.
+     * @param token Der String des Refreshtokens.
      * @return Optional<RefreshToken>
      */
     public Optional<RefreshToken> getRefreshToken(String token) {
