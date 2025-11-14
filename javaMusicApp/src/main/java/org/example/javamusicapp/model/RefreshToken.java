@@ -6,10 +6,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.Date;
 
 @Entity
-@Table(name="refresh_token")
+@Table(name = "refresh_token") // Neue Tabelle in PostgreSQL
 @Data
 @Builder
 @NoArgsConstructor
@@ -26,6 +27,8 @@ public class RefreshToken {
     @Column(unique = true, nullable = false)
     private String token;
 
+    // Manuelle Hinzufügung des Getters, um die IDE zu befriedigen
     @Column(nullable = false)
-    private Date expiryDate;
+    private Instant expiryDate;
+
 }
