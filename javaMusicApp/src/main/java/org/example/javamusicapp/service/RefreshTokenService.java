@@ -86,7 +86,7 @@ public class RefreshTokenService {
      * Löscht den Refresh Token, z.B. beim Logout.
      */
     @Transactional
-    public void deleteByUserId(Long userId) {
+    public void deleteByUserId(UUID userId) {
         refreshTokenRepository.findByUserId(userId)
                 .ifPresent(refreshTokenRepository::delete);
     }

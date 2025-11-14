@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.RedisHash; // NEUER Import
 import org.springframework.data.redis.core.index.Indexed;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -26,7 +27,7 @@ public class RefreshToken {
     private String token; // Der eigentliche Refresh-String
 
     // KEIN @OneToOne MEHR: Wir speichern die User-ID oder das User-Objekt direkt
-    private Long userId;
+    private UUID userId;
 
     private Instant expiryDate;
 
