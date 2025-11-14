@@ -46,8 +46,7 @@ public class AuthController {
             PasswordEncoder passwordEncoder,
             JwtUtil jwtUtil,
             UserService userService,
-            RefreshTokenService refreshTokenService
-    ) {
+            RefreshTokenService refreshTokenService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -58,8 +57,7 @@ public class AuthController {
 
     // --- 1. REGISTRIERUNG ---
     @PostMapping("/register")
-    @Operation(summary = "Registriert einen neuen Benutzer",
-            description = "Speichert den Benutzer mit gehashtem Passwort in PostgreSQL. Gibt 201 Created zurück.") // NEU
+    @Operation(summary = "Registriert einen neuen Benutzer", description = "Speichert den Benutzer mit gehashtem Passwort in PostgreSQL. Gibt 201 Created zurück.") // NEU
     public ResponseEntity<?> registerUser(@RequestBody LoginRequest request) {
 
         // Prüfung auf Duplikate (sauberer Code!)
@@ -82,12 +80,12 @@ public class AuthController {
 
     // --- 2. LOGIN ---
     @PostMapping("/login")
-    @Operation(summary = "Meldet Benutzer an",
-            description = "Prüft Credentials, gibt bei Erfolg ein JWT-Token zurück, das für geschützte Endpunkte benötigt wird.") // NEU
+    @Operation(summary = "Meldet Benutzer an", description = "Prüft Credentials, gibt bei Erfolg ein JWT-Token zurück, das für geschützte Endpunkte benötigt wird.") // NEU
     public ResponseEntity<AuthResponse> authenticateUser(@RequestBody LoginRequest request) {
 
         try {
-            // 1. Authentifizierung prüfen (diese Zeile löst den AuthenticationProvider aus!)
+            // 1. Authentifizierung prüfen (diese Zeile löst den AuthenticationProvider
+            // aus!)
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
@@ -113,18 +111,22 @@ public class AuthController {
 
     // --- 3. Token erneuern ---
     @PostMapping("/refresh")
-    @Operation(summary = "Refresh the JWT Token",
-            description = "Nimmt den langen Refresh Token entgegen, prüft ihn und gibt einen neuen Access Token aus."
-    )
+    @Operation(summary = "Erneuert den JWT Access Token", description = "Nimmt den langen Refresh Token entgegen, prüft ihn und gibt einen neuen Access Token aus.")
     public ResponseEntity<TokenRefreshResponse> refreshToken(@RequestBody TokenRefreshRequest request) {
 
+        log.info("=== REFRESH ENDPOINT REACHED! Token: {}", request.getRefreshToken());
         String requestRefreshToken = request.getRefreshToken();
 
-        // 1. Suche den Token in der Datenbank & prüfe dessen Ablaufdatum
+        // 1. Suche den Token in Redis & prüfe dessen Ablaufdatum
         return refreshTokenService.findByToken(requestRefreshToken)
-                .map(refreshTokenService::verifyExpiration) // Wirf Exception, wenn abgelaufen
-                .map(RefreshToken::getUser)                 // Hole den Benutzer aus dem Token-Objekt
-                .map(user -> {
+                .map(refreshTokenService::verifyExpiration)
+                // NEU: Hole die UserId aus dem RefreshToken-Objekt
+                .map(RefreshToken::getUserId)
+                // NEU: Verwende das UserRepository, um das vollständige User-Objekt aus
+                // PostgreSQL zu holen
+                .flatMap(userRepository::findById) // findById gibt Optional zurück, daher flatMap
+                .map(user -> { // 'user' ist jetzt das vollständige User-Objekt aus PostgreSQL
+
                     // 2. Erstelle einen neuen Access Token
                     String newAccessToken = jwtUtil.generateToken(user);
 
@@ -133,10 +135,10 @@ public class AuthController {
                             newAccessToken,
                             requestRefreshToken,
                             user.getUsername(),
-                            "Bearer "
-                    ));
+                            "Bearer "));
                 })
+                // Wenn userRepository.findById() fehlschlägt oder findByToken() fehlschlägt:
                 .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
-                        "Refresh Token nicht in der Datenbank gefunden!"));
+                        "Refresh Token ist ungültig oder Benutzer existiert nicht mehr!"));
     }
 }

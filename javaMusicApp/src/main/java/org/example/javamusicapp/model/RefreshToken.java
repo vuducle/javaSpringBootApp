@@ -1,34 +1,33 @@
 package org.example.javamusicapp.model;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id; // NEUER Import
+import org.springframework.data.redis.core.RedisHash; // NEUER Import
+import org.springframework.data.redis.core.index.Indexed;
 
 import java.time.Instant;
-import java.util.Date;
 
-@Entity
-@Table(name = "refresh_token") // Neue Tabelle in PostgreSQL
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+// Wir definieren den Hash-Namen und die Lebensdauer in Sekunden (hier 30 Tage)
+@RedisHash(value = "refresh_token", timeToLive = 2592000L)
 public class RefreshToken {
+
+    // @Id kommt jetzt von Spring Data Commons/Redis, NICHT von JPA
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @OneToOne
-    @JoinColumn(name="user_id", referencedColumnName = "id")
-    private User user;
+    @Indexed // Wichtig! Damit findByToken() funktioniert
+    private String token; // Der eigentliche Refresh-String
 
-    @Column(unique = true, nullable = false)
-    private String token;
+    // KEIN @OneToOne MEHR: Wir speichern die User-ID oder das User-Objekt direkt
+    private Long userId;
 
-    // Manuelle Hinzufügung des Getters, um die IDE zu befriedigen
-    @Column(nullable = false)
     private Instant expiryDate;
 
 }

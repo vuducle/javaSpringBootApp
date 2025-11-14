@@ -38,12 +38,12 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
 
-    // Spring injiziert alle Komponenten, die es als @Component/@Service/@Bean findet.
+    // Spring injiziert alle Komponenten, die es als @Component/@Service/@Bean
+    // findet.
     public SecurityConfig(
             JwtAuthEntryPoint unauthorizedHandler,
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            UserDetailsService userDetailsService
-    ) {
+            UserDetailsService userDetailsService) {
         this.unauthorizedHandler = unauthorizedHandler;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
@@ -51,37 +51,25 @@ public class SecurityConfig {
 
     // -- 1. SECURITY FILTER KETTE (Hauptregelwerk) --
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http)  throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http.csrf(AbstractHttpConfigurer::disable)
-                // CORS ist wichtig für Flutter/Web-Test (wird in WebMvcConfigurer konfiguriert)
                 .cors(Customizer.withDefaults())
-
-                // State-less, da wir JWT verwenden
                 .sessionManagement(session -> session.sessionCreationPolicy(
-                        SessionCreationPolicy.STATELESS
-                ))
-
-                // Autorisierungsregeln
+                        SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> req
-                        // Erlaube OPTIONS Pre-Flight Requests (WICHTIG für CORS/Flutter)
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // Gib alle öffentlichen URLs frei (Login, Swagger, etc.)
-                        .requestMatchers(PUBLIC_URLS).permitAll()
-
-                        // Schütze alle anderen Endpunkte
-                        .anyRequest()
-                        .authenticated())
-
-                // Fehlerbehandlung
+                        // Public endpoints (no authentication required)
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+                        // All other endpoints require authentication
+                        .anyRequest().authenticated())
                 .exceptionHandling(exc -> exc.authenticationEntryPoint(unauthorizedHandler))
-
-                // JWT Filter in die Kette einfügen (VOR dem Standard-Username/Passwort-Filter)
+                // Add JWT filter before Spring Security's default filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                );
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -93,7 +81,8 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Der Provider kombiniert den User-Service (PostgreSQL) und den Encoder (BCrypt)
+    // Der Provider kombiniert den User-Service (PostgreSQL) und den Encoder
+    // (BCrypt)
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();

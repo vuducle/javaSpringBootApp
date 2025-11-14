@@ -1,6 +1,7 @@
 package org.example.javamusicapp.service;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.example.javamusicapp.controller.authController.dto.AuthResponse;
 import org.example.javamusicapp.handler.TokenRefreshException;
 import org.example.javamusicapp.model.RefreshToken;
@@ -16,40 +17,48 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class RefreshTokenService {
     @Value("${jwt.refresh.expiration.days}")
-    private int refreshExpirationDays;
+    private long refreshExpirationDays;
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
 
     public RefreshTokenService(
             RefreshTokenRepository refreshTokenRepository,
-            UserRepository userRepository
-    ) {
+            UserRepository userRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
         this.userRepository = userRepository;
     }
 
     /**
      * Erstellt einen neuen Refresh Token für den Benutzer.
+     * 
      * @param user Der Benutzer, für den der Token erstellt wird.
      * @return Das erstellte RefreshToken-Objekt.
      */
     public RefreshToken createRefreshToken(User user) {
-        refreshTokenRepository.deleteByUser(user);
+        refreshTokenRepository.findByUserId(user.getId())
+                .ifPresent(refreshTokenRepository::delete);
 
-        String token = UUID.randomUUID().toString();
-        Instant expiryDate = Instant.now().plusSeconds((long) refreshExpirationDays * 24 * 60 * 60);
+        // BERECHNE DIE DAUER ALS EINEN LANGEN WERT (30 Tage * 24h * 60min * 60sek)
+        long durationSeconds = refreshExpirationDays * 24 * 60 * 60;
 
-        RefreshToken refreshToken = RefreshToken.builder().user(user).token(token).expiryDate(expiryDate).build();
+        RefreshToken refreshToken = RefreshToken.builder()
+                .userId(user.getId())
+                .token(UUID.randomUUID().toString())
+                // WICHTIG: Verwende den fertigen Wert in plusSeconds()
+                .expiryDate(Instant.now().plusSeconds(durationSeconds))
+                .build();
 
         return refreshTokenRepository.save(refreshToken);
     }
 
     /**
      * Sucht den Refresh Token in der Datenbank.
+     * 
      * @param token Der String des Refreshtokens.
      * @return Optional<RefreshToken>
      */
@@ -59,6 +68,7 @@ public class RefreshTokenService {
 
     /**
      * Überprüft, ob der Token abgelaufen ist. Wenn ja, löscht er ihn.
+     * 
      * @param token Der zu prüfende RefreshToken.
      * @return Den RefreshToken, wenn er gültig ist.
      * @throws TokenRefreshException Wenn der Token abgelaufen ist.
@@ -76,17 +86,21 @@ public class RefreshTokenService {
      * Löscht den Refresh Token, z.B. beim Logout.
      */
     @Transactional
-    public int deleteByUserId(Long userId) {
-        return 0;
+    public void deleteByUserId(Long userId) {
+        refreshTokenRepository.findByUserId(userId)
+                .ifPresent(refreshTokenRepository::delete);
     }
 
     /**
      * Sucht den Refresh Token in der Datenbank.
+     * 
      * @param token Der String des Refreshtokens.
      * @return Optional<RefreshToken>
      */
     public Optional<RefreshToken> findByToken(String token) {
-        // Delegation an das Repository
-        return refreshTokenRepository.findByToken(token);
+        log.info("=== Finding refresh token: {}", token);
+        Optional<RefreshToken> result = refreshTokenRepository.findByToken(token);
+        log.info("=== Token found: {}", result.isPresent());
+        return result;
     }
 }
