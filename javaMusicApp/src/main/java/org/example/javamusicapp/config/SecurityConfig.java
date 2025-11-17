@@ -31,7 +31,9 @@ public class SecurityConfig {
             "/api/auth/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            "/api/lyrics/sample",
+            "/api/lyrics/youtube"
     };
 
     private final JwtAuthEntryPoint unauthorizedHandler;
@@ -59,10 +61,7 @@ public class SecurityConfig {
                         SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> req
                         // Public endpoints (no authentication required)
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers(PUBLIC_URLS).permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated())
                 .exceptionHandling(exc -> exc.authenticationEntryPoint(unauthorizedHandler))

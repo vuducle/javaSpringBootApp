@@ -1,0 +1,240 @@
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :resolveMainClassName UP-TO-DATE
+
+> Task :bootRun
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+[32m :: Spring Boot :: [39m              [2m (v3.5.7)[0;39m
+
+[2m2025-11-17T08:57:36.441+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.e.j.JavaMusicAppApplication           [0;39m [2m:[0;39m Starting JavaMusicAppApplication using Java 24.0.2 with PID 53183 (/Users/vuducle/IdeaProjects/lyricsTranslator/javaMusicApp/build/classes/java/main started by vuducle in /Users/vuducle/IdeaProjects/lyricsTranslator/javaMusicApp)
+[2m2025-11-17T08:57:36.442+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.e.j.JavaMusicAppApplication           [0;39m [2m:[0;39m No active profile set, falling back to 1 default profile: "default"
+[2m2025-11-17T08:57:36.673+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m:[0;39m Multiple Spring Data modules found, entering strict repository configuration mode
+[2m2025-11-17T08:57:36.673+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m:[0;39m Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+[2m2025-11-17T08:57:36.726+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36m.RepositoryConfigurationExtensionSupport[0;39m [2m:[0;39m Spring Data Redis - Could not safely identify store assignment for repository candidate interface org.example.javamusicapp.repository.RoleRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+[2m2025-11-17T08:57:36.726+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36m.RepositoryConfigurationExtensionSupport[0;39m [2m:[0;39m Spring Data Redis - Could not safely identify store assignment for repository candidate interface org.example.javamusicapp.repository.UserRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+[2m2025-11-17T08:57:36.731+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m:[0;39m Finished Spring Data repository scanning in 52 ms. Found 1 Redis repository interface.
+[2m2025-11-17T08:57:36.816+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m:[0;39m Multiple Spring Data modules found, entering strict repository configuration mode
+[2m2025-11-17T08:57:36.816+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m:[0;39m Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+[2m2025-11-17T08:57:36.824+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36m.RepositoryConfigurationExtensionSupport[0;39m [2m:[0;39m Spring Data JPA - Could not safely identify store assignment for repository candidate interface org.example.javamusicapp.repository.RefreshTokenRepository; If you want this repository to be a JPA repository, consider annotating your entities with one of these annotations: jakarta.persistence.Entity, jakarta.persistence.MappedSuperclass (preferred), or consider extending one of the following types with your repository: org.springframework.data.jpa.repository.JpaRepository
+[2m2025-11-17T08:57:36.828+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m:[0;39m Finished Spring Data repository scanning in 10 ms. Found 2 JPA repository interfaces.
+[2m2025-11-17T08:57:37.059+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m:[0;39m Tomcat initialized with port 8088 (http)
+[2m2025-11-17T08:57:37.067+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.apache.catalina.core.StandardService  [0;39m [2m:[0;39m Starting service [Tomcat]
+[2m2025-11-17T08:57:37.067+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.apache.catalina.core.StandardEngine   [0;39m [2m:[0;39m Starting Servlet engine: [Apache Tomcat/10.1.48]
+[2m2025-11-17T08:57:37.093+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m:[0;39m Initializing Spring embedded WebApplicationContext
+[2m2025-11-17T08:57:37.093+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mw.s.c.ServletWebServerApplicationContext[0;39m [2m:[0;39m Root WebApplicationContext: initialization completed in 629 ms
+[2m2025-11-17T08:57:37.171+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.hibernate.jpa.internal.util.LogHelper [0;39m [2m:[0;39m HHH000204: Processing PersistenceUnitInfo [name: default]
+[2m2025-11-17T08:57:37.205+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36morg.hibernate.Version                   [0;39m [2m:[0;39m HHH000412: Hibernate ORM core version 6.6.33.Final
+[2m2025-11-17T08:57:37.233+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.h.c.internal.RegionFactoryInitiator   [0;39m [2m:[0;39m HHH000026: Second-level cache disabled
+[2m2025-11-17T08:57:37.474+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.s.o.j.p.SpringPersistenceUnitInfo     [0;39m [2m:[0;39m No LoadTimeWeaver setup: ignoring JPA class transformer
+[2m2025-11-17T08:57:37.496+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m:[0;39m HikariPool-1 - Starting...
+[2m2025-11-17T08:57:37.619+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mcom.zaxxer.hikari.pool.HikariPool       [0;39m [2m:[0;39m HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@61eab26b
+[2m2025-11-17T08:57:37.620+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m:[0;39m HikariPool-1 - Start completed.
+[2m2025-11-17T08:57:37.662+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36morg.hibernate.orm.connections.pooling   [0;39m [2m:[0;39m HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.6
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+[2m2025-11-17T08:57:38.106+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.h.e.t.j.p.i.JtaPlatformInitiator      [0;39m [2m:[0;39m HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+[2m2025-11-17T08:57:38.150+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m:[0;39m Initialized JPA EntityManagerFactory for persistence unit 'default'
+[2m2025-11-17T08:57:38.328+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36meAuthenticationProviderManagerConfigurer[0;39m [2m:[0;39m Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+[2m2025-11-17T08:57:38.328+07:00[0;39m [33m WARN[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mr$InitializeUserDetailsManagerConfigurer[0;39m [2m:[0;39m Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::allocateMemory has been called by io.netty.util.internal.PlatformDependent0$2 (file:/Users/vuducle/.gradle/caches/modules-2/files-2.1/io.netty/netty-common/4.1.128.Final/da61c7f6318a1a1170e5f2f4daa45657bc9be423/netty-common-4.1.128.Final.jar)
+WARNING: Please consider reporting this to the maintainers of class io.netty.util.internal.PlatformDependent0$2
+WARNING: sun.misc.Unsafe::allocateMemory will be removed in a future release
+[2m2025-11-17T08:57:38.508+07:00[0;39m [33m WARN[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mJpaBaseConfiguration$JpaWebConfiguration[0;39m [2m:[0;39m spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+[2m2025-11-17T08:57:38.617+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.s.s.web.DefaultSecurityFilterChain    [0;39m [2m:[0;39m Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CorsFilter, LogoutFilter, JwtAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+[2m2025-11-17T08:57:38.632+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.s.v.b.OptionalValidatorFactoryBean    [0;39m [2m:[0;39m Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+[2m2025-11-17T08:57:38.737+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m:[0;39m Tomcat started on port 8088 (http) with context path '/'
+[2m2025-11-17T08:57:38.742+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [           main] [0;39m[36mo.e.j.JavaMusicAppApplication           [0;39m [2m:[0;39m Started JavaMusicAppApplication in 2.451 seconds (process running for 2.57)
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.password,u1_0.username from app_user u1_0 where u1_0.username=?
+Hibernate: select r1_0.user_id,r1_1.id,r1_1.name from user_roles r1_0 join roles r1_1 on r1_1.id=r1_0.role_id where r1_0.user_id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.password,u1_0.username from app_user u1_0 where u1_0.username=?
+Hibernate: select r1_0.user_id,r1_1.id,r1_1.name from user_roles r1_0 join roles r1_1 on r1_1.id=r1_0.role_id where r1_0.user_id=?
+[2m2025-11-17T08:57:52.023+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-1] [0;39m[36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m:[0;39m Initializing Spring DispatcherServlet 'dispatcherServlet'
+[2m2025-11-17T08:57:52.025+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-1] [0;39m[36mo.s.web.servlet.DispatcherServlet       [0;39m [2m:[0;39m Initializing Servlet 'dispatcherServlet'
+[2m2025-11-17T08:57:52.032+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-1] [0;39m[36mo.s.web.servlet.DispatcherServlet       [0;39m [2m:[0;39m Completed initialization in 6 ms
+[2m2025-11-17T08:57:52.040+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-1] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /api/lyrics/youtube?title=fancy&artist=twice&lang=ko
+[2m2025-11-17T08:57:52.042+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-1] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /api/lyrics/youtube = false
+[2m2025-11-17T08:57:52.044+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [Exception in thread "Thread-0" org.gradle.api.UncheckedIOException: java.io.IOException: Input/output error
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:63)
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:42)
+	at org.gradle.internal.daemon.client.clientinput.DaemonClientInputForwarder$ForwardingUserInput.lambda$readAndForwardStdin$0(DaemonClientInputForException in thread "Thread-0" org.gradle.api.UncheckedIOException: java.io.IOException: Input/output error
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:63)
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:42)
+	at org.gradle.internal.daemon.client.clientinput.DaemonClientInputForwarder$ForwardingUserInput.lambda$readAndForwardStdin$0(DaemonClientInputForwarder.java:99)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1095)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:619)
+	at java.base/java.lang.Thread.run(Thread.java:1447)
+Caused by: java.io.IOException: Input/output error
+	at java.base/java.io.FileInputStream.readBytes(Native Method)
+	at java.base/java.io.FileInputStream.read(FileInputStream.java:294)
+	at java.base/java.lang.System$In.read(System.java:1849)
+	at java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:328)
+	at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:388)
+	at java.base/sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:279)
+	at java.base/sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:322)
+	at java.base/sun.nio.cs.StreamDecoder.read(StreamDecoder.java:186)
+	at java.base/java.io.InputStreamReader.read(InputStreamReader.java:175)
+	at java.base/java.io.BufferedReader.read1(BufferedReader.java:215)
+	at java.base/java.io.BufferedReader.read(BufferedReader.java:291)
+	at java.base/java.io.Reader.read(Reader.java:366)
+	at org.gradle.internal.daemon.client.clientinput.DaemonClientInputForwarder$ForwardingUserInput.lambda$readAndForwardStdin$0(DaemonClientInputForwarder.java:97)
+	... 3 more
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Could not dispatch a message to the daemon.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+39m [2m:[0;39m shouldNotFilter for path: /api/lyrics/youtube = false
+[2m2025-11-17T09:17:04.368+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-5] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T09:17:04.368+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-5] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /api/lyrics/youtube?title=whistle&artist=blackpink&lang=ko
+[2m2025-11-17T09:17:04.369+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-5] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /api/lyrics/youtube = false
+[2m2025-11-17T09:55:46.024+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-7] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /swagger-ui/index.html
+[2m2025-11-17T09:55:46.030+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-7] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/index.html = false
+[2m2025-11-17T09:55:46.047+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-7] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T09:55:46.048+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-7] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /swagger-ui/index.html
+[2m2025-11-17T09:55:46.048+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-7] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/index.html = false
+[2m2025-11-17T09:55:46.247+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-8] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /swagger-ui/swagger-ui.css
+[2m2025-11-17T09:55:46.248+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-8] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-ui.css = false
+[2m2025-11-17T09:55:46.248+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /swagger-ui/index.css
+[2m2025-11-17T09:55:46.248+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [io-8088-exec-10] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /swagger-ui/swagger-ui-bundle.js
+[2m2025-11-17T09:55:46.248+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [io-8088-exec-10] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-ui-bundle.js = false
+[2m2025-11-17T09:55:46.249+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-8] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T09:55:46.249+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [io-8088-exec-10] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T09:55:46.249+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-8] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /swagger-ui/swagger-ui.css
+[2m2025-11-17T09:55:46.249+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/index.css = false
+[2m2025-11-17T09:55:46.249+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-8] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-ui.css = false
+[2m2025-11-17T09:55:46.249+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [io-8088-exec-10] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /swagger-ui/swagger-ui-bundle.js
+[2m2025-11-17T09:55:46.250+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [io-8088-exec-10] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-ui-bundle.js = false
+[2m2025-11-17T09:55:46.250+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T09:55:46.251+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /swagger-ui/index.css
+[2m2025-11-17T09:55:46.251+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/index.css = false
+[2m2025-11-17T09:55:46.252+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-2] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /swagger-ui/swagger-initializer.js
+[2m2025-11-17T09:55:46.252+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-2] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-initializer.js = false
+[2m2025-11-17T09:55:46.253+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-1] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /swagger-ui/swagger-ui-standalone-preset.js
+[2m2025-11-17T09:55:46.253+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-1] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-ui-standalone-preset.js = false
+[2m2025-11-17T09:55:46.253+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-2] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T09:55:46.253+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-1] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T09:55:46.253+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-2] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /swagger-ui/swagger-initializer.js
+[2m2025-11-17T09:55:46.253+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-2] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-initializer.js = false
+[2m2025-11-17T09:55:46.253+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-1] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /swagger-ui/swagger-ui-standalone-preset.js
+[2m2025-11-17T09:55:46.254+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-1] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-ui-standalone-preset.js = false
+[2m2025-11-17T09:55:46.269+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-3] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /swagger-ui/swagger-ui-standalone-preset.js
+[2m2025-11-17T09:55:46.270+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-3] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-ui-standalone-preset.js = false
+[2m2025-11-17T09:55:46.274+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-3] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T09:55:46.274+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-3] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /swagger-ui/swagger-ui-standalone-preset.js
+[2m2025-11-17T09:55:46.274+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-3] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-ui-standalone-preset.js = false
+[2m2025-11-17T09:55:46.279+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-4] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /swagger-ui/swagger-ui-bundle.js
+[2m2025-11-17T09:55:46.280+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-4] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-ui-bundle.js = false
+[2m2025-11-17T09:55:46.280+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-4] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T09:55:46.280+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-4] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /swagger-ui/swagger-ui-bundle.js
+[2m2025-11-17T09:55:46.280+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-4] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-ui-bundle.js = false
+[2m2025-11-17T09:55:46.683+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-5] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /v3/api-docs/swagger-config
+[2m2025-11-17T09:55:46.685+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-5] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /v3/api-docs/swagger-config = false
+[2m2025-11-17T09:55:46.688+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-5] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T09:55:46.689+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-5] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /v3/api-docs/swagger-config
+[2m2025-11-17T09:55:46.689+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-5] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /v3/api-docs/swagger-config = false
+[2m2025-11-17T09:55:46.692+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-6] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /swagger-ui/favicon-32x32.png
+[2m2025-11-17T09:55:46.694+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-6] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/favicon-32x32.png = false
+[2m2025-11-17T09:55:46.694+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-6] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T09:55:46.697+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-6] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /swagger-ui/favicon-32x32.png
+[2m2025-11-17T09:55:46.698+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-6] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/favicon-32x32.png = false
+[2m2025-11-17T09:55:46.865+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-7] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /v3/api-docs
+[2m2025-11-17T09:55:46.865+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-7] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /v3/api-docs = false
+[2m2025-11-17T09:55:46.866+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-7] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T09:55:46.866+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-7] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /v3/api-docs
+[2m2025-11-17T09:55:46.866+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-7] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /v3/api-docs = false
+[2m2025-11-17T09:55:47.406+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /swagger-ui/swagger-initializer.js
+[2m2025-11-17T09:55:47.406+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-initializer.js = false
+[2m2025-11-17T09:55:47.406+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T09:55:47.408+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /swagger-ui/swagger-initializer.js
+[2m2025-11-17T09:55:47.408+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /swagger-ui/swagger-initializer.js = false
+[2m2025-11-17T09:55:47.442+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-7] [0;39m[36mo.springdoc.api.AbstractOpenApiResource [0;39m [2m:[0;39m Init duration for springdoc-openapi is: 401 ms
+[2m2025-11-17T10:01:00.007+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-5] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing POST /api/auth/register
+[2m2025-11-17T10:01:00.010+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-5] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /api/auth/register = true
+[2m2025-11-17T10:01:00.012+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-5] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T10:01:00.013+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-5] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured POST /api/auth/register
+[2m2025-11-17T10:01:00.013+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-5] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /api/auth/register = true
+Hibernate: select u1_0.id from app_user u1_0 where u1_0.username=? fetch first ? rows only
+[2m2025-11-17T10:01:30.213+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Securing GET /api/lyrics/youtube?videoId=gl1aHhXnN1k&lang=en
+[2m2025-11-17T10:01:30.215+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /api/lyrics/youtube = false
+[2m2025-11-17T10:01:30.216+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.s.s.w.a.AnonymousAuthenticationFilter [0;39m [2m:[0;39m Set SecurityContextHolder to anonymous SecurityContext
+[2m2025-11-17T10:01:30.216+07:00[0;39m [32mDEBUG[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.s.security.web.FilterChainProxy       [0;39m [2m:[0;39m Secured GET /api/lyrics/youtube?videoId=gl1aHhXnN1k&lang=en
+[2m2025-11-17T10:01:30.216+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [nio-8088-exec-9] [0;39m[36mo.e.j.c.auth.JwtAuthenticationFilter    [0;39m [2m:[0;39m shouldNotFilter for path: /api/lyrics/youtube = false
+[2m2025-11-17T10:06:14.312+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [ionShutdownHook] [0;39m[36mo.s.b.w.e.tomcat.GracefulShutdown       [0;39m [2m:[0;39m Commencing graceful shutdown. Waiting for active requests to complete
+[2m2025-11-17T10:06:14.342+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [tomcat-shutdown] [0;39m[36mo.s.b.w.e.tomcat.GracefulShutdown       [0;39m [2m:[0;39m Graceful shutdown complete
+[2m2025-11-17T10:06:14.612+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [ionShutdownHook] [0;39m[36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m:[0;39m Closing JPA EntityManagerFactory for persistence unit 'default'
+[2m2025-11-17T10:06:14.647+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [ionShutdownHook] [0;39m[36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m:[0;39m HikariPool-1 - Shutdown initiated...
+[2m2025-11-17T10:06:14.658+07:00[0;39m [32m INFO[0;39m [35m53183[0;39m [2m--- [javaMusicApp] [ionShutdownHook] [0;39m[36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m:[0;39m HikariPool-1 - Shutdown completed.
+
+> Task :bootRun FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':bootRun'.
+> Process 'command '/Users/vuducle/Library/Java/JavaVirtualMachines/openjdk-24.0.2/Contents/Home/bin/java'' finished with non-zero exit value 143
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1h 8m 40s
+4 actionable tasks: 1 executed, 3 up-to-date
+Exception in thread "Thread-0" org.gradle.api.UncheckedIOException: java.io.IOException: Input/output error
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:63)
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:42)
+	at org.gradle.internal.daemon.client.clientinput.DaemonClientInputForwarder$ForwardingUserInput.lambda$readAndForwardStdin$0(DaemonClientInputForwarder.java:99)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1095)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:619)
+	at java.base/java.lang.Thread.run(Thread.java:1447)
+Caused by: java.io.IOException: Input/output error
+	at java.base/java.io.FileInputStream.readBytes(Native Method)
+	at java.base/java.io.FileInputStream.read(FileInputStream.java:294)
+	at java.base/java.lang.System$In.read(System.java:1849)
+	at java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:328)
+	at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:388)
+	at java.base/sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:279)
+	at java.base/sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:322)
+	at java.base/sun.nio.cs.StreamDecoder.read(StreamDecoder.java:186)
+	at java.base/java.io.InputStreamReader.read(InputStreamReader.java:175)
+	at java.base/java.io.BufferedReader.read1(BufferedReader.java:215)
+	at java.base/java.io.BufferedReader.read(BufferedReader.java:291)
+	at java.base/java.io.Reader.read(Reader.java:366)
+	at org.gradle.internal.daemon.client.clientinput.DaemonClientInputForwarder$ForwardingUserInput.lambda$readAndForwardStdin$0(DaemonClientInputForwarder.java:97)
+	... 3 more
+ingUserInput.lambda$readAndForwardStdin$0(DaemonClientInputForwarder.java:97)
+	... 3 more
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Could not dispatch a message to the daemon.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
