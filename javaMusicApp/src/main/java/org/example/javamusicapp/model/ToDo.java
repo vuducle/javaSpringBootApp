@@ -12,7 +12,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @Table(name = "todo")
-@JsonIgnoreProperties({"user.todos"})
+@JsonIgnoreProperties({ "user.todos" })
 public class ToDo {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

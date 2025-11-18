@@ -28,4 +28,8 @@ public class ToDoService {
     public ToDo findById(UUID id) {
         return toDoRepository.findById(id).orElse(null);
     }
+
+    public java.util.List<ToDo> findByUserUsername(String username) {
+        return toDoRepository.findByUserUsername(username);
+    }
 }
