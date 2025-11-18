@@ -2,6 +2,7 @@ package org.example.javamusicapp.config;
 
 import org.example.javamusicapp.config.auth.JwtAuthEntryPoint;
 import org.example.javamusicapp.config.auth.JwtAuthenticationFilter;
+import org.example.javamusicapp.config.RateLimitFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod; // Wichtig für OPTIONS/CORS
@@ -38,6 +39,7 @@ public class SecurityConfig {
 
     private final JwtAuthEntryPoint unauthorizedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RateLimitFilter rateLimitFilter;
     private final UserDetailsService userDetailsService;
 
     // Spring injiziert alle Komponenten, die es als @Component/@Service/@Bean
@@ -45,9 +47,11 @@ public class SecurityConfig {
     public SecurityConfig(
             JwtAuthEntryPoint unauthorizedHandler,
             JwtAuthenticationFilter jwtAuthenticationFilter,
+            RateLimitFilter rateLimitFilter,
             UserDetailsService userDetailsService) {
         this.unauthorizedHandler = unauthorizedHandler;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.rateLimitFilter = rateLimitFilter;
         this.userDetailsService = userDetailsService;
     }
 
@@ -65,10 +69,14 @@ public class SecurityConfig {
                         // All other endpoints require authentication
                         .anyRequest().authenticated())
                 .exceptionHandling(exc -> exc.authenticationEntryPoint(unauthorizedHandler))
-                // Add JWT filter before Spring Security's default filter
+                // Add rate-limit filter before JWT filter so rate limiting applies early
                 .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class);
+                    rateLimitFilter,
+                    JwtAuthenticationFilter.class)
+                // Add JWT filter before Spring Security's default authentication filter
+                .addFilterBefore(
+                    jwtAuthenticationFilter,
+                    UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
