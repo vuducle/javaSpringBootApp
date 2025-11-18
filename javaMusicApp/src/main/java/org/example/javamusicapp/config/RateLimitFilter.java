@@ -25,11 +25,21 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     // Configuration (simple defaults)
     private final long windowSeconds = 60; // seconds per window
-    private final long limit = 10; // max requests per window
+    private final long limit = 100; // max requests per window
 
     @Autowired
     public RateLimitFilter(@Autowired(required = false) StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        // Skip rate limiting for Swagger UI, API docs, and static resources
+        return path.startsWith("/swagger-ui") ||
+                path.startsWith("/v3/api-docs") ||
+                path.startsWith("/webjars/") ||
+                path.equals("/swagger-ui.html");
     }
 
     @Override

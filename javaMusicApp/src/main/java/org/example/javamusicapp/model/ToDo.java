@@ -1,18 +1,19 @@
 package org.example.javamusicapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.javamusicapp.model.enums.ETodo;
 
-import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Data
 @NoArgsConstructor
 @Table(name = "todo")
-public class Todo {
+@JsonIgnoreProperties({"user.todos"})
+public class ToDo {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -27,6 +28,7 @@ public class Todo {
     @Column(length = 20)
     private ETodo status;
 
-    @ManyToMany
-    private List<User> users;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

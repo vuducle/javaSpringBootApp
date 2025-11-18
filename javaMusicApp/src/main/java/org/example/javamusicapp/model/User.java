@@ -1,5 +1,6 @@
 package org.example.javamusicapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,11 +13,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "app_user")
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties({ "todos", "password", "authorities", "accountNonExpired", "accountNonLocked",
+        "credentialsNonExpired", "enabled" })
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -30,6 +35,9 @@ public class User implements UserDetails {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ToDo> todos = new ArrayList<>();
 
     // 2. KORRIGIERTE getAuthorities() Methode
     // Gibt die Rollen aus der Datenbank zurück, nicht nur "ROLE_USER" statisch.

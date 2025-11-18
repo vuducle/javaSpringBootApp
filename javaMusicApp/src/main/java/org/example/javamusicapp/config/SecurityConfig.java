@@ -69,14 +69,14 @@ public class SecurityConfig {
                         // All other endpoints require authentication
                         .anyRequest().authenticated())
                 .exceptionHandling(exc -> exc.authenticationEntryPoint(unauthorizedHandler))
-                // Add rate-limit filter before JWT filter so rate limiting applies early
-                .addFilterBefore(
-                        rateLimitFilter,
-                        JwtAuthenticationFilter.class)
                 // Add JWT filter before Spring Security's default authentication filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class);
+                        UsernamePasswordAuthenticationFilter.class)
+                // Add rate-limit filter before JWT filter so rate limiting applies early
+                .addFilterBefore(
+                        rateLimitFilter,
+                        JwtAuthenticationFilter.class);
 
         return http.build();
     }
