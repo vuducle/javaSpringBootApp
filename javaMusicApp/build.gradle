@@ -37,14 +37,24 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    // PDF generation/filling
+    implementation 'org.apache.pdfbox:pdfbox:2.0.29'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    // rate limiting (using Redis or simple local counter; no Bucket4j/Caffeine)
 }
+
+// Task to run the PdfFieldLister CLI helper
+tasks.register('runPdfLister', JavaExec) {
+    group = 'app'
+    description = 'Run PdfFieldLister to list AcroForm fields from the PDF template'
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'org.example.javamusicapp.util.PdfFieldLister'
+}
+
 
 tasks.named('test') {
     useJUnitPlatform()
