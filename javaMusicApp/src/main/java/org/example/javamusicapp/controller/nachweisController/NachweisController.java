@@ -1,6 +1,9 @@
-package org.example.javamusicapp.controller;
+package org.example.javamusicapp.controller.nachweisController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +44,28 @@ public class NachweisController {
 
     @PostMapping
     @Operation(summary = "Create a new Nachweis and generate a PDF.",
-            description = "Creates a new Nachweis, saves it, generates a PDF and stores it on the server.")
+            description = "Creates a new Nachweis, saves it, generates a PDF and stores it on the server. " +
+                    "If the activities list is empty, a default list will be created.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Nachweis object that needs to be added to the store",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CreateNachweisRequest.class),
+                            examples = @ExampleObject(
+                                    name = "Default Nachweis",
+                                    summary = "Example of a Nachweis with default activities",
+                                    value = "{\n" +
+                                            "  \"datumStart\": \"2025-11-24\",\n" +
+                                            "  \"datumEnde\": \"2025-11-28\",\n" +
+                                            "  \"nummer\": 42,\n" +
+                                            "  \"ausbilderId\": \"e27590d3-657d-4feb-bd4e-1ffca3d7a884\",\n" +
+                                            "  \"activities\": []\n" +
+                                            "}"
+                            )
+                    )
+            )
+    )
     @ApiResponse(responseCode = "201", description = "Nachweis created successfully.")
     @ApiResponse(responseCode = "500", description = "Internal server error during PDF generation or saving.")
     public ResponseEntity<Nachweis> createNachweis(@RequestBody CreateNachweisRequest request, @AuthenticationPrincipal UserDetails userDetails) {

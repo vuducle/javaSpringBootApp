@@ -100,18 +100,17 @@ public class AuthController {
     public ResponseEntity<AuthResponse> authenticateUser(@RequestBody LoginRequest request) {
 
         try {
-            // 1. Authentifizierung prüfen (diese Zeile löst den AuthenticationProvider
-            // aus!)
+            User user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new AuthenticationException("User not found with email: " + request.getEmail()) {});
+
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), request.getPassword()));
 
-            // 2. UserDetails vom UserService holen
-            UserDetails userDetails = userService.loadUserByUsername(request.getEmail());
+            UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
 
-            // 3. JWT-Token generieren
             String token = jwtUtil.generateToken(userDetails);
             RefreshToken refreshToken = refreshTokenService.createRefreshToken((User) userDetails);
-            // 4. Antwort an Flutter zurückgeben
+
             AuthResponse response = new AuthResponse();
             response.setAccessToken(token);
             response.setRefreshToken(refreshToken.getToken());
@@ -119,10 +118,9 @@ public class AuthController {
             response.setEmail(request.getEmail());
             response.setName(((User) userDetails).getName());
 
-            // Token im Format { "token": "DEIN_JWT_HIER", "username": "..." } zurücksenden
             return ResponseEntity.ok(response);
-        } catch (AuthenticationException juliaNguyenError) {
-            log.error("Login Fehler: {}", juliaNguyenError.getMessage());
+        } catch (AuthenticationException e) {
+            log.error("Login Fehler: {}", e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
     }

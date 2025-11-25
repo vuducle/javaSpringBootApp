@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.example.javamusicapp.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -34,7 +33,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setClaims(map)
-                .setSubject(((User) userDetails).getEmail())
+                .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
                 .signWith(getSigningKey())
@@ -47,8 +46,8 @@ public class JwtUtil {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
-            final String email = extractUsername(token);
-            return (email.equals(((User) userDetails).getEmail()) && !isTokenExpired(token));
+            final String benutzerName = extractUsername(token);
+            return (benutzerName.equals(userDetails.getUsername()) && !isTokenExpired(token));
         }
         catch (Exception e) {
             return false;

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -113,11 +114,70 @@ public class DataLoader implements CommandLineRunner {
         }
     }
 
+    private void seedAusbilder() {
+        UUID ausbilderId = UUID.fromString("e27590d3-657d-4feb-bd4e-1ffca3d7a884");
+        if (userRepository.findById(ausbilderId).isEmpty()) {
+            Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                    .orElseThrow(() -> new RuntimeException("Rolle nicht gefunden: ADMIN"));
+
+            Set<Role> roles = new HashSet<>();
+            roles.add(adminRole);
+
+            User ausbilder = new User();
+            ausbilder.setId(ausbilderId);
+            ausbilder.setUsername("sebastianreichenbach");
+            ausbilder.setName("Sebastian Reichenbach");
+            ausbilder.setEmail("sebastian.reichenbach@example.com");
+            ausbilder.setPassword(passwordEncoder.encode("SecurePassword123!"));
+            ausbilder.setRoles(roles);
+
+            userRepository.save(ausbilder);
+            DataLoader.log.info("Ausbilder 'sebastianreichenbach' erfolgreich erstellt und gespeichert.");
+        }
+    }
+
+    private void seedArminWache() {
+        if (userRepository.findByUsername("arminwache").isEmpty()) {
+            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Rolle nicht gefunden: USER"));
+            Set<Role> roles = new HashSet<>();
+            roles.add(userRole);
+            User user = new User();
+            user.setUsername("arminwache");
+            user.setName("Armin Wache");
+            user.setEmail("armin.wache@example.com");
+            user.setPassword(passwordEncoder.encode("SecurePassword123!"));
+            user.setRoles(roles);
+            userRepository.save(user);
+            DataLoader.log.info("User 'arminwache' erfolgreich erstellt und gespeichert.");
+        }
+    }
+
+    private void seedVuQuyLe() {
+        if (userRepository.findByUsername("vuquyle").isEmpty()) {
+            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Rolle nicht gefunden: USER"));
+            Set<Role> roles = new HashSet<>();
+            roles.add(userRole);
+            User user = new User();
+            user.setUsername("vuquyle");
+            user.setName("Vu Quy Le");
+            user.setEmail("vu.quy.le@example.com");
+            user.setPassword(passwordEncoder.encode("SecurePassword123!"));
+            user.setRoles(roles);
+            userRepository.save(user);
+            DataLoader.log.info("User 'vuquyle' erfolgreich erstellt und gespeichert.");
+        }
+    }
+
     @Override
     public void run(String... args) throws Exception {
         seedRoles();
         seedAdminUser();
         seedAdminUser2();
         seedNormalUser();
+        seedAusbilder();
+        seedArminWache();
+        seedVuQuyLe();
     }
 }
