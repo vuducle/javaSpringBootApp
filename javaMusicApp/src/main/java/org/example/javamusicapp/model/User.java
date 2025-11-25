@@ -21,13 +21,16 @@ import java.util.ArrayList;
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties({ "todos", "password", "authorities", "accountNonExpired", "accountNonLocked",
-        "credentialsNonExpired", "enabled" })
+        "credentialsNonExpired", "enabled", "nachweiseAlsAzubi", "nachweiseAlsAusbilder" })
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @Column(unique = true, nullable = false)
     private String username;
+    @Column(nullable = false)
+    private String name;
+
     @Column(nullable = false)
     private String password;
     private String email;
@@ -38,6 +41,12 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ToDo> todos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "azubi", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Nachweis> nachweiseAlsAzubi = new ArrayList<>();
+
+    @OneToMany(mappedBy = "ausbilder", fetch = FetchType.LAZY)
+    private List<Nachweis> nachweiseAlsAusbilder = new ArrayList<>();
 
     // 2. KORRIGIERTE getAuthorities() Methode
     // Gibt die Rollen aus der Datenbank zurück, nicht nur "ROLE_USER" statisch.

@@ -54,7 +54,32 @@ public class DataLoader implements CommandLineRunner {
             // 2. Admin User erstellen
             User admin = new User();
             admin.setUsername("triesnhaameilya");
+            admin.setName("Triesnha Ameilya");
             admin.setEmail("triesnhaameilya@lyrics.app");
+            // WICHTIG: Passwort HASCHEN!
+            admin.setPassword(passwordEncoder.encode("SecureAdminPassword123!"));
+            admin.setRoles(roles);
+
+            userRepository.save(admin);
+            DataLoader.log.info("Admin-Benutzer 'admin' erfolgreich erstellt und gespeichert.");
+        }
+    }
+
+    private void seedAdminUser2() {
+        if (userRepository.findByUsername("armindorri").isEmpty()) {
+
+            // 1. Hole die ROLE_ADMIN-Rolle
+            Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                    .orElseThrow(() -> new RuntimeException("Rolle nicht gefunden: ADMIN"));
+
+            Set<Role> roles = new HashSet<>();
+            roles.add(adminRole);
+
+            // 2. Admin User erstellen
+            User admin = new User();
+            admin.setUsername("armindorri");
+            admin.setName("Armin Dorri");
+            admin.setEmail("armindorri@lyrics.app");
             // WICHTIG: Passwort HASCHEN!
             admin.setPassword(passwordEncoder.encode("SecureAdminPassword123!"));
             admin.setRoles(roles);
@@ -78,6 +103,7 @@ public class DataLoader implements CommandLineRunner {
             // 2. Normal User erstellen
             User user = new User();
             user.setUsername("vergildmc5");
+            user.setName("Vergil from Devil May Cry 5");
             user.setEmail("vergildmc5@lyrics.app");
             user.setPassword(passwordEncoder.encode("SecureUserPassword123!"));
             user.setRoles(roles);
@@ -91,6 +117,7 @@ public class DataLoader implements CommandLineRunner {
     public void run(String... args) throws Exception {
         seedRoles();
         seedAdminUser();
+        seedAdminUser2();
         seedNormalUser();
     }
 }

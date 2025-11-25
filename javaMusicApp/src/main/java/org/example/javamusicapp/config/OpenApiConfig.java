@@ -9,6 +9,10 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/*
+* Config file for SwaggerUI
+*
+* */
 @Configuration
 public class OpenApiConfig {
 
@@ -26,9 +30,9 @@ public class OpenApiConfig {
                 .components(new Components().addSecuritySchemes("bearerAuth", bearerScheme))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .info(new Info()
-                        .title("JavaMusicApp API")
+                        .title("SpringBoot API")
                         .version("v1")
-                        .description("API documentation for JavaMusicApp - authentication endpoints included")
+                        .description("API documentation for SpringBoot API - authentication endpoints included")
                         .contact(new Contact().name("Dev Team").email("dev@lyrics.app")));
     }
 }
