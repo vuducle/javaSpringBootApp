@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-@Schema(name = "TokenRefreshRequest", description = "Request payload to refresh an access token using a refresh token")
+@Schema(name = "TokenAktualisierungsAnfrage", description = "Anfrage-Payload zum Aktualisieren eines Zugriffstokens mit einem Refresh-Token")
 public class TokenRefreshRequest {
     @NotBlank
-    @Schema(description = "Refresh token string", example = "f47ac10b-58cc-4372-a567-0e02b2c3d479")
+    @Schema(description = "Refresh-Token-Zeichenfolge", example = "f47ac10b-58cc-4372-a567-0e02b2c3d479")
     private String refreshToken;
 }

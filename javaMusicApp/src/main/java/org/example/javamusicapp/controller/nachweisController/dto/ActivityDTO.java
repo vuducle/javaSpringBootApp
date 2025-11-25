@@ -8,14 +8,14 @@ import java.math.BigDecimal;
 
 @Data
 public class ActivityDTO {
-    @Schema(description = "Day of the week for the activity", example = "MONDAY")
+    @Schema(description = "Wochentag für die Aktivität", example = "MONDAY")
     private Weekday day;
-    @Schema(description = "Time slot for the activity (e.g., 1 for the first task of the day)", example = "1")
+    @Schema(description = "Zeitschlitz für die Aktivität (z.B. 1 für die erste Aufgabe des Tages)", example = "1")
     private Integer slot;
-    @Schema(description = "Detailed description of the activity", example = "Schule")
+    @Schema(description = "Detaillierte Beschreibung der Aktivität", example = "Schule")
     private String description;
-    @Schema(description = "Hours spent on the activity", example = "8.0")
+    @Schema(description = "Stunden, die für die Aktivität aufgewendet wurden", example = "8.0")
     private BigDecimal hours;
-    @Schema(description = "Department or section where the activity took place", example = "Theorie")
+    @Schema(description = "Abteilung oder Bereich, in dem die Aktivität stattfand", example = "Theorie")
     private String section;
 }

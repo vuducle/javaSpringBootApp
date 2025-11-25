@@ -43,18 +43,18 @@ public class NachweisController {
     private final Path rootLocation = Paths.get("generated_pdfs");
 
     @PostMapping
-    @Operation(summary = "Create a new Nachweis and generate a PDF.",
-            description = "Creates a new Nachweis, saves it, generates a PDF and stores it on the server. " +
-                    "If the activities list is empty, a default list will be created.",
+    @Operation(summary = "Erstellt einen neuen Nachweis und generiert ein PDF.",
+            description = "Erstellt einen neuen Nachweis, speichert ihn, generiert ein PDF und legt es auf dem Server ab. " +
+                    "Wenn die Aktivitätenliste leer ist, wird eine Standardliste erstellt.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Nachweis object that needs to be added to the store",
+                    description = "Nachweis-Objekt, das dem Speicher hinzugefügt werden muss",
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = CreateNachweisRequest.class),
                             examples = @ExampleObject(
-                                    name = "Default Nachweis",
-                                    summary = "Example of a Nachweis with default activities",
+                                    name = "Standard-Nachweis",
+                                    summary = "Beispiel für einen Nachweis mit Standardaktivitäten",
                                     value = "{\n" +
                                             "  \"datumStart\": \"2025-11-24\",\n" +
                                             "  \"datumEnde\": \"2025-11-28\",\n" +
@@ -66,8 +66,8 @@ public class NachweisController {
                     )
             )
     )
-    @ApiResponse(responseCode = "201", description = "Nachweis created successfully.")
-    @ApiResponse(responseCode = "500", description = "Internal server error during PDF generation or saving.")
+    @ApiResponse(responseCode = "201", description = "Nachweis erfolgreich erstellt.")
+    @ApiResponse(responseCode = "500", description = "Interner Serverfehler bei der PDF-Generierung oder Speicherung.")
     public ResponseEntity<Nachweis> createNachweis(@RequestBody CreateNachweisRequest request, @AuthenticationPrincipal UserDetails userDetails) {
         Nachweis nachweis = nachweisService.createNachweis(request, userDetails.getUsername());
 
@@ -89,11 +89,11 @@ public class NachweisController {
     }
 
     @GetMapping("/{id}/pdf")
-    @Operation(summary = "Get a Nachweis PDF by its ID.",
-            description = "Retrieves the PDF of a specific Nachweis. Only accessible by the owner or an admin.")
-    @ApiResponse(responseCode = "200", description = "PDF found and returned.")
-    @ApiResponse(responseCode = "403", description = "Forbidden - you are not the owner of this Nachweis.")
-    @ApiResponse(responseCode = "404", description = "Nachweis or PDF not found.")
+    @Operation(summary = "Holt ein Nachweis-PDF anhand seiner ID.",
+            description = "Ruft das PDF eines bestimmten Nachweises ab. Nur für den Besitzer oder einen Admin zugänglich.")
+    @ApiResponse(responseCode = "200", description = "PDF gefunden und zurückgegeben.")
+    @ApiResponse(responseCode = "403", description = "Verboten - Sie sind nicht der Besitzer dieses Nachweises.")
+    @ApiResponse(responseCode = "404", description = "Nachweis oder PDF nicht gefunden.")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isOwner(authentication, #id)")
     public ResponseEntity<Resource> getNachweisPdf(@PathVariable UUID id) {
         Nachweis nachweis = nachweisRepository.findById(id)

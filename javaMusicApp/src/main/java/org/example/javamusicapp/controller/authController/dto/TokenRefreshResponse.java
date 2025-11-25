@@ -6,17 +6,17 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-@Schema(name = "TokenRefreshResponse", description = "Response returned after refreshing the access token")
+@Schema(name = "TokenAktualisierungsAntwort", description = "Antwort, die nach der Aktualisierung des Zugriffstokens zurückgegeben wird")
 public class TokenRefreshResponse {
-    @Schema(description = "New access token", example = "eyJhbGci...", accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(description = "Neues Zugriffstoken", example = "eyJhbGci...", accessMode = Schema.AccessMode.READ_ONLY)
     private String accessToken;
 
-    @Schema(description = "Refresh token (unchanged)", example = "f47ac10b-58cc-4372-a567-0e02b2c3d479")
+    @Schema(description = "Refresh-Token (unverändert)", example = "f47ac10b-58cc-4372-a567-0e02b2c3d479")
     private String refreshToken;
 
-    @Schema(description = "Username for which token was refreshed", example = "julianguyen")
+    @Schema(description = "Benutzername, für den der Token aktualisiert wurde", example = "julianguyen")
     private String username;
 
-    @Schema(description = "Token type", example = "Bearer")
+    @Schema(description = "Tokentyp", example = "Bearer")
     private String tokenType = "Bearer";
 }

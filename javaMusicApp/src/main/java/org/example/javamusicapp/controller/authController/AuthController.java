@@ -73,7 +73,7 @@ public class AuthController {
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            return new ResponseEntity<>("Email is already in use!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("E-Mail wird bereits verwendet!", HttpStatus.BAD_REQUEST);
         }
 
         // Neues User-Objekt erstellen
@@ -86,7 +86,7 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                .orElseThrow(() -> new RuntimeException("Fehler: Rolle nicht gefunden."));
         user.getRoles().add(userRole);
 
         userRepository.save(user);
@@ -101,7 +101,7 @@ public class AuthController {
 
         try {
             User user = userRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new AuthenticationException("User not found with email: " + request.getEmail()) {});
+                    .orElseThrow(() -> new AuthenticationException("Benutzer mit E-Mail nicht gefunden: " + request.getEmail()) {});
 
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getUsername(), request.getPassword()));

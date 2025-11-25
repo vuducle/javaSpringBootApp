@@ -4,17 +4,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@Schema(name = "RegistrationRequest", description = "Request payload for registering a new user")
+@Schema(name = "RegistrierungsAnfrage", description = "Anfrage-Payload zum Registrieren eines neuen Benutzers")
 public class RegistrationRequest {
-    @Schema(description = "Unique username of the user", example = "julianguyen")
+    @Schema(description = "Eindeutiger Benutzername des Benutzers", example = "julianguyen")
     private String username;
 
-    @Schema(description = "User's full name", example = "Julian Nguyen")
+    @Schema(description = "Vollständiger Name des Benutzers", example = "Julian Nguyen")
     private String name;
 
-    @Schema(description = "User password", example = "password123", format = "password")
+    @Schema(description = "Benutzerpasswort", example = "password123", format = "password")
     private String password;
 
-    @Schema(description = "User email address", example = "julianguyen@example.com")
+    @Schema(description = "E-Mail-Adresse des Benutzers", example = "julianguyen@example.com")
     private String email;
 }

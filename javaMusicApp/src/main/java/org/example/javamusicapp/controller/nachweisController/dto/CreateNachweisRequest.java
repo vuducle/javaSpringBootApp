@@ -10,14 +10,14 @@ import java.util.UUID;
 
 @Data
 public class CreateNachweisRequest {
-    @Schema(description = "Start date of the Nachweis week", example = "2025-11-24")
+    @Schema(description = "Startdatum der Nachweiswoche", example = "2025-11-24")
     private LocalDate datumStart;
-    @Schema(description = "End date of the Nachweis week", example = "2025-11-28")
+    @Schema(description = "Enddatum der Nachweiswoche", example = "2025-11-28")
     private LocalDate datumEnde;
-    @Schema(description = "The number of the Nachweis", example = "42")
+    @Schema(description = "Die Nummer des Nachweises", example = "42")
     private int nummer;
-    @Schema(description = "List of activities for the week. If not provided, a default list will be created.")
+    @Schema(description = "Liste der Aktivitäten für die Woche. Wenn nicht angegeben, wird eine Standardliste erstellt.")
     private List<ActivityDTO> activities;
-    @Schema(description = "ID of the instructor (Ausbilder).", example = "e27590d3-657d-4feb-bd4e-1ffca3d7a884")
+    @Schema(description = "ID des Ausbilders. Wenn nicht angegeben, wird ein Standard-Ausbilder zugewiesen.", example = "e27590d3-657d-4feb-bd4e-1ffca3d7a884")
     private UUID ausbilderId;
 }
