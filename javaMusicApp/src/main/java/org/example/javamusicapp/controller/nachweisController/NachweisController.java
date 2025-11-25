@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.javamusicapp.controller.nachweisController.dto.CreateNachweisRequest;
+import org.example.javamusicapp.controller.nachweisController.dto.NachweisStatusUpdateRequest;
 import org.example.javamusicapp.model.Nachweis;
 import org.example.javamusicapp.repository.NachweisRepository;
 import org.example.javamusicapp.service.nachweis.NachweisService;
@@ -189,5 +190,21 @@ public class NachweisController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok(nachweise);
+    }
+
+    @PutMapping("/{id}/status")
+    @Operation(summary = "Aktualisiert den Status eines Nachweises (Admin-Zugriff).",
+            description = "Ermöglicht Administratoren, den Status eines Nachweises auf ANGENOMMEN oder ABGELEHNT zu setzen.")
+    @ApiResponse(responseCode = "200", description = "Nachweisstatus erfolgreich aktualisiert.")
+    @ApiResponse(responseCode = "400", description = "Ungültiger Status oder Nachweis-ID.")
+    @ApiResponse(responseCode = "403", description = "Verboten - Nur Administratoren können den Nachweisstatus aktualisieren.")
+    @ApiResponse(responseCode = "404", description = "Nachweis nicht gefunden.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Nachweis> updateNachweisStatus(@PathVariable UUID id, @RequestBody NachweisStatusUpdateRequest request) {
+        if (!id.equals(request.getNachweisId())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Nachweis updatedNachweis = nachweisService.updateNachweisStatus(request.getNachweisId(), request.getStatus());
+        return ResponseEntity.ok(updatedNachweis);
     }
 }

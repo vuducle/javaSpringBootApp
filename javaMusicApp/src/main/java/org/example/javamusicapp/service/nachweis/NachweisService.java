@@ -247,4 +247,12 @@ public class NachweisService {
         }
         nachweisRepository.deleteAll(nachweise);
     }
+
+    @Transactional
+    public Nachweis updateNachweisStatus(UUID nachweisId, EStatus neuerStatus) {
+        Nachweis nachweis = nachweisRepository.findById(nachweisId)
+                .orElseThrow(() -> new RuntimeException("Nachweis mit der ID " + nachweisId + " nicht gefunden."));
+        nachweis.setStatus(neuerStatus);
+        return nachweisRepository.save(nachweis);
+    }
 }
