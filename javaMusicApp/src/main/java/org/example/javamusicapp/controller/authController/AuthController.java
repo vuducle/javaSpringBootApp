@@ -10,7 +10,10 @@ import org.example.javamusicapp.controller.authController.dto.TokenRefreshReques
 import org.example.javamusicapp.controller.authController.dto.TokenRefreshResponse;
 import org.example.javamusicapp.handler.TokenRefreshException;
 import org.example.javamusicapp.model.RefreshToken;
+import org.example.javamusicapp.model.Role;
 import org.example.javamusicapp.model.User;
+import org.example.javamusicapp.model.enums.ERole;
+import org.example.javamusicapp.repository.RoleRepository;
 import org.example.javamusicapp.repository.UserRepository;
 import org.example.javamusicapp.service.RefreshTokenService;
 import org.example.javamusicapp.service.UserService;
@@ -39,6 +42,7 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final UserService userService;
     private final RefreshTokenService refreshTokenService;
+    private final RoleRepository roleRepository;
 
     public AuthController(
             AuthenticationManager authenticationManager,
@@ -46,13 +50,15 @@ public class AuthController {
             PasswordEncoder passwordEncoder,
             JwtUtil jwtUtil,
             UserService userService,
-            RefreshTokenService refreshTokenService) {
+            RefreshTokenService refreshTokenService,
+            RoleRepository roleRepository) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.userService = userService;
         this.refreshTokenService = refreshTokenService;
+        this.roleRepository = roleRepository;
     }
 
     // --- 1. REGISTRIERUNG ---
@@ -65,6 +71,10 @@ public class AuthController {
             return new ResponseEntity<>("Benutzername ist bereits vergeben!", HttpStatus.BAD_REQUEST);
         }
 
+        if (userRepository.existsByEmail(request.getEmail())) {
+            return new ResponseEntity<>("Email is already in use!", HttpStatus.BAD_REQUEST);
+        }
+
         // Neues User-Objekt erstellen
         User user = new User();
         user.setUsername(request.getUsername());
@@ -72,6 +82,10 @@ public class AuthController {
 
         // Passwort hashen (WICHTIG!)
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+        user.getRoles().add(userRole);
 
         userRepository.save(user);
 
@@ -87,10 +101,10 @@ public class AuthController {
             // 1. Authentifizierung prüfen (diese Zeile löst den AuthenticationProvider
             // aus!)
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
             // 2. UserDetails vom UserService holen
-            UserDetails userDetails = userService.loadUserByUsername(request.getUsername());
+            UserDetails userDetails = userService.loadUserByUsername(request.getEmail());
 
             // 3. JWT-Token generieren
             String token = jwtUtil.generateToken(userDetails);
@@ -99,7 +113,8 @@ public class AuthController {
             AuthResponse response = new AuthResponse();
             response.setAccessToken(token);
             response.setRefreshToken(refreshToken.getToken());
-            response.setUsername(request.getUsername());
+            response.setUsername(userDetails.getUsername());
+            response.setEmail(request.getEmail());
 
             // Token im Format { "token": "DEIN_JWT_HIER", "username": "..." } zurücksenden
             return ResponseEntity.ok(response);
