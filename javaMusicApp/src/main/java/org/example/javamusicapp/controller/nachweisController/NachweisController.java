@@ -141,4 +141,26 @@ public class NachweisController {
         nachweisService.loescheNachweis(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @DeleteMapping("/all")
+    @Operation(summary = "Löscht alle Nachweise und zugehörige PDFs.",
+            description = "Löscht alle Nachweise aus der Datenbank und alle generierten PDF-Dateien. Nur für Administratoren zugänglich.")
+    @ApiResponse(responseCode = "204", description = "Alle Nachweise und PDFs erfolgreich gelöscht.")
+    @ApiResponse(responseCode = "403", description = "Verboten - Nur Administratoren können alle Nachweise löschen.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteAllNachweise() {
+        nachweisService.loescheAlleNachweise();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/my-nachweise/all")
+    @Operation(summary = "Löscht alle Nachweise und zugehörige PDFs des aktuell angemeldeten Azubis.",
+            description = "Löscht alle Nachweise aus der Datenbank und alle generierten PDF-Dateien, die dem aktuell authentifizierten Azubi gehören.")
+    @ApiResponse(responseCode = "204", description = "Alle Nachweise und PDFs des Azubis erfolgreich gelöscht.")
+    @ApiResponse(responseCode = "403", description = "Verboten - Zugriff verweigert, wenn der Benutzer nicht authentifiziert ist.")
+    @PreAuthorize("hasRole('USER')") // Assuming 'USER' role for regular users
+    public ResponseEntity<Void> deleteAllMyNachweise(@AuthenticationPrincipal UserDetails userDetails) {
+        nachweisService.loescheAlleNachweiseVonAzubi(userDetails.getUsername());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

@@ -104,4 +104,44 @@ public class NachweisService {
         activity.setSection(section);
         return activity;
     }
+
+    @Transactional
+    public void loescheAlleNachweise() {
+        List<Nachweis> allNachweise = nachweisRepository.findAll();
+        for (Nachweis nachweis : allNachweise) {
+            try {
+                Path userDirectory = rootLocation.resolve(nachweis.getAzubi().getId().toString());
+                Path fileToDelete = userDirectory.resolve(nachweis.getId().toString() + ".pdf");
+                Files.deleteIfExists(fileToDelete);
+            } catch (IOException e) {
+                log.error("Fehler beim Löschen der PDF für Nachweis {}: {}", nachweis.getId(), e.getMessage());
+            }
+        }
+        try {
+            Files.walk(rootLocation)
+                    .sorted(java.util.Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(java.io.File::delete);
+        } catch (IOException e) {
+            log.error("Fehler beim Löschen des Verzeichnisses {}: {}", rootLocation, e.getMessage());
+        }
+        nachweisRepository.deleteAll();
+    }
+
+    @Transactional
+    public void loescheAlleNachweiseVonAzubi(String username) {
+        User azubi = userService.findByUsername(username);
+        List<Nachweis> nachweise = nachweisRepository.findAllByAzubiId(azubi.getId());
+
+        for (Nachweis nachweis : nachweise) {
+            try {
+                Path userDirectory = rootLocation.resolve(nachweis.getAzubi().getId().toString());
+                Path fileToDelete = userDirectory.resolve(nachweis.getId().toString() + ".pdf");
+                Files.deleteIfExists(fileToDelete);
+            } catch (IOException e) {
+                log.error("Fehler beim Löschen der PDF für Nachweis {}: {}", nachweis.getId(), e.getMessage());
+            }
+        }
+        nachweisRepository.deleteAll(nachweise);
+    }
 }
