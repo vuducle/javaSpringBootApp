@@ -173,6 +173,14 @@ public class NachweisService {
         return nachweisRepository.findAllByAzubiId(azubi.getId());
     }
 
+    public List<Nachweis> findAllNachweise() {
+        return nachweisRepository.findAll();
+    }
+
+    public List<Nachweis> findNachweiseByUserId(UUID userId) {
+        return nachweisRepository.findAllByAzubiId(userId);
+    }
+
     @Transactional
     public void loescheNachweis(UUID id) {
         Nachweis nachweis = nachweisRepository.findById(id)

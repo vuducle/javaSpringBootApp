@@ -164,4 +164,30 @@ public class NachweisController {
         nachweisService.loescheAlleNachweiseVonAzubi(userDetails.getUsername());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/admin/all")
+    @Operation(summary = "Ruft alle Nachweise für alle Benutzer ab (Admin-Zugriff).",
+            description = "Gibt eine Liste aller Nachweise im System zurück. Nur für Administratoren zugänglich.")
+    @ApiResponse(responseCode = "200", description = "Liste aller Nachweise erfolgreich abgerufen.")
+    @ApiResponse(responseCode = "403", description = "Verboten - Nur Administratoren können alle Nachweise abrufen.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Nachweis>> getAllNachweise() {
+        List<Nachweis> nachweise = nachweisService.findAllNachweise();
+        return ResponseEntity.ok(nachweise);
+    }
+
+    @GetMapping("/admin/user/{userId}")
+    @Operation(summary = "Ruft alle Nachweise für einen bestimmten Benutzer ab (Admin-Zugriff).",
+            description = "Gibt eine Liste aller Nachweise für den angegebenen Benutzer zurück. Nur für Administratoren zugänglich.")
+    @ApiResponse(responseCode = "200", description = "Liste der Nachweise für den Benutzer erfolgreich abgerufen.")
+    @ApiResponse(responseCode = "403", description = "Verboten - Nur Administratoren können Nachweise für andere Benutzer abrufen.")
+    @ApiResponse(responseCode = "404", description = "Benutzer nicht gefunden oder keine Nachweise vorhanden.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Nachweis>> getNachweiseByUserId(@PathVariable UUID userId) {
+        List<Nachweis> nachweise = nachweisService.findNachweiseByUserId(userId);
+        if (nachweise.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(nachweise);
+    }
 }
