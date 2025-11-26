@@ -45,4 +45,27 @@ public class EmailService {
             throw new RuntimeException("Gescheitert", e);
         }
     }
+
+    public void sendEmail(String to, String subject, String body) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setFrom(senderEmail);
+            log.debug("Setze E-Mail Versender: {}", senderEmail);
+            log.debug("Setze E-Mail Empfänger: {}", to);
+            helper.setTo(to);
+            log.debug("Setze E-Mail Betreff: {}", subject);
+            helper.setSubject(subject);
+            log.debug("Setze E-Mail Inhalt (Die ersten 100 Charaktere): {}", body.substring(0, Math.min(body.length(), 100)));
+            helper.setText(body, true); // Set HTML content
+
+            log.debug("Versuche zu versenden: {}", to);
+            mailSender.send(message);
+            log.info("E-Mail erfolgreich versendet {}", to);
+        } catch (MessagingException e) {
+            log.error("Fehlgeschalgen bei der Versendung {}: {}", to, e.getMessage());
+            throw new RuntimeException("Gescheitert", e);
+        }
+    }
 }

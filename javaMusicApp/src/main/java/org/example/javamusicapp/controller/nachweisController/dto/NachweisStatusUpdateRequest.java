@@ -9,4 +9,5 @@ import java.util.UUID;
 public class NachweisStatusUpdateRequest {
     private UUID nachweisId;
     private EStatus status;
+    private String comment;
 }

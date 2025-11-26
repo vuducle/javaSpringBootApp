@@ -36,6 +36,8 @@ public class Nachweis {
         @Enumerated(EnumType.STRING)
         private EStatus status;
 
+        private String comment;
+
         @ManyToOne
         @JoinColumn(name = "ausbilder_id")
         private User ausbilder;

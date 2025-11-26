@@ -204,7 +204,7 @@ public class NachweisController {
         if (!id.equals(request.getNachweisId())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Nachweis updatedNachweis = nachweisService.updateNachweisStatus(request.getNachweisId(), request.getStatus());
+        Nachweis updatedNachweis = nachweisService.updateNachweisStatus(request.getNachweisId(), request.getStatus(), request.getComment());
         return ResponseEntity.ok(updatedNachweis);
     }
 }

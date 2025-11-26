@@ -249,10 +249,50 @@ public class NachweisService {
     }
 
     @Transactional
-    public Nachweis updateNachweisStatus(UUID nachweisId, EStatus neuerStatus) {
+    public Nachweis updateNachweisStatus(UUID nachweisId, EStatus neuerStatus, String comment) {
         Nachweis nachweis = nachweisRepository.findById(nachweisId)
                 .orElseThrow(() -> new RuntimeException("Nachweis mit der ID " + nachweisId + " nicht gefunden."));
         nachweis.setStatus(neuerStatus);
-        return nachweisRepository.save(nachweis);
+        nachweis.setComment(comment);
+        Nachweis updatedNachweis = nachweisRepository.save(nachweis);
+
+        // Send email to Azubi about status update
+        User azubi = updatedNachweis.getAzubi();
+        if (azubi != null && azubi.getEmail() != null && !azubi.getEmail().isEmpty()) {
+            String subject = "Update zu deinem Ausbildungsnachweis Nr. " + updatedNachweis.getNummer();
+            String body = "<html>"
+                        + "<head>"
+                        + "<style>"
+                        + "body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }"
+                        + ".container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; }"
+                        + ".header { background-color: #0056b3; color: #ffffff; padding: 10px 20px; text-align: center; border-radius: 5px 5px 0 0; }"
+                        + ".content { padding: 20px; }"
+                        + ".footer { text-align: center; font-size: 0.8em; color: #777; margin-top: 20px; }"
+                        + "p { margin-bottom: 10px; }"
+                        + "strong { color: #0056b3; }"
+                        + "</style>"
+                        + "</head>"
+                        + "<body>"
+                        + "<div class='container'>"
+                        + "<div class='header'>"
+                        + "<h2>Status-Update deines Ausbildungsnachweises</h2>"
+                        + "</div>"
+                        + "<div class='content'>"
+                        + "<p>Hallo " + azubi.getName() + ",</p>"
+                        + "<p>der Status deines Ausbildungsnachweises Nr. <strong>" + updatedNachweis.getNummer() + "</strong> wurde aktualisiert.</p>"
+                        + "<p>Neuer Status: <strong>" + neuerStatus.toString() + "</strong></p>"
+                        + (comment != null && !comment.isEmpty() ? "<p>Kommentar deines Ausbilders: <em>" + comment + "</em></p>" : "")
+                        + "<p>Mit freundlichen Grüßen,</p>"
+                        + "<p>Dein Ausbilder/in</p>"
+                        + "</div>"
+                        + "<div class='footer'>"
+                        + "<p>Dies ist eine automatisch generierte E-Mail. Bitte antworten Sie nicht direkt auf diese Nachricht.</p>"
+                        + "</div>"
+                        + "</div>"
+                        + "</body>"
+                        + "</html>";
+            emailService.sendEmail(azubi.getEmail(), subject, body);
+        }
+        return updatedNachweis;
     }
 }
