@@ -283,7 +283,7 @@ public class NachweisService {
                         + "<p>Neuer Status: <strong>" + neuerStatus.toString() + "</strong></p>"
                         + (comment != null && !comment.isEmpty() ? "<p>Kommentar deines Ausbilders: <em>" + comment + "</em></p>" : "")
                         + "<p>Mit freundlichen Grüßen,</p>"
-                        + "<p>Dein Ausbilder/in</p>"
+                        + "<p>Dein Ausbilder/in " + updatedNachweis.getAusbilder().getName() + "</p>"
                         + "</div>"
                         + "<div class='footer'>"
                         + "<p>Dies ist eine automatisch generierte E-Mail. Bitte antworten Sie nicht direkt auf diese Nachricht.</p>"
@@ -293,6 +293,106 @@ public class NachweisService {
                         + "</html>";
             emailService.sendEmail(azubi.getEmail(), subject, body);
         }
+        return updatedNachweis;
+    }
+
+    @Transactional
+    public Nachweis aktualisiereNachweisDurchAzubi(UUID nachweisId, CreateNachweisRequest request, String username) {
+        Nachweis nachweis = nachweisRepository.findById(nachweisId)
+                .orElseThrow(() -> new RuntimeException("Nachweis mit der ID " + nachweisId + " nicht gefunden."));
+
+        User azubi = userService.findByUsername(username);
+        if (!nachweis.getAzubi().getId().equals(azubi.getId())) {
+            throw new RuntimeException("Sie sind nicht berechtigt, diesen Nachweis zu aktualisieren.");
+        }
+
+        User ausbilder = userRepository.findById(request.getAusbilderId())
+                .orElseThrow(() -> new RuntimeException("Ausbilder nicht gefunden."));
+
+        nachweis.setDatumStart(request.getDatumStart());
+        nachweis.setDatumEnde(request.getDatumEnde());
+        nachweis.setNummer(request.getNummer());
+        nachweis.setAusbildungsjahr(request.getAusbildungsjahr());
+        nachweis.setAusbilder(ausbilder);
+        nachweis.setStatus(EStatus.IN_BEARBEITUNG); // Reset status to IN_BEARBEITUNG
+
+        // Clear existing activities and add new ones
+        nachweis.getActivities().clear();
+        if (request.getActivities() != null && !request.getActivities().isEmpty()) {
+            request.getActivities().forEach(activityDTO -> {
+                Activity activity = new Activity();
+                activity.setDay(activityDTO.getDay());
+                activity.setSlot(activityDTO.getSlot());
+                activity.setDescription(activityDTO.getDescription());
+                activity.setHours(activityDTO.getHours());
+                activity.setSection(activityDTO.getSection());
+                nachweis.addActivity(activity);
+            });
+        } else {
+            // Re-add default activities if none provided
+            nachweis.addActivity(createActivity(Weekday.MONDAY, 1, "Schule", new BigDecimal("8.0"), "Theorie"));
+            nachweis.addActivity(createActivity(Weekday.TUESDAY, 1, "Teambesprechung mit Triesnha Ameilya", new BigDecimal("1.0"), "Meeting"));
+            nachweis.addActivity(createActivity(Weekday.TUESDAY, 2, "Coding mit Vergil", new BigDecimal("7.0"), "Entwicklung"));
+            nachweis.addActivity(createActivity(Weekday.WEDNESDAY, 1, "Layoutdesign mit Armin Wache", new BigDecimal("4.0"), "Design"));
+            nachweis.addActivity(createActivity(Weekday.WEDNESDAY, 2, "Vibe coding mit Vu Quy Le", new BigDecimal("4.0"), "Entwicklung"));
+            nachweis.addActivity(createActivity(Weekday.THURSDAY, 1, "Coding mit Vergil", new BigDecimal("8.0"), "Entwicklung"));
+            nachweis.addActivity(createActivity(Weekday.FRIDAY, 1, "Coding mit Vergil", new BigDecimal("7.0"), "Entwicklung"));
+            nachweis.addActivity(createActivity(Weekday.FRIDAY, 2, "Code Review", new BigDecimal("1.0"), "QA"));
+        }
+
+        Nachweis updatedNachweis = nachweisRepository.save(nachweis);
+
+        try {
+            byte[] pdfBytes = pdfExportService.generateAusbildungsnachweisPdf(updatedNachweis);
+            UUID userId = updatedNachweis.getAzubi().getId();
+            UUID nachweisIdPdf = updatedNachweis.getId();
+
+            Path userDirectory = rootLocation.resolve(userId.toString());
+            Files.createDirectories(userDirectory);
+            Path destinationFile = userDirectory.resolve(nachweisIdPdf.toString() + ".pdf");
+            Files.write(destinationFile, pdfBytes);
+
+            // Send email to Ausbilder about the update
+            User nachweisAusbilder = updatedNachweis.getAusbilder();
+            if (nachweisAusbilder != null && nachweisAusbilder.getEmail() != null && !nachweisAusbilder.getEmail().isEmpty()) {
+                String subject = "Ausbildungsnachweis Nr. " + updatedNachweis.getNummer() + " von " + azubi.getName() + " wurde aktualisiert";
+                String body = "<html>"
+                            + "<head>"
+                            + "<style>"
+                            + "body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }"
+                            + ".container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; }"
+                            + ".header { background-color: #0056b3; color: #ffffff; padding: 10px 20px; text-align: center; border-radius: 5px 5px 0 0; }"
+                            + ".content { padding: 20px; }"
+                            + ".footer { text-align: center; font-size: 0.8em; color: #777; margin-top: 20px; }"
+                            + "p { margin-bottom: 10px; }"
+                            + "strong { color: #0056b3; }"
+                            + "</style>"
+                            + "</head>"
+                            + "<body>"
+                            + "<div class='container'>"
+                            + "<div class='header'>"
+                            + "<h2>Ausbildungsnachweis aktualisiert und zur Prüfung bereit</h2>"
+                            + "</div>"
+                            + "<div class='content'>"
+                            + "<p>Hallo " + nachweisAusbilder.getName() + ",</p>"
+                            + "<p>der Ausbildungsnachweis Nr. <strong>" + updatedNachweis.getNummer() + "</strong> von <strong>" + azubi.getName() + "</strong> wurde aktualisiert.</p>"
+                            + "<p>Er befindet sich nun wieder im Status: <strong>" + EStatus.IN_BEARBEITUNG.toString() + "</strong> und wartet auf deine erneute Prüfung.</p>"
+                            + "<p>Mit freundlichen Grüßen,</p>"
+                            + "<p>Dein Spring Boot System</p>"
+                            + "</div>"
+                            + "<div class='footer'>"
+                            + "<p>Dies ist eine automatisch generierte E-Mail. Bitte antworten Sie nicht direkt auf diese Nachricht.</p>"
+                            + "</div>"
+                            + "</div>"
+                            + "</body>"
+                            + "</html>";
+                emailService.sendEmail(nachweisAusbilder.getEmail(), subject, body);
+            }
+        } catch (IOException e) {
+            log.error("Fehler bei der PDF-Generierung oder Speicherung für Nachweis {}: {}", updatedNachweis.getId(), e.getMessage());
+            throw new RuntimeException("Fehler bei der PDF-Generierung oder Speicherung", e);
+        }
+
         return updatedNachweis;
     }
 }

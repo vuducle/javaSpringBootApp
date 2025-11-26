@@ -207,4 +207,17 @@ public class NachweisController {
         Nachweis updatedNachweis = nachweisService.updateNachweisStatus(request.getNachweisId(), request.getStatus(), request.getComment());
         return ResponseEntity.ok(updatedNachweis);
     }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Aktualisiert einen Nachweis durch den Azubi.",
+            description = "Ermöglicht dem Azubi, seinen eigenen Nachweis zu aktualisieren. Der Status wird auf IN_BEARBEITUNG zurückgesetzt.")
+    @ApiResponse(responseCode = "200", description = "Nachweis erfolgreich aktualisiert.")
+    @ApiResponse(responseCode = "400", description = "Ungültige Anfrage oder Nachweis-ID.")
+    @ApiResponse(responseCode = "403", description = "Verboten - Sie sind nicht der Besitzer dieses Nachweises.")
+    @ApiResponse(responseCode = "404", description = "Nachweis nicht gefunden.")
+    @PreAuthorize("@nachweisSecurityService.isOwner(authentication, #id)")
+    public ResponseEntity<Nachweis> updateNachweisByAzubi(@PathVariable UUID id, @RequestBody CreateNachweisRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+        Nachweis updatedNachweis = nachweisService.aktualisiereNachweisDurchAzubi(id, request, userDetails.getUsername());
+        return ResponseEntity.ok(updatedNachweis);
+    }
 }
