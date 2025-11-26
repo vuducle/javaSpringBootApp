@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
@@ -21,6 +22,7 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String senderEmail;
 
+    @Async
     public void sendEmailWithAttachment(String to, String subject, String body, byte[] attachment, String attachmentName, String contentType) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -46,6 +48,7 @@ public class EmailService {
         }
     }
 
+    @Async
     public void sendEmail(String to, String subject, String body) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
