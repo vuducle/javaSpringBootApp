@@ -3,6 +3,9 @@ package org.example.javamusicapp.service.auth;
 import lombok.extern.slf4j.Slf4j;
 import org.example.javamusicapp.model.User;
 import org.example.javamusicapp.repository.UserRepository;
+import org.example.javamusicapp.repository.RoleRepository;
+import org.example.javamusicapp.model.Role;
+import org.example.javamusicapp.model.enums.ERole;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -35,6 +38,7 @@ import org.springframework.beans.factory.annotation.Value;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
     private static final String UPLOAD_DIR = "uploads/profile-images/";
     @Value("${image.max-width:1024}")
     private int maxWidth;
@@ -45,14 +49,70 @@ public class UserService implements UserDetailsService {
     @Value("${image.quality:0.75}")
     private float imageQuality;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
         // Erstelle das Upload-Verzeichnis, falls es nicht existiert
         try {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
         } catch (IOException e) {
             log.error("Fehler beim Erstellen des Upload-Verzeichnisses: {}", e.getMessage());
+        }
+    }
+
+    public void grantAdminRoleToUser(String targetUsername) {
+        User target = userRepository.findByUsername(targetUsername)
+                .orElseThrow(() -> new IllegalArgumentException("Zielbenutzer nicht gefunden: " + targetUsername));
+
+        // Prüfe, ob Ziel bereits Admin ist
+        boolean alreadyAdmin = target.getRoles().stream()
+                .anyMatch(r -> r.getName() == ERole.ROLE_ADMIN);
+        if (alreadyAdmin) {
+            log.info("Benutzer {} hat bereits ROLE_ADMIN", targetUsername);
+            return;
+        }
+
+        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                .orElseThrow(() -> new IllegalStateException("ROLE_ADMIN ist nicht konfiguriert"));
+
+        target.getRoles().add(adminRole);
+        userRepository.save(target);
+        log.info("ROLE_ADMIN zugewiesen an User: {}", targetUsername);
+    }
+
+    public void revokeAdminRoleFromUser(String targetUsername) {
+        User target = userRepository.findByUsername(targetUsername)
+                .orElseThrow(() -> new IllegalArgumentException("Zielbenutzer nicht gefunden: " + targetUsername));
+
+        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                .orElseThrow(() -> new IllegalStateException("ROLE_ADMIN ist nicht konfiguriert"));
+
+        boolean hasAdmin = target.getRoles().stream().anyMatch(r -> r.getName() == ERole.ROLE_ADMIN);
+        if (!hasAdmin) {
+            log.info("User {} hatte ROLE_ADMIN nicht", targetUsername);
+            return;
+        }
+
+        long adminCount = userRepository.countByRoles_Name(ERole.ROLE_ADMIN);
+        if (adminCount <= 1) {
+            // Prevent removing the last remaining admin
+            throw new IllegalStateException("Entfernen nicht möglich: Es muss mindestens ein Admin-Account bestehen");
+        }
+
+        boolean removed = target.getRoles().removeIf(r -> r.getName() == ERole.ROLE_ADMIN);
+        if (removed) {
+            userRepository.save(target);
+            log.info("ROLE_ADMIN entfernt von User: {}", targetUsername);
+        }
+    }
+
+    public boolean isAdmin(String username) {
+        try {
+            User user = findByUsername(username);
+            return user.getRoles().stream().anyMatch(r -> r.getName() == ERole.ROLE_ADMIN);
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -81,6 +141,11 @@ public class UserService implements UserDetailsService {
         log.info("Passwort geändert für User: {}", username);
     }
 
+    /*
+     * Lädt ein Profilbild für den angegebenen User hoch, skaliert es bei Bedarf und
+     * speichert es im Dateisystem.
+     * Unterstützt JPEG-Formate. Löscht das alte Profilbild
+     */
     public User uploadProfileImage(String username, MultipartFile file) throws IOException {
         User user = findByUsername(username);
 

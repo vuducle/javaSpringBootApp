@@ -19,4 +19,21 @@ public class NachweisSecurityService {
                 .map(nachweis -> nachweis.getAzubi().getUsername().equals(username))
                 .orElse(false);
     }
+
+    /*
+     * Überprüft, ob der aktuell authentifizierte Benutzer ein Ausbilder ist.
+     * Ein Benutzer gilt als Ausbilder, wenn sein Benutzername in der
+     * Nachweis-Tabelle
+     * als Ausbilder-Username existiert.
+     */
+    public boolean isAusbilder(Authentication authentication) {
+        if (authentication == null)
+            return false;
+        String username = authentication.getName();
+        try {
+            return nachweisRepository.existsByAusbilderUsername(username);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
