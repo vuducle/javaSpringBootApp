@@ -1,2 +1,5 @@
 javaMusicApp/src/main/resources/application.properties
 .env
+# Ignore uploaded files and local storage
+uploads/
+javaMusicApp/uploads/
