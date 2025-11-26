@@ -195,6 +195,24 @@ public class NachweisService {
         }
     }
 
+    public Page<Nachweis> kriegeAlleNachweiseMitFilterUndPagination(EStatus status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        if (status != null) {
+            return nachweisRepository.findAllByStatus(status, pageable);
+        } else {
+            return nachweisRepository.findAll(pageable);
+        }
+    }
+
+    public Page<Nachweis> findNachweiseByUserIdMitFilterUndPagination(UUID userId, EStatus status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        if (status != null) {
+            return nachweisRepository.findAllByAzubiIdAndStatus(userId, status, pageable);
+        } else {
+            return nachweisRepository.findAllByAzubiId(userId, pageable);
+        }
+    }
+
     @Transactional
     public void loescheNachweis(UUID id) {
         Nachweis nachweis = nachweisRepository.findById(id)

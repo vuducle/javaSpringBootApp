@@ -15,4 +15,5 @@ public interface NachweisRepository extends JpaRepository<Nachweis, UUID> {
     List<Nachweis> findAllByAzubiId(UUID azubiId);
     Page<Nachweis> findAllByAzubiId(UUID azubiId, Pageable pageable);
     Page<Nachweis> findAllByAzubiIdAndStatus(UUID azubiId, EStatus status, Pageable pageable);
+    Page<Nachweis> findAllByStatus(EStatus status, Pageable pageable);
 }
