@@ -185,17 +185,20 @@ public class NachweisService {
         }
     }
 
-    public List<Nachweis> kriegeNachweiseVonAzubiBenutzername(String username) {
+    public Page<Nachweis> kriegeNachweiseVonAzubiBenutzername(String username, int page, int size) {
         User azubi = userService.findByUsername(username);
-        return nachweisRepository.findAllByAzubiId(azubi.getId());
+        Pageable pageable = PageRequest.of(page, size);
+        return nachweisRepository.findAllByAzubiId(azubi.getId(), pageable);
     }
 
-    public List<Nachweis> findAllNachweise() {
-        return nachweisRepository.findAll();
+    public Page<Nachweis> findAllNachweise(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return nachweisRepository.findAll(pageable);
     }
 
-    public List<Nachweis> findNachweiseByUserId(UUID userId) {
-        return nachweisRepository.findAllByAzubiId(userId);
+    public Page<Nachweis> findNachweiseByUserId(UUID userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return nachweisRepository.findAllByAzubiId(userId, pageable);
     }
 
     public Page<Nachweis> kriegeNachweiseVonAzubiBenutzernameMitFilterUndPagination(String username, EStatus status,
