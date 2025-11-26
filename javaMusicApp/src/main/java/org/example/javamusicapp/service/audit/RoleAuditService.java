@@ -2,6 +2,9 @@ package org.example.javamusicapp.service.audit;
 
 import org.example.javamusicapp.model.RoleAudit;
 import org.example.javamusicapp.repository.RoleAuditRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -27,12 +30,12 @@ public class RoleAuditService {
         repository.save(audit);
     }
 
-    public org.springframework.data.domain.Page<RoleAudit> list(org.springframework.data.domain.Pageable pageable) {
+    public Page<RoleAudit> list(Pageable pageable) {
         // Ensure sort by performedAt desc unless caller provided a sort
-        org.springframework.data.domain.Pageable effective = pageable;
+        Pageable effective = pageable;
         if (pageable.getSort().isUnsorted()) {
-            effective = org.springframework.data.domain.PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
-                    org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC,
+            effective = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                    Sort.by(Sort.Direction.DESC,
                             "performedAt"));
         }
         return repository.findAll(effective);

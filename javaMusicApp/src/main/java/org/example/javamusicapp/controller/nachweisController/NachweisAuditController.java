@@ -1,4 +1,4 @@
-package org.example.javamusicapp.controller.admin;
+package org.example.javamusicapp.controller.nachweisController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

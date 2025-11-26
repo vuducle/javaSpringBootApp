@@ -9,11 +9,11 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @OpenAPIDefinition(
         info = @Info(
-                title="Lyrics Translator API",
+                title="Spring Boot API",
                 version="0.0.1",
-                description = "Backend-Service für die vietnamesisch-englische Lyrics-App.",
+                description = "Backend-Service für für Allrounder Zwecker, Java beste!",
                 contact = @Contact(
-                        name = "Denis Kunz",
+                        name = "Denis Kunz - Der beste Java-Entwickler in Berlin, Deutschland",
                         email = "deniskunz@example.com"
                 )
         )

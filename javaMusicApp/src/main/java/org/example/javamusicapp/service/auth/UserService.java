@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.UUID;
 import javax.imageio.IIOImage;
@@ -169,11 +170,11 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public java.util.List<User> listAdmins() {
+    public List<User> listAdmins() {
         return userRepository.findAllByRoles_Name(ERole.ROLE_ADMIN);
     }
 
-    public java.util.List<String> listUsernamesByRole(ERole role) {
+    public List<String> listUsernamesByRole(ERole role) {
         return userRepository.findAllByRoles_Name(role).stream().map(User::getUsername).collect(Collectors.toList());
     }
 

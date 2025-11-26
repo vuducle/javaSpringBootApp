@@ -1,4 +1,4 @@
-package org.example.javamusicapp.config;
+package org.example.javamusicapp.config.auth;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
