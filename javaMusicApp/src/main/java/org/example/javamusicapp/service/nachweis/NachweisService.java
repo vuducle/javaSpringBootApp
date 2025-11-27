@@ -33,7 +33,6 @@ import java.io.IOException;
 public class NachweisService {
 
     private final NachweisRepository nachweisRepository;
-    private final UserService userService;
     private final UserRepository userRepository;
     private final EmailService emailService; // Inject EmailService
     private final PdfExportService pdfExportService; // Inject PdfExportService
@@ -43,7 +42,8 @@ public class NachweisService {
 
     @Transactional
     public Nachweis erstelleNachweis(CreateNachweisRequest request, String username) {
-        User user = userService.findByUsername(username);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Benutzer nicht gefunden: " + username));
 
         User ausbilder = userRepository.findById(request.getAusbilderId())
                 .orElseThrow(() -> new ResourceNotFoundException("Ausbilder nicht gefunden."));
@@ -192,7 +192,8 @@ public class NachweisService {
     }
 
     public Page<Nachweis> kriegeNachweiseVonAzubiBenutzername(String username, int page, int size) {
-        User azubi = userService.findByUsername(username);
+        User azubi = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Benutzer nicht gefunden: " + username));
         Pageable pageable = PageRequest.of(page, size);
         return nachweisRepository.findAllByAzubiId(azubi.getId(), pageable);
     }
@@ -209,7 +210,8 @@ public class NachweisService {
 
     public Page<Nachweis> kriegeNachweiseVonAzubiBenutzernameMitFilterUndPagination(String username, EStatus status,
             int page, int size) {
-        User azubi = userService.findByUsername(username);
+        User azubi = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Benutzer nicht gefunden: " + username));
         Pageable pageable = PageRequest.of(page, size);
 
         if (status != null) {
@@ -316,15 +318,35 @@ public class NachweisService {
 
     @Transactional
     public void loescheAlleNachweiseVonAzubi(String username) {
-        User azubi = userService.findByUsername(username);
+        User azubi = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Benutzer nicht gefunden: " + username));
         List<Nachweis> nachweise = nachweisRepository.findAllByAzubiId(azubi.getId());
 
+        if (nachweise.isEmpty()) {
+            log.info("Keine Nachweise für Benutzer '{}' zum Löschen gefunden.", username);
+            return;
+        }
+
+        // Define user directory path based on the first Nachweis (should be consistent)
+        String userVollerName = azubi.getName().toLowerCase().replaceAll(" ", "_");
+        Path userDirectory = rootLocation.resolve(userVollerName + "_" + azubi.getId().toString());
+
         for (Nachweis nachweis : nachweise) {
-            String userVollerName = nachweis.getAzubi().getName().toLowerCase().replaceAll(" ", "_");
-            Path userDirectory = rootLocation.resolve(userVollerName + "_" + nachweis.getAzubi().getId().toString());
             Path fileToDelete = userDirectory.resolve(nachweis.getId().toString() + ".pdf");
             deletePdfFile(fileToDelete, nachweis.getId());
         }
+
+        // After deleting all files, delete the directory
+        try {
+            if (Files.exists(userDirectory)) {
+                Files.delete(userDirectory);
+                log.info("Benutzerverzeichnis für '{}' erfolgreich gelöscht: {}", username, userDirectory);
+            }
+        } catch (IOException e) {
+            log.error("Fehler beim Löschen des Benutzerverzeichnisses {}: {}", userDirectory, e.getMessage());
+            // Decide if this should throw an exception or just be logged
+        }
+
         nachweisRepository.deleteAll(nachweise);
     }
 
@@ -460,7 +482,8 @@ public class NachweisService {
                         () -> new ResourceNotFoundException("Nachweis mit der ID " + nachweisId + " nicht gefunden."));
         Nachweis alterNachweisKopie = new Nachweis(alterNachweis); // Kopie für Audit-Log
 
-        User azubi = userService.findByUsername(username);
+        User azubi = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Benutzer nicht gefunden: " + username));
         if (!alterNachweis.getAzubi().getId().equals(azubi.getId())) {
             throw new UnauthorizedActionException("Sie sind nicht berechtigt, diesen Nachweis zu aktualisieren.");
         }

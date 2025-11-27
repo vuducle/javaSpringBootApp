@@ -193,4 +193,20 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Fehler beim Entfernen der Rolle");
         }
     }
+
+    @Operation(summary = "Benutzer löschen", description = "Löscht einen Benutzer und alle zugehörigen Daten (Nachweise, Profilbild). Nur für Admins oder Ausbilder.")
+    @DeleteMapping("/{username}")
+    @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isAusbilder(authentication)")
+    public ResponseEntity<String> deleteUser(@PathVariable String username, Authentication authentication) {
+        if (authentication.getName().equals(username)) {
+            return ResponseEntity.badRequest().body("Sie können sich nicht selbst löschen.");
+        }
+        try {
+            userService.deleteUser(username, authentication.getName());
+            return ResponseEntity.ok("Benutzer " + username + " und alle zugehörigen Daten wurden erfolgreich gelöscht.");
+        } catch (Exception e) {
+            log.error("Fehler beim Löschen von Benutzer {}: {}", username, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Fehler beim Löschen des Benutzers.");
+        }
+    }
 }

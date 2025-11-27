@@ -7,11 +7,14 @@ import org.example.javamusicapp.repository.UserRepository;
 import org.example.javamusicapp.repository.RoleRepository;
 import org.example.javamusicapp.model.Role;
 import org.example.javamusicapp.model.enums.ERole;
+import org.example.javamusicapp.service.nachweis.NachweisService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -43,6 +46,7 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final RoleAuditService roleAuditService;
+    private final NachweisService nachweisService;
     private static final String UPLOAD_DIR = "uploads/profile-images/";
     @Value("${image.max-width:1024}")
     private int maxWidth;
@@ -54,11 +58,12 @@ public class UserService implements UserDetailsService {
     private float imageQuality;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository,
-            RoleAuditService roleAuditService) {
+            RoleAuditService roleAuditService, NachweisService nachweisService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.roleAuditService = roleAuditService;
+        this.nachweisService = nachweisService;
         // Erstelle das Upload-Verzeichnis, falls es nicht existiert
         try {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
@@ -67,10 +72,37 @@ public class UserService implements UserDetailsService {
         }
     }
 
+    @Transactional
+    public void deleteUser(String username, String performedBy) {
+        User user = findByUsername(username);
+
+        log.info("AUDIT: Benutzer '{}' wird von '{}' gelöscht.", username, performedBy);
+
+        // Delete Nachweise
+        try {
+            nachweisService.loescheAlleNachweiseVonAzubi(username);
+            log.info("Alle Nachweise für Benutzer '{}' gelöscht.", username);
+        } catch (Exception e) {
+            log.error("Konnte Nachweise für Benutzer '{}' nicht vollständig löschen: {}", username, e.getMessage());
+        }
+
+        // Delete Profile Image
+        try {
+            deleteProfileImage(username);
+            log.info("Profilbild für Benutzer '{}' gelöscht.", username);
+        } catch (IOException e) {
+            log.error("Konnte Profilbild für Benutzer '{}' nicht löschen: {}", username, e.getMessage());
+        }
+
+        userRepository.delete(user);
+        log.info("Benutzer '{}' erfolgreich aus der Datenbank gelöscht.", username);
+    }
+
     public void grantAdminRoleToUser(String targetUsername) {
         grantAdminRoleToUser(targetUsername, "system");
     }
-
+        // ... (rest of the file remains the same)
+        // ...
     public void grantAdminRoleToUser(String targetUsername, String performedBy) {
         User target = userRepository.findByUsername(targetUsername)
                 .orElseThrow(() -> new IllegalArgumentException("Zielbenutzer nicht gefunden: " + targetUsername));
@@ -107,7 +139,7 @@ public class UserService implements UserDetailsService {
 
     /**
      * Revoke ROLE_ADMIN from a user.
-     * 
+     *
      * @param targetUsername target user
      * @param performedBy    who performed the action (for audit)
      * @param keepAsNoRole   if true, do not auto-assign ROLE_USER after revoke; if
