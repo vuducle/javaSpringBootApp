@@ -1,0 +1,14 @@
+<svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .heavy {
+      font: bold 30px 'Geist', sans-serif;
+    }
+    .light {
+      font: 300 30px 'Geist', sans-serif;
+    }
+  </style>
+  <text x="0" y="35" class="heavy" fill="hsl(var(--primary))">N</text>
+  <text x="25" y="35" class="light" fill="hsl(var(--foreground))">achweis</text>
+  <text x="125" y="35" class="heavy" fill="hsl(var(--primary))">W</text>
+  <text x="155" y="35" class="light" fill="hsl(var(--foreground))">elt</text>
+</svg>

@@ -1,0 +1,10 @@
+<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="pattern" width="80" height="80" patternUnits="userSpaceOnUse">
+      <rect width="80" height="80" fill="oklch(0.98 0.01 80 / 0.1)"/>
+      <path d="M 10 10 L 30 30 M 50 10 L 70 30 M 10 50 L 30 70 M 50 50 L 70 70" stroke="oklch(0.65 0.2 40 / 0.2)" stroke-width="1"/>
+      <circle cx="40" cy="40" r="2" fill="oklch(0.85 0.2 80 / 0.3)"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="400" fill="url(#pattern)" />
+</svg>
