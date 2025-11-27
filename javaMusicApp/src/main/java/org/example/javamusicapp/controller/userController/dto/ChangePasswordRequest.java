@@ -1,8 +1,8 @@
 package org.example.javamusicapp.controller.userController.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.example.javamusicapp.validation.PasswordStrength;
 
 @Data
 public class ChangePasswordRequest {
@@ -10,6 +10,6 @@ public class ChangePasswordRequest {
     private String oldPassword;
 
     @NotBlank(message = "Neues Passwort ist erforderlich")
-    @Size(min = 6, message = "Passwort muss mindestens 6 Zeichen lang sein")
+    @PasswordStrength
     private String newPassword;
 }

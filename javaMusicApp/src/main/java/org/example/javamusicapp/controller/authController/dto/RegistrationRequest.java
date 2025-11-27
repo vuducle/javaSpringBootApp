@@ -1,7 +1,9 @@
 package org.example.javamusicapp.controller.authController.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.example.javamusicapp.validation.PasswordStrength;
 
 @Data
 @Schema(name = "RegistrierungsAnfrage", description = "Anfrage-Payload zum Registrieren eines neuen Benutzers")
@@ -12,7 +14,9 @@ public class RegistrationRequest {
     @Schema(description = "Vollständiger Name des Benutzers", example = "Julian Nguyen")
     private String name;
 
-    @Schema(description = "Benutzerpasswort", example = "password123", format = "password")
+    @Schema(description = "Benutzerpasswort", example = "Password123!", format = "password")
+    @PasswordStrength
+    @NotBlank
     private String password;
 
     @Schema(description = "E-Mail-Adresse des Benutzers", example = "julianguyen@example.com")

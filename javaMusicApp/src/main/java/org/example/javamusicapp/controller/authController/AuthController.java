@@ -77,9 +77,12 @@ public class AuthController {
         this.frontendUrl = frontendUrl;
     }
 
+    /**
+     * Dieser Entpunkt ist zuständig für die Registrierung
+     */
     @PostMapping("/register")
     @Operation(summary = "Registriert einen neuen Benutzer", description = "Speichert den Benutzer mit gehashtem Passwort in PostgreSQL. Gibt 201 Created zurück.")
-    public ResponseEntity<?> registerUser(@RequestBody RegistrationRequest request) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             return new ResponseEntity<>("Benutzername ist bereits vergeben!", HttpStatus.BAD_REQUEST);
         }
@@ -101,11 +104,16 @@ public class AuthController {
         return new ResponseEntity<>("Benutzer erfolgreich registriert!", HttpStatus.CREATED);
     }
 
+    /*
+     * Dieser Endpunkt ist zuständig für die Authentifizierung (Login)
+     */
     @PostMapping("/login")
     @Operation(summary = "Meldet Benutzer an", description = "Prüft Credentials, gibt bei Erfolg ein JWT-Token zurück, das für geschützte Endpunkte benötigt wird.")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest request) {
         if (anmeldeversuchService.istGesperrt(request.getEmail())) {
-            return new ResponseEntity<>("Ihr Account ist aufgrund zu vieler Fehlversuche temporär gesperrt für 15 Minuten.", HttpStatus.LOCKED);
+            return new ResponseEntity<>(
+                    "Ihr Account ist aufgrund zu vieler Fehlversuche temporär gesperrt für 15 Minuten.",
+                    HttpStatus.LOCKED);
         }
 
         try {
@@ -153,13 +161,19 @@ public class AuthController {
                         "Refresh Token ist ungültig oder Benutzer existiert nicht mehr!"));
     }
 
+    /*
+     * Dieser Endpunkt ist zuständig für das Anfordern eines
+     * Passwort-Zurücksetzungslinks.
+     * 
+     */
     @PostMapping("/forgot-password")
     @Operation(summary = "Passwort zurücksetzen anfordern", description = "Sendet eine E-Mail mit einem Link zum Zurücksetzen des Passworts.")
     public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
         Optional<User> userOptional = userRepository.findByEmail(forgotPasswordRequest.getEmail());
 
         if (userOptional.isEmpty()) {
-            return ResponseEntity.ok("Wenn ein Konto mit dieser E-Mail-Adresse existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet.");
+            return ResponseEntity.ok(
+                    "Wenn ein Konto mit dieser E-Mail-Adresse existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet.");
         }
 
         User user = userOptional.get();
@@ -171,9 +185,14 @@ public class AuthController {
 
         log.info("Password reset link for user {} sent to {}", user.getUsername(), user.getEmail());
 
-        return ResponseEntity.ok("Wenn ein Konto mit dieser E-Mail-Adresse existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet.");
+        return ResponseEntity.ok(
+                "Wenn ein Konto mit dieser E-Mail-Adresse existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet.");
     }
 
+    /*
+     * Dieser Endpunkt ist zuständig für das Zurücksetzen des Passworts mit einem
+     * gültigen Token.
+     */
     @PostMapping("/reset-password")
     @Operation(summary = "Passwort zurücksetzen", description = "Setzt das Passwort des Benutzers mit einem gültigen Token zurück.")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
