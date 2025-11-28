@@ -1,0 +1,26 @@
+{
+  "login": {
+    "title": "Login",
+    "description": "Enter your email and password below.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "momohirai@example.com",
+    "passwordLabel": "Password",
+    "submitButton": "Sign In",
+    "error": {
+      "invalid": "Invalid email or password.",
+      "locked": "Your account is temporarily locked due to too many failed login attempts. Please wait 15 minutes.",
+      "unexpected": "An unexpected error occurred."
+    }
+  },
+  "home": {
+    "welcome": "Welcome, {name}!",
+    "logout": "Logout"
+  },
+  "loginPage": {
+    "mainTitle": "The World of Training Records.",
+    "subtitle": "For apprentices and trainers. Enter, check, save, and view records at any time."
+  },
+  "footer": {
+    "love": "Coded with Spring Boot and Next.js ❤️"
+  }
+}

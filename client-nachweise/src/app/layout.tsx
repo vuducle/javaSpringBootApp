@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import StoreProvider from "./StoreProvider";
-import { ThemeProvider } from "./ThemeProvider";
+import { Providers } from "./Providers";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,13 +17,7 @@ export default function RootLayout({
       <body
         className={`font-sans antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-        >
-          <StoreProvider>{children}</StoreProvider>
-        </ThemeProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

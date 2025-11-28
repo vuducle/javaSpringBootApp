@@ -1,0 +1,26 @@
+{
+  "login": {
+    "title": "Anmelden",
+    "description": "Tippe deine E-Mail Adresse und Passwort ein.",
+    "emailLabel": "E-Mail",
+    "emailPlaceholder": "momohirai@example.com",
+    "passwordLabel": "Passwort",
+    "submitButton": "Anmelden",
+    "error": {
+      "invalid": "Ungültige E-Mail oder Passwort.",
+      "locked": "Dein Konto ist vorübergehend gesperrt aufgrund zu vieler fehlgeschlagener Anmeldeversuche. Bitte warte 15 Minuten.",
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten."
+    }
+  },
+  "home": {
+    "welcome": "Willkommen, {name}!",
+    "logout": "Abmelden"
+  },
+  "loginPage": {
+    "mainTitle": "Die Welt der Ausbildungsnachweise.",
+    "subtitle": "Für Azubis und Ausbilder. Nachweise eintragen, kontrollieren, speichern und jederzeit einsehen."
+  },
+  "footer": {
+    "love": "Mit SpringBoot und Next.js programmiert"
+  }
+}
