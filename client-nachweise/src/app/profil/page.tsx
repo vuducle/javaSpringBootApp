@@ -1,7 +1,9 @@
-export default function ProfilPage() {
+import { Profile } from "@/features/auth/Profile";
+
+export default function ProfilePage() {
   return (
-    <div>
-      <h1>Profil</h1>
+    <div className="flex justify-center items-center h-full">
+      <Profile />
     </div>
   );
 }
