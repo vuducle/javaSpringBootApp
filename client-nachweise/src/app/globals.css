@@ -114,7 +114,7 @@
     19.101% 0.00653 179.048
   ); /* Dark, reddish-orange */
   --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.25 0.07 80); /* Dark, sunny yellow */
+  --card: oklch(26.621% 0.02414 284.635); /* Dark, sunny yellow */
   --card-foreground: oklch(0.984 0.003 247.858);
   --popover: oklch(0.208 0.042 265.755);
   --popover-foreground: oklch(0.984 0.003 247.858);

@@ -36,7 +36,7 @@ export default function Home() {
         <LanguageSwitcher />
         <ThemeToggleButton />
       </header>
-      <main className="flex flex-grow w-full max-w-3xl flex-col items-center justify-center bg-white dark:bg-zinc-800">
+      <main className="flex grow w-full max-w-3xl flex-col items-center justify-center bg-white dark:bg-zinc-800">
         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
           <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-primary">
             {t('home.welcome').replace('{name}', user.name ?? '')}

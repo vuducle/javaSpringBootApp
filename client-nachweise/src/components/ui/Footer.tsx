@@ -1,37 +1,45 @@
 'use client';
 
+// client-nachweise/src/components/ui/Footer.tsx
+import React from 'react';
+import Link from 'next/link';
 import { useTranslation } from '@/context/LanguageContext';
-import { Github } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggleButton } from './ThemeToggleButton';
+import { Github } from 'lucide-react'; // Import Github icon
 
 export function Footer() {
   const { t } = useTranslation();
+
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full p-4 bg-background border-t border-border">
-      <div className="flex items-center justify-between max-w-6xl mx-auto">
-        <div className="text-sm text-muted-foreground">
-          &copy; {currentYear} - NachweisWelt
+    <footer className="w-full bg-card p-4 text-center text-muted-foreground shadow-lg dark:bg-card">
+      <div className="container mx-auto flex flex-col items-center justify-between gap-2 sm:flex-row">
+        <div className="mx-automt-2 text-sm">
+          <p>&copy; {currentYear} - NachweiseWelt - V.1.0.0</p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>{t('footer.love')} ❤️</span>
-          <span>🇻🇳</span>
-          <span>☕</span>
+        <div className="mt-2 text-sm">
+          <p>{t('footer.codedWithLove')}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <LanguageSwitcher />
-          <ThemeToggleButton />
-          <a
+        <nav className="flex items-center gap-4">
+          <Link
             href="https://github.com/vuducle/javaSpringBootApp/"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="GitHub"
+            className="text-sm hover:underline"
           >
-            <Github className="h-5 w-5 text-muted-foreground hover:text-foreground" />
-          </a>
-        </div>
+            <Github className="h-5 w-5" /> {/* GitHub icon */}
+          </Link>
+          <Link
+            href="/privacy-policy"
+            className="text-sm hover:underline"
+          >
+            {t('footer.privacyPolicy')}
+          </Link>
+          <LanguageSwitcher />
+          <ThemeToggleButton />
+        </nav>
       </div>
     </footer>
   );

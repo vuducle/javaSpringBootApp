@@ -1,12 +1,15 @@
+'use client';
 
-"use client";
+import { ThemeProvider } from './ThemeProvider';
+import StoreProvider from './StoreProvider';
+import { LanguageProvider } from '@/context/LanguageContext';
+import { Footer } from '@/components/ui/Footer';
 
-import { ThemeProvider } from "./ThemeProvider";
-import StoreProvider from "./StoreProvider";
-import { LanguageProvider } from "@/context/LanguageContext";
-import { Footer } from "@/components/ui/Footer";
-
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <ThemeProvider
       attribute="class"

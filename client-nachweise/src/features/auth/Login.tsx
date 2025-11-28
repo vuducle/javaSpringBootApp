@@ -69,27 +69,27 @@ export default function LoginForm() {
         <LanguageSwitcher />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
-        <div className="flex flex-col justify-center items-start p-8">
+        <div className="flex flex-col justify-center items-center md:items-start p-8">
           <Image
-            src="/logo.svg"
+            src="/logo.png"
             alt="NachweisWelt Logo"
             width={200}
             height={50}
           />
-          <h1 className="text-4xl font-bold mt-4 text-foreground">
+          <h1 className="text-3xl md:text-4xl font-bold mt-4 text-foreground text-center md:text-left">
             {t('loginPage.mainTitle')}
           </h1>
-          <p className="text-lg mt-2 text-muted-foreground">
+          <p className="text-lg mt-2 text-muted-foreground text-center md:text-left">
             {t('loginPage.subtitle')}
           </p>
         </div>
         <div className="flex items-center justify-center">
           <Card className="w-full max-w-sm border border-border bg-card/20 backdrop-blur-md shadow-lg">
             <CardHeader>
-              <CardTitle className="text-2xl text-primary">
+              <CardTitle className="text-2xl text-primary text-center md:text-left">
                 {t('login.title')}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-center md:text-left">
                 {t('login.description')}
               </CardDescription>
             </CardHeader>

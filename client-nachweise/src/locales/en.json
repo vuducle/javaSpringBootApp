@@ -17,10 +17,36 @@
     "logout": "Logout"
   },
   "loginPage": {
-    "mainTitle": "The World of Training Records.",
+    "mainTitle": "The World of Training Records",
     "subtitle": "For apprentices and trainers. Enter, check, save, and view records at any time."
   },
   "footer": {
-    "love": "Coded with Spring Boot and Next.js ❤️"
+    "love": "Coded with Spring Boot and Next.js ❤️",
+    "privacyPolicy": "Privacy Policy",
+    "codedWithLove": "Coded with Spring Boot and Next.js ❤️ 🇻🇳 ☕"
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "section1": {
+      "title": "Introduction",
+      "paragraph1": "Welcome to your Privacy Policy. This application is exclusively designed for apprentices (Azubis) and trainers. Your privacy is important to us. This policy explains how we collect, use, disclose, and protect your information when you use our application.",
+      "paragraph2": "Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not use the application."
+    },
+    "section2": {
+      "title": "Information We Collect",
+      "paragraph1": "We may collect information about you in various ways. The information we may collect in the application includes:",
+      "listItem1": "Personal Data: Personally identifiable information, such as your name, email address, and phone number, as well as demographic information like your age and gender, which you voluntarily provide to us when you register in the application or choose to participate in various activities related to the application.",
+      "listItem2": "Derivative Data: Information our servers automatically collect when you access the application, such as your IP address, browser type, operating system, access times, and the pages you viewed directly before and after accessing the application.",
+      "listItem3": "We do not collect financial data. All relevant data for training records are managed directly between apprentices and trainers."
+    },
+    "section3": {
+      "title": "Cookie Policy",
+      "paragraph1": "This application uses cookies to improve user experience and enable certain functionalities. Cookies are small text files stored on your device. You can manage or disable the use of cookies in your browser settings at any time. Please note, however, that this may affect the functionality of the application."
+    },
+    "section4": {
+      "title": "Data Storage",
+      "paragraph1": "All collected data, including the training records, are stored on a Virtual Private Server (VPS) within the European Union. We implement technical and organizational security measures to protect your data from loss, destruction, unauthorized access, alteration, or distribution."
+    },
+    "backToHome": "Back to Home"
   }
 }

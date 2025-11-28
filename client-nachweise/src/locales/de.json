@@ -17,10 +17,36 @@
     "logout": "Abmelden"
   },
   "loginPage": {
-    "mainTitle": "Die Welt der Ausbildungsnachweise.",
+    "mainTitle": "Die Welt der Ausbildungsnachweise",
     "subtitle": "Für Azubis und Ausbilder. Nachweise eintragen, kontrollieren, speichern und jederzeit einsehen."
   },
   "footer": {
-    "love": "Mit SpringBoot und Next.js programmiert"
+    "love": "Mit SpringBoot und Next.js programmiert",
+    "privacyPolicy": "Datenschutzerklärung",
+    "codedWithLove": "Mit Spring Boot und Next.js programmiert ❤️ 🇻🇳 ☕"
+  },
+  "privacyPolicy": {
+    "title": "Datenschutzerklärung",
+    "section1": {
+      "title": "Einleitung",
+      "paragraph1": "Willkommen zu deiner Datenschutzerklärung. Diese Anwendung ist ausschließlich für Auszubildende (Azubis) und Ausbilder konzipiert. Deine Privatsphäre ist uns wichtig. Diese Richtlinie erklärt, wie wir deine Informationen sammeln, verwenden, offenlegen und schützen, wenn du unsere Anwendung nutzt.",
+      "paragraph2": "Bitte lies diese Datenschutzerklärung sorgfältig durch. Wenn du den Bedingungen dieser Datenschutzerklärung nicht zustimmst, nutze die Anwendung bitte nicht."
+    },
+    "section2": {
+      "title": "Informationen, die wir sammeln",
+      "paragraph1": "Wir können auf verschiedene Weisen Informationen über dich sammeln. Die Informationen, die wir in der Anwendung sammeln können, umfassen:",
+      "listItem1": "Persönliche Daten: Persönlich identifizierbare Informationen, wie dein Name, deine E-Mail-Adresse und Telefonnummer, sowie demografische Informationen, wie dein Alter und Geschlecht, die du uns freiwillig gibst, wenn du dich in der Anwendung registrierst oder wenn du dich entscheidest, an verschiedenen Aktivitäten im Zusammenhang mit der Anwendung teilzunehmen.",
+      "listItem2": "Abgeleitete Daten: Informationen, die unsere Server automatisch sammeln, wenn du auf die Anwendung zugreifst, wie deine IP-Adresse, dein Browsertyp, dein Betriebssystem, deine Zugriffszeiten und die Seiten, die du direkt vor und nach dem Zugriff auf die Anwendung angesehen hast.",
+      "listItem3": "Wir sammeln keine Finanzdaten. Alle relevanten Daten für die Ausbildungsnachweise werden direkt zwischen Azubis und Ausbildern verwaltet."
+    },
+    "section3": {
+      "title": "Cookie-Richtlinie",
+      "paragraph1": "Diese Anwendung verwendet Cookies, um die Benutzerfreundlichkeit zu verbessern und bestimmte Funktionen zu ermöglichen. Cookies sind kleine Textdateien, die auf deinem Gerät gespeichert werden. Du kannst die Verwendung von Cookies in deinen Browsereinstellungen jederzeit verwalten oder deaktivieren. Beachte jedoch, dass dies die Funktionalität der Anwendung beeinträchtigen kann."
+    },
+    "section4": {
+      "title": "Datenspeicherung",
+      "paragraph1": "Alle gesammelten Daten, einschließlich der Nachweise, werden auf einem Virtual Private Server (VPS) innerhalb der Europäischen Union gespeichert. Wir treffen technische und organisatorische Sicherheitsmaßnahmen, um deine Daten vor Verlust, Zerstörung, Zugriff, Veränderung oder Verbreitung durch unbefugte Personen zu schützen."
+    },
+    "backToHome": "Zurück zur Startseite"
   }
 }
