@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -21,6 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@/components/ui/avatar';
 import api from '@/lib/api';
 import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/context/LanguageContext';
@@ -208,11 +213,38 @@ interface Ausbilder {
   profileImageUrl: string | null;
 }
 
+const TrainerSelectItem = forwardRef<
+  HTMLDivElement,
+  { trainer: Ausbilder }
+>(({ trainer, ...props }, ref) => {
+  return (
+    <div ref={ref} {...props} className="flex items-center space-x-4 p-2">
+      <Avatar>
+        <AvatarImage
+          src={`${
+            process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8088'
+          }${trainer.profileImageUrl}`}
+          alt={trainer.name}
+        />
+        <AvatarFallback>
+          {trainer.name.charAt(0).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
+      <div>
+        <div className="font-semibold">{trainer.name}</div>
+        <div className="text-sm text-gray-500">{trainer.email}</div>
+      </div>
+    </div>
+  );
+});
+TrainerSelectItem.displayName = 'TrainerSelectItem';
+
 export function CreateNachweisForm() {
   const { showToast } = useToast();
   const { t } = useTranslation();
   const user = useAppSelector(selectUser);
   const [ausbilderList, setAusbilderList] = useState<Ausbilder[]>([]);
+  const [currentAusbilder, setCurrentAusbilder] = useState<Ausbilder | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [createdNachweisId, setCreatedNachweisId] = useState<
@@ -415,38 +447,51 @@ export function CreateNachweisForm() {
       try {
         const response = await api.get('/api/user/ausbilder');
         setAusbilderList(response.data);
+        return response.data;
       } catch (error: unknown) {
         if (error instanceof Error) {
           showToast(error.message, 'error');
         } else {
           showToast(t('nachweis.errorMessage'), 'error');
         }
+        return [];
       }
     };
 
-    const fetchUserProfile = async () => {
+    const fetchUserProfile = async (ausbilder: Ausbilder[]) => {
       try {
         const response = await api.get('/api/user/profile');
         if (response.data) {
           setValue('name', response.data.name || user.name || '');
           if (response.data.ausbildungsjahr) {
-            // Backend sendet Integer, konvertiere zu String
             setValue(
               'ausbildungsjahr',
               String(response.data.ausbildungsjahr)
             );
           }
+          if (response.data.team) {
+            const foundAusbilder = ausbilder.find(
+              (a: Ausbilder) => a.name === response.data.team
+            );
+            if (foundAusbilder) {
+              setCurrentAusbilder(foundAusbilder);
+              setValue('ausbilderId', foundAusbilder.id);
+            }
+          }
         }
       } catch {
-        // Fallback auf user state wenn API fehlschlägt
         setValue('name', user.name || '');
       }
     };
 
-    fetchAusbilder();
-    if (user.isLoggedIn) {
-      fetchUserProfile();
-    }
+    const initialize = async () => {
+      const ausbilder = await fetchAusbilder();
+      if (user.isLoggedIn) {
+        await fetchUserProfile(ausbilder);
+      }
+    };
+
+    initialize();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.isLoggedIn]);
 
@@ -501,9 +546,10 @@ export function CreateNachweisForm() {
         ausbildungsjahr: data.ausbildungsjahr,
         ausbilderId: data.ausbilderId,
         activities: activities.length > 0 ? activities : undefined,
-        datumAzubi: data.date_Azubi || null,
-        signaturAzubi: data.sig_Azubi || null,
-        signaturAusbilder: data.sig_Ausbilder || null,
+        Date_Azubi: data.date_Azubi || null,
+        Sig_Azubi: data.sig_Azubi || null,
+        Sig_Ausbilder: data.sig_Ausbilder || null,
+        Remark: data.remark || null,
       });
       showToast(t('nachweis.successMessage'), 'success');
 
@@ -755,6 +801,16 @@ export function CreateNachweisForm() {
                     </p>
                   )}
                 </div>
+                 {currentAusbilder && (
+                  <div className="space-y-2">
+                    <Label>Dein aktueller Ausbilder</Label>
+                    <Card>
+                      <CardContent className="pt-4">
+                        <TrainerSelectItem trainer={currentAusbilder} />
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
               </div>
 
               {/* Datum und Nummern */}
@@ -1182,11 +1238,19 @@ export function CreateNachweisForm() {
                     }
                   >
                     <SelectTrigger id="ausbilderId">
-                      <SelectValue
-                        placeholder={t(
-                          'nachweis.ausbilderPlaceholder'
+                      <SelectValue asChild>
+                        {watch('ausbilderId') ? (
+                          <TrainerSelectItem
+                            trainer={
+                              ausbilderList.find(
+                                (a) => a.id === watch('ausbilderId')
+                              ) || ausbilderList[0]
+                            }
+                          />
+                        ) : (
+                          <span>{t('nachweis.ausbilderPlaceholder')}</span>
                         )}
-                      />
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {ausbilderList.map((ausbilder) => (
@@ -1194,28 +1258,7 @@ export function CreateNachweisForm() {
                           key={ausbilder.id}
                           value={ausbilder.id}
                         >
-                          <div className="flex items-center gap-2">
-                            {ausbilder.profileImageUrl ? (
-                              <Image
-                                src={`${
-                                  process.env.NEXT_PUBLIC_API_URL ||
-                                  'http://localhost:8088'
-                                }${ausbilder.profileImageUrl}`}
-                                alt={ausbilder.name}
-                                width={20}
-                                height={20}
-                                className="rounded-full object-cover w-6 h-6"
-                              />
-                            ) : (
-                              <div className="w-6 h-6 bg-gray-200 rounded-full" />
-                            )}
-                            <div className="text-sm">
-                              {ausbilder.name}{' '}
-                              <span className="text-xs text-gray-500">
-                                ({ausbilder.email})
-                              </span>
-                            </div>
-                          </div>
+                          <TrainerSelectItem trainer={ausbilder} />
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -1264,6 +1307,15 @@ export function CreateNachweisForm() {
                 {isLoading
                   ? t('nachweis.submitting')
                   : t('nachweis.submitButton')}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  console.log('Created Nachweis ID:', createdNachweisId);
+                  console.log('Auth Token:', user.token);
+                }}
+              >
+                Log Info
               </Button>
             </form>
           </CardContent>
@@ -1335,7 +1387,7 @@ export function CreateNachweisForm() {
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-16 w-16 text-gray-400 mb-4"
                     fill="none"
-                    viewBox="0 0 24 24"
+                    viewBox="_0 0 24 24"
                     stroke="currentColor"
                   >
                     <path
