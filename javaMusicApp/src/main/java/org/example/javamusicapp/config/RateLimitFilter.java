@@ -17,11 +17,15 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 🚪 **Was geht hier ab?**
- * Das ist unser Türsteher auf Steroiden. Der checkt, wie oft eine IP-Adresse unsere API anfragt.
- * Wenn jemand zu krass spamt (mehr als X Anfragen pro Minute), kriegt er 'nen Timeout (HTTP 429)
- * und wird für 'ne Weile geblockt. Schützt die App vor DDoS-artigen Angriffen und überlasteten Servern.
+ * Das ist unser Türsteher auf Steroiden. Der checkt, wie oft eine IP-Adresse
+ * unsere API anfragt.
+ * Wenn jemand zu krass spamt (mehr als X Anfragen pro Minute), kriegt er 'nen
+ * Timeout (HTTP 429)
+ * und wird für 'ne Weile geblockt. Schützt die App vor DDoS-artigen Angriffen
+ * und überlasteten Servern.
  *
- * Checkt zuerst, ob Redis am Start ist, um die Anfragen über mehrere Instanzen der App hinweg zu zählen.
+ * Checkt zuerst, ob Redis am Start ist, um die Anfragen über mehrere Instanzen
+ * der App hinweg zu zählen.
  * Wenn nicht, no stress, dann nimmt er 'ne lokale Map. Full-on Abwehrmodus.
  */
 @Component
@@ -49,6 +53,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/webjars/") ||
+                path.startsWith("/uploads/") ||
                 path.equals("/swagger-ui.html");
     }
 

@@ -41,7 +41,11 @@ export default function ForgotPassword() {
       setIsSent(true);
       showToast(t('forgotPassword.successMessage'), 'success');
     } catch (error: unknown) {
-      showToast(t('forgotPassword.error.unexpected'), 'error');
+      if (error instanceof Error) {
+        showToast(error.message, 'error');
+      } else {
+        showToast(t('forgotPassword.error.unexpected'), 'error');
+      }
     }
   };
 

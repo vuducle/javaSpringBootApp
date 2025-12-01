@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './button';
 import {
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -14,16 +13,14 @@ import { useTranslation } from '@/context/LanguageContext';
 
 export function CookieBanner() {
   const { t } = useTranslation();
-  const [isVisible, setIsVisible] = useState<boolean>(false);
-  const cookieConsent: string | null =
-    'CookieConsentDenisKunzLiebtJava';
-
-  useEffect(() => {
-    const consent = localStorage.getItem(cookieConsent);
-    if (!consent) {
-      setIsVisible(true);
+  const cookieConsent = 'CookieConsentDenisKunzLiebtJava';
+  const [isVisible, setIsVisible] = useState<boolean>(() => {
+    if (typeof window === 'undefined') {
+      return false; // Server-side rendering, hide by default
     }
-  }, []);
+    const consent = localStorage.getItem(cookieConsent);
+    return !consent;
+  });
 
   const handleAccept = () => {
     localStorage.setItem(cookieConsent, 'true');

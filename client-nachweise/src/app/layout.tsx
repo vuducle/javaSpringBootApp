@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from './Providers';
 import { ToastProvider } from './ToastProvider';
-import { Navbar } from '@/components/ui/Navbar';
 import { AuthNavbarWrapper } from '@/components/ui/AuthNavbarWrapper';
 
 export const metadata: Metadata = {

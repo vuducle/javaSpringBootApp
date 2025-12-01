@@ -66,8 +66,7 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/api/lyrics/sample",
-            "/api/lyrics/youtube"
+            "/uploads/profile-images/**"
     };
 
     private final JwtAuthEntryPoint unauthorizedHandler;

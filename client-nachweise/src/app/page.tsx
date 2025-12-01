@@ -1,8 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
-import { ThemeToggleButton } from '@/components/ui/ThemeToggleButton';
 import { useTranslation } from '@/context/LanguageContext';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { clearUser, selectUser } from '@/store/slices/userSlice';

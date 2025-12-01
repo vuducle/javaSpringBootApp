@@ -60,7 +60,11 @@ export default function ResetPassword() {
       setIsReset(true);
       showToast(t('resetPassword.successMessage'), 'success');
     } catch (error: unknown) {
-      showToast(t('resetPassword.error.unexpected'), 'error');
+      if (error instanceof Error) {
+        showToast(error.message, 'error');
+      } else {
+        showToast(t('resetPassword.error.unexpected'), 'error');
+      }
     }
   };
 

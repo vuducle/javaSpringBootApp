@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/card';
 import api from '@/lib/api';
 import { useToast } from '@/hooks/useToast';
-import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const profileSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -23,14 +23,15 @@ const profileSchema = z.object({
   ausbildungsjahr: z.number().int().min(1).max(4),
   telefonnummer: z.string().optional(),
   team: z.string().optional(),
+  profileImageUrl: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export function Profile() {
   const { showToast } = useToast();
-  const router = useRouter();
   const [user, setUser] = useState<ProfileFormValues | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const {
     register,
@@ -47,11 +48,16 @@ export function Profile() {
         const response = await api.get('/api/user/profile');
         setUser(response.data);
         reset(response.data);
-      } catch (error) {
-        showToast('Error fetching profile', 'error');
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          showToast(error.message, 'error');
+        } else {
+          showToast('An unexpected error occurred', 'error');
+        }
       }
     };
     fetchUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSubmit = async (data: ProfileFormValues) => {
@@ -61,8 +67,65 @@ export function Profile() {
         'Your profile has been successfully updated.',
         'success'
       );
-    } catch (error) {
-      showToast('Could not update your profile.', 'error');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showToast(error.message, 'error');
+      } else {
+        showToast('An unexpected error occurred', 'error');
+      }
+    }
+  };
+
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (e.target.files) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleImageUpload = async () => {
+    if (!selectedFile) {
+      showToast('Please select a file to upload.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const response = await api.put(
+        '/api/user/profile-image',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      setUser(response.data);
+      showToast('Profile image uploaded successfully.', 'success');
+      setSelectedFile(null);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showToast(error.message, 'error');
+      } else {
+        showToast('An unexpected error occurred', 'error');
+      }
+    }
+  };
+
+  const handleImageDelete = async () => {
+    try {
+      const response = await api.delete('/api/user/profile-image');
+      setUser(response.data);
+      showToast('Profile image deleted successfully.', 'success');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showToast(error.message, 'error');
+      } else {
+        showToast('An unexpected error occurred', 'error');
+      }
     }
   };
 
@@ -76,6 +139,44 @@ export function Profile() {
         <CardTitle>Profile</CardTitle>
       </CardHeader>
       <CardContent>
+        <div className="flex items-center space-x-4 mb-4">
+          {user.profileImageUrl && (
+            <Image
+              src={`${
+                process.env.NEXT_PUBLIC_API_URL ||
+                'http://localhost:8088'
+              }${user.profileImageUrl}`}
+              alt="Profile"
+              className="w-20 h-20 rounded-full"
+              width={80}
+              height={80}
+            />
+          )}
+          <div className="space-y-2">
+            <Label htmlFor="profile-image">Profile Image</Label>
+            <Input
+              id="profile-image"
+              type="file"
+              onChange={handleFileChange}
+            />
+            <div className="flex space-x-2">
+              <Button
+                onClick={handleImageUpload}
+                disabled={!selectedFile}
+              >
+                Upload Image
+              </Button>
+              {user.profileImageUrl && (
+                <Button
+                  onClick={handleImageDelete}
+                  variant="destructive"
+                >
+                  Delete Image
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Name</Label>
