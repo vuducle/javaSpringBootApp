@@ -1,7 +1,5 @@
+import { NachweiseView } from '@/features/nachweise/NachweiseView';
+
 export default function NachweiseAnschauenPage() {
-  return (
-    <div>
-      <h1>Nachweise anschauen</h1>
-    </div>
-  );
+  return <NachweiseView />;
 }
