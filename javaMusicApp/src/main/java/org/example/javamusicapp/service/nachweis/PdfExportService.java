@@ -16,18 +16,24 @@ import java.math.BigDecimal;
 
 /**
  * 📄 **Was geht hier ab?**
- * Dieser Service ist unsere persönliche PDF-Druckerei. Er ist ein reiner Spezialist,
+ * Dieser Service ist unsere persönliche PDF-Druckerei. Er ist ein reiner
+ * Spezialist,
  * der nur eine Mission hat: Ausbildungsnachweise als PDF zu generieren.
  *
  * So läuft der Hase:
- * - **generateAusbildungsnachweisPdf()**: Die Methode kriegt ein fettes `Nachweis`-Objekt
- *   mit allen Daten (Name, Datum, Aktivitäten etc.).
- * - Sie schnappt sich dann ein PDF-Template, das unter `resources/static` liegt.
- *   Dieses Template ist ein ausfüllbares PDF-Formular.
- * - Mit der Power von der Apache PDFBox-Library füllt der Service die leeren Felder
- *   im Template mit den Daten aus dem `Nachweis`-Objekt.
- * - Am Ende spuckt er das fertige, ausgefüllte PDF als `byte[]` (also als Haufen von Nullen
- *   und Einsen) aus. Dieses Byte-Array kann dann gespeichert oder per Mail verschickt werden.
+ * - **generateAusbildungsnachweisPdf()**: Die Methode kriegt ein fettes
+ * `Nachweis`-Objekt
+ * mit allen Daten (Name, Datum, Aktivitäten etc.).
+ * - Sie schnappt sich dann ein PDF-Template, das unter `resources/static`
+ * liegt.
+ * Dieses Template ist ein ausfüllbares PDF-Formular.
+ * - Mit der Power von der Apache PDFBox-Library füllt der Service die leeren
+ * Felder
+ * im Template mit den Daten aus dem `Nachweis`-Objekt.
+ * - Am Ende spuckt er das fertige, ausgefüllte PDF als `byte[]` (also als
+ * Haufen von Nullen
+ * und Einsen) aus. Dieses Byte-Array kann dann gespeichert oder per Mail
+ * verschickt werden.
  */
 @Service
 public class PdfExportService {
@@ -49,7 +55,7 @@ public class PdfExportService {
             setIfExists(form, "DatumStart", safeString(nachweis.getDatumStart()));
             setIfExists(form, "DatumEnde", safeString(nachweis.getDatumEnde()));
             setIfExists(form, "Nr", String.valueOf(nachweis.getNummer()));
-            setIfExists(form, "Ausbildungsjahr", "2. Ausbildungsjahr"); // optional, set if you store this elsewhere
+            setIfExists(form, "Ausbildungsjahr", nachweis.getAusbildungsjahr());
             setIfExists(form, "ListEvery", null);
             setIfExists(form, "Status", safeString(nachweis.getStatus()));
 

@@ -21,21 +21,26 @@ import org.springframework.http.HttpStatus;
 
 /**
  * 👤 **Was geht hier ab?**
- * Dieser Controller ist der Place-to-be für alles, was das eigene User-Profil betrifft.
+ * Dieser Controller ist der Place-to-be für alles, was das eigene User-Profil
+ * betrifft.
  * Hier kann man sein Profil pimpen, das Passwort ändern und so weiter.
  * Außerdem gibt's hier krasse Admin-Actions, um andere User zu verwalten.
  *
  * Für normale User:
  * - /profile**: Holt dein aktuelles User-Profil mit allen Infos.
  * - /profile (PUT)**: Updated deine Profil-Infos (Name, E-Mail etc.).
- * - /change-password**: Hier kannst du dein altes Passwort gegen ein neues, freshes tauschen.
- * - /profile-image**: Lade ein Profilbild hoch oder lösche es. Zeig dich von deiner besten Seite!
+ * - /change-password**: Hier kannst du dein altes Passwort gegen ein neues,
+ * freshes tauschen.
+ * - /profile-image**: Lade ein Profilbild hoch oder lösche es. Zeig dich von
+ * deiner besten Seite!
  *
  * Für Admins/Ausbilder (High-Level-Stuff):
  * - /admins**: Listet alle User auf, die Admin-Rechte haben.
- * - /{username}/grant-admin**: Einem User Admin-Rechte geben. With great power comes great responsibility.
+ * - /{username}/grant-admin**: Einem User Admin-Rechte geben. With great power
+ * comes great responsibility.
  * - /{username}/revoke-admin**: Einem User die Admin-Rechte wieder wegnehmen.
- * - /{username} (DELETE)**: Löscht einen kompletten User-Account. Use with caution!
+ * - /{username} (DELETE)**: Löscht einen kompletten User-Account. Use with
+ * caution!
  */
 @Slf4j
 @RestController
@@ -75,6 +80,16 @@ public class UserController {
         return ResponseEntity.ok(resp);
     }
 
+    @Operation(summary = "Ausbilder-Liste", description = "Gibt alle User zurück, die Nachweise als Ausbilder haben können (für Ausbilder-Auswahl beim PDF-Erstellen)")
+    @GetMapping("/ausbilder")
+    public ResponseEntity<java.util.List<UserResponse>> listAusbilder(Authentication authentication) {
+        java.util.List<User> ausbilder = userService.listAusbilder();
+        java.util.List<UserResponse> resp = ausbilder.stream()
+                .map(this::toUserResponse)
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(resp);
+    }
+
     private UserResponse toUserResponse(User user) {
         return new UserResponse(
                 user.getId(),
@@ -84,8 +99,7 @@ public class UserController {
                 user.getProfileImageUrl(),
                 user.getAusbildungsjahr(),
                 user.getTelefonnummer(),
-                user.getTeam()
-        );
+                user.getTeam());
     }
 
     @Operation(summary = "Profilbild hochladen", description = "Lädt ein Profilbild für den aktuell angemeldeten User hoch")
@@ -214,7 +228,8 @@ public class UserController {
         }
         try {
             userService.deleteUser(username, authentication.getName());
-            return ResponseEntity.ok("Benutzer " + username + " und alle zugehörigen Daten wurden erfolgreich gelöscht.");
+            return ResponseEntity
+                    .ok("Benutzer " + username + " und alle zugehörigen Daten wurden erfolgreich gelöscht.");
         } catch (Exception e) {
             log.error("Fehler beim Löschen von Benutzer {}: {}", username, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Fehler beim Löschen des Benutzers.");

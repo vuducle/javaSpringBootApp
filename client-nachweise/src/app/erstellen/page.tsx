@@ -1,7 +1,5 @@
+import { CreateNachweisForm } from '@/features/nachweise/CreateNachweisForm';
+
 export default function ErstellenPage() {
-  return (
-    <div>
-      <h1>Erstellen</h1>
-    </div>
-  );
+  return <CreateNachweisForm />;
 }

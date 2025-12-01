@@ -42,22 +42,34 @@ import org.springframework.beans.factory.annotation.Value;
 /**
  * 👑 **Was geht hier ab?**
  * Das ist der absolute Endgegner-Service für alles, was mit Usern zu tun hat.
- * Er ist das Gehirn für die User-Verwaltung und arbeitet eng mit Spring Security zusammen.
+ * Er ist das Gehirn für die User-Verwaltung und arbeitet eng mit Spring
+ * Security zusammen.
  *
  * Seine Superkräfte im Überblick:
- * - **UserDetailsService-Implementierung**: Holt die User-Daten für Spring Security,
- *   damit der Login und die Rechteprüfung klappen. Hier wird die E-Mail als "Username"
- *   für den Login verwendet.
- * - **Passwort-Management**: Beinhaltet die Logik zum Ändern des eigenen Passworts und zum
- *   Zurücksetzen, wenn man es mal vergessen hat. Alles natürlich safe mit Hashing.
- * - **Profil-Updates**: Managed das Aktualisieren von User-Infos wie Name, Azubi-Jahr etc.
- * - **Profilbild-Upload**: Richtig krasser Stuff hier. Nimmt ein Bild, checkt es,
- *   skaliert es auf eine vernünftige Größe, optimiert es und versucht, es als modernes
- *   WebP zu speichern. Wenn das nicht geht, gibt's ein JPEG als Fallback. Löscht auch alte Bilder.
- * - **Admin-Aktionen**: Beinhaltet die Logik, um Usern Admin-Rechte zu geben oder zu entziehen.
- *   Das wird natürlich alles im `RoleAuditService` protokolliert.
- * - **User löschen**: Eine kritische Methode, die einen User nicht nur aus der DB löscht,
- *   sondern auch all seine zugehörigen Daten wie Nachweise und das Profilbild entfernt.
+ * - **UserDetailsService-Implementierung**: Holt die User-Daten für Spring
+ * Security,
+ * damit der Login und die Rechteprüfung klappen. Hier wird die E-Mail als
+ * "Username"
+ * für den Login verwendet.
+ * - **Passwort-Management**: Beinhaltet die Logik zum Ändern des eigenen
+ * Passworts und zum
+ * Zurücksetzen, wenn man es mal vergessen hat. Alles natürlich safe mit
+ * Hashing.
+ * - **Profil-Updates**: Managed das Aktualisieren von User-Infos wie Name,
+ * Azubi-Jahr etc.
+ * - **Profilbild-Upload**: Richtig krasser Stuff hier. Nimmt ein Bild, checkt
+ * es,
+ * skaliert es auf eine vernünftige Größe, optimiert es und versucht, es als
+ * modernes
+ * WebP zu speichern. Wenn das nicht geht, gibt's ein JPEG als Fallback. Löscht
+ * auch alte Bilder.
+ * - **Admin-Aktionen**: Beinhaltet die Logik, um Usern Admin-Rechte zu geben
+ * oder zu entziehen.
+ * Das wird natürlich alles im `RoleAuditService` protokolliert.
+ * - **User löschen**: Eine kritische Methode, die einen User nicht nur aus der
+ * DB löscht,
+ * sondern auch all seine zugehörigen Daten wie Nachweise und das Profilbild
+ * entfernt.
  */
 @Slf4j
 @Service
@@ -121,8 +133,9 @@ public class UserService implements UserDetailsService {
     public void grantAdminRoleToUser(String targetUsername) {
         grantAdminRoleToUser(targetUsername, "system");
     }
-        // ... (rest of the file remains the same)
-        // ...
+
+    // ... (rest of the file remains the same)
+    // ...
     public void grantAdminRoleToUser(String targetUsername, String performedBy) {
         User target = userRepository.findByUsername(targetUsername)
                 .orElseThrow(() -> new IllegalArgumentException("Zielbenutzer nicht gefunden: " + targetUsername));
@@ -226,6 +239,13 @@ public class UserService implements UserDetailsService {
         return userRepository.findAllByRoles_Name(ERole.ROLE_ADMIN);
     }
 
+    public List<User> listAusbilder() {
+        // Return all users who have ROLE_ADMIN or have nachweiseAlsAusbilder
+        // For simplicity, we'll return all users with ROLE_ADMIN
+        // If you have a specific "AUSBILDER" group/role, adjust accordingly
+        return userRepository.findAllByRoles_Name(ERole.ROLE_ADMIN);
+    }
+
     public List<String> listUsernamesByRole(ERole role) {
         return userRepository.findAllByRoles_Name(role).stream().map(User::getUsername).collect(Collectors.toList());
     }
@@ -268,17 +288,18 @@ public class UserService implements UserDetailsService {
     public void resetPassword(User user, String newPassword) {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-        log.info("AUDIT: Passwort für Benutzer '{}' wurde über die Passwort-zurücksetzen-Funktion geändert.", user.getUsername());
+        log.info("AUDIT: Passwort für Benutzer '{}' wurde über die Passwort-zurücksetzen-Funktion geändert.",
+                user.getUsername());
     }
 
-    public User updateUserProfile(String username, org.example.javamusicapp.controller.userController.dto.UserUpdateRequest request) {
+    public User updateUserProfile(String username,
+            org.example.javamusicapp.controller.userController.dto.UserUpdateRequest request) {
         User user = findByUsername(username);
         user.setAusbildungsjahr(request.getAusbildungsjahr());
         user.setTelefonnummer(request.getTelefonnummer());
         user.setTeam(request.getTeam());
         return userRepository.save(user);
     }
-
 
     /*
      * Lädt ein Profilbild für den angegebenen User hoch, skaliert es bei Bedarf und

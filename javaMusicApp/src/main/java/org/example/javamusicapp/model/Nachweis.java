@@ -31,7 +31,7 @@ public class Nachweis {
 
         private int nummer;
 
-        private String Ausbildungsjahr;
+        private String ausbildungsjahr;
 
         @Enumerated(EnumType.STRING)
         private EStatus status;
@@ -62,7 +62,7 @@ public class Nachweis {
                 this.datumStart = other.datumStart;
                 this.datumEnde = other.datumEnde;
                 this.nummer = other.nummer;
-                this.Ausbildungsjahr = other.Ausbildungsjahr;
+                this.ausbildungsjahr = other.ausbildungsjahr;
                 this.status = other.status;
                 this.comment = other.comment;
                 this.ausbilder = other.ausbilder; // Shallow copy, assuming User is managed
@@ -72,7 +72,8 @@ public class Nachweis {
                 this.signaturAusbilder = other.signaturAusbilder;
                 this.activities = new ArrayList<>(); // Neue Liste für Aktivitäten
                 for (Activity activity : other.activities) {
-                        Activity newActivity = new Activity(activity); // Annahme: Activity hat auch einen Kopierkonstruktor
+                        Activity newActivity = new Activity(activity); // Annahme: Activity hat auch einen
+                                                                       // Kopierkonstruktor
                         newActivity.setNachweis(this);
                         this.activities.add(newActivity);
                 }
@@ -84,7 +85,6 @@ public class Nachweis {
                 activity.setNachweis(this);
                 this.activities.add(activity);
         }
-
 
         public BigDecimal totalForDay(Weekday day) {
                 return activities.stream()
