@@ -79,5 +79,10 @@
       "passwordTooShort": "Password must be at least 8 characters long."
     },
     "successMessage": "Your password has been successfully reset. You can now log in with your new password."
+  },
+  "sessionExpired": {
+    "title": "Session Expired",
+    "message": "Your session has expired. Please log in again to continue.",
+    "loginButton": "Go to Login"
   }
 }

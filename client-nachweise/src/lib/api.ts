@@ -51,6 +51,11 @@ api.interceptors.response.use(
 
           return api(originalConfig);
         } catch (_error) {
+          // Refresh token failed - session has expired
+          // Dispatch custom event for SessionExpiredModal
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('sessionExpired'));
+          }
           return Promise.reject(_error);
         }
       }
@@ -61,12 +66,20 @@ api.interceptors.response.use(
 );
 
 export const forgotPassword = async (email: string) => {
-  const response = await api.post('/api/auth/forgot-password', { email });
+  const response = await api.post('/api/auth/forgot-password', {
+    email,
+  });
   return response.data;
 };
 
-export const resetPassword = async (token: string, newPassword: string) => {
-  const response = await api.post('/api/auth/reset-password', { token, newPassword });
+export const resetPassword = async (
+  token: string,
+  newPassword: string
+) => {
+  const response = await api.post('/api/auth/reset-password', {
+    token,
+    newPassword,
+  });
   return response.data;
 };
 

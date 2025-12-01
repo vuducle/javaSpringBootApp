@@ -3,6 +3,7 @@ import './globals.css';
 import { Providers } from './Providers';
 import { ToastProvider } from './ToastProvider';
 import { AuthNavbarWrapper } from '@/components/ui/AuthNavbarWrapper';
+import { SessionExpiredModal } from '@/components/SessionExpiredModal';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -21,6 +22,7 @@ export default function RootLayout({
           <ToastProvider>
             <AuthNavbarWrapper />
             <main className="pt-16">{children}</main>
+            <SessionExpiredModal />
           </ToastProvider>
         </Providers>
       </body>
