@@ -104,6 +104,16 @@ public class NachweisController {
         return ResponseEntity.ok(nachweise);
     }
 
+    @GetMapping("/my-nachweise/exists/by-nummer/{nummer}")
+    @Operation(summary = "Prüft, ob ein Nachweis mit der angegebenen Nummer für den aktuellen Benutzer bereits existiert.",
+            description = "Gibt zurück, ob der aktuell authentifizierte Benutzer bereits einen Nachweis mit dieser Nummer hat.")
+    @ApiResponse(responseCode = "200", description = "Prüfung erfolgreich durchgeführt.")
+    public ResponseEntity<java.util.Map<String, Boolean>> checkIfNummerExistsForCurrentUser(
+            @PathVariable int nummer, @AuthenticationPrincipal UserDetails userDetails) {
+        boolean exists = nachweisService.checkIfNummerExistsForUser(nummer, userDetails.getUsername());
+        return ResponseEntity.ok(java.util.Collections.singletonMap("exists", exists));
+    }
+
     @GetMapping("/{id}/pdf")
     @Operation(summary = "Holt ein Nachweis-PDF anhand seiner ID.", description = "Ruft das PDF eines bestimmten Nachweises ab. Nur für den Besitzer oder einen Admin zugänglich.")
     @ApiResponse(responseCode = "200", description = "PDF gefunden und zurückgegeben.")

@@ -37,6 +37,7 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private String password;
+    @Column(unique = true)
     private String email;
 
     @Column(name = "profile_image_url")

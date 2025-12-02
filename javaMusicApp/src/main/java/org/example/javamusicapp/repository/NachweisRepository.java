@@ -21,4 +21,6 @@ public interface NachweisRepository extends JpaRepository<Nachweis, UUID> {
     Page<Nachweis> findAllByStatus(EStatus status, Pageable pageable);
 
     boolean existsByAusbilderUsername(String username);
+
+    boolean existsByNummerAndAzubiId(int nummer, UUID azubiId);
 }

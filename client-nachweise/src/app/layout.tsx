@@ -4,6 +4,7 @@ import { Providers } from './Providers';
 import { ToastProvider } from './ToastProvider';
 import { AuthNavbarWrapper } from '@/components/ui/AuthNavbarWrapper';
 import { SessionExpiredModal } from '@/components/SessionExpiredModal';
+import FirefoxWarning from '@/components/FirefoxWarning';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -20,6 +21,7 @@ export default function RootLayout({
       <body className={`font-sans antialiased`}>
         <Providers>
           <ToastProvider>
+            <FirefoxWarning />
             <AuthNavbarWrapper />
             <main className="pt-16">{children}</main>
             <SessionExpiredModal />

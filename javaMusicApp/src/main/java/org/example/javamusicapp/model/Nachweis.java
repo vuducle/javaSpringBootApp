@@ -17,7 +17,10 @@ import java.util.UUID;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "nachweis")
+@Table(name = "nachweis",
+       uniqueConstraints = {
+           @UniqueConstraint(columnNames = {"nummer", "azubi_id"})
+       })
 public class Nachweis {
         @Id
         @GeneratedValue(strategy = GenerationType.UUID)

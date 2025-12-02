@@ -55,6 +55,7 @@ interface Nachweis {
   datumEnde: string;
   status: 'ANGENOMMEN' | 'ABGELEHNT' | 'IN_BEARBEITUNG';
   nummer?: number;
+  comment?: string;
   ausbilder?: {
     id: string;
     name: string;
@@ -338,6 +339,9 @@ export function AllNachweiseView() {
               <TableHead className="text-xs uppercase text-muted-foreground">
                 {t('nachweis.status')}
               </TableHead>
+                <TableHead className="text-xs uppercase text-muted-foreground">
+                    {t('nachweis.kommentar')}
+                </TableHead>
               <TableHead className="text-xs uppercase text-muted-foreground">
                 {t('nachweis.aktion')}
               </TableHead>
@@ -444,6 +448,9 @@ export function AllNachweiseView() {
                       </span>
                     </span>
                   </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                        {nachweis.comment}
+                    </TableCell>
                   <TableCell>
                     <div className="flex justify-between">
                       <Button

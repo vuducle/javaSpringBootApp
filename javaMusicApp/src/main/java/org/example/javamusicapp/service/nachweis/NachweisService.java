@@ -616,6 +616,24 @@ public class NachweisService {
             throw new RuntimeException("Fehler bei der PDF-Generierung oder Speicherung", e);
         }
 
-        return updatedNachweis;
-    }
-}
+                        return updatedNachweis;
+
+                    }
+
+                
+
+                    public boolean checkIfNummerExistsForUser(int nummer, String username) {
+
+                        User azubi = userRepository.findByUsername(username)
+
+                                .orElseThrow(() -> new ResourceNotFoundException("Benutzer nicht gefunden: " + username));
+
+                        return nachweisRepository.existsByNummerAndAzubiId(nummer, azubi.getId());
+
+                    }
+
+                }
+
+                
+
+        

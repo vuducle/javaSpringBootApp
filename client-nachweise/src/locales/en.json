@@ -162,6 +162,7 @@
     "noNachweiseFound": "No records found. 📝",
     "startAddingNachweis": "Start by adding a new record.",
     "nachweisErstellen": "Create record",
+    "kommentar": "Comment",
     "viewer": {
       "title": "Training Record",
       "download": "Download",
@@ -200,5 +201,9 @@
     "trainer": "Trainer",
     "selectTrainer": "Select your trainer",
     "imageSizeHint": "Maximum file size: 2MB"
+  },
+  "firefoxWarning": {
+    "title": "Browser Notice",
+    "message": "PDF generation may currently cause issues in Firefox. For optimal usage, we recommend Chrome or Safari. This feature is still under development."
   }
 }
