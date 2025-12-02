@@ -161,7 +161,21 @@
     "deleteAllError": "Error deleting all records.",
     "noNachweiseFound": "No records found. 📝",
     "startAddingNachweis": "Start by adding a new record.",
-    "nachweisErstellen": "Create record"
+    "nachweisErstellen": "Create record",
+    "viewer": {
+      "title": "Training Record",
+      "download": "Download",
+      "openInNewTab": "Open in new tab",
+      "noPdfAvailable": "No PDF available.",
+      "loading": "Loading PDF…",
+      "emptyPdf": "PDF is empty.",
+      "accessDenied": "Access denied. You are not authorized to view this PDF.",
+      "accessDeniedToast": "Access denied",
+      "notFound": "PDF not found.",
+      "notFoundToast": "PDF not found",
+      "loadError": "Error loading PDF",
+      "serverNoPdf": "Server did not return a PDF."
+    }
   },
   "profile": {
     "title": "Profile",

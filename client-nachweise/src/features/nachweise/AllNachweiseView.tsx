@@ -37,8 +37,16 @@ import {
   AvatarImage,
   AvatarFallback,
 } from '@/components/ui/avatar';
-import {Eye, Pen, Trash, Book, Plus, ChevronLeft, ChevronRight} from 'lucide-react';
-import Link from "next/link";
+import {
+  Eye,
+  Pen,
+  Trash,
+  Book,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
+import Link from 'next/link';
 
 interface Nachweis {
   id: string;
@@ -292,7 +300,7 @@ export function AllNachweiseView() {
               onClick={() => setPage(page - 1)}
               disabled={page === 0 || isLoading}
             >
-                <ChevronLeft />
+              <ChevronLeft />
             </Button>
             <span>
               {t('nachweis.page')} {page + 1} {t('nachweis.of')}{' '}
@@ -305,7 +313,7 @@ export function AllNachweiseView() {
                 page >= (data?.totalPages || 1) - 1 || isLoading
               }
             >
-                <ChevronRight />
+              <ChevronRight />
             </Button>
           </div>
         </div>
@@ -439,10 +447,12 @@ export function AllNachweiseView() {
                   <TableCell>
                     <div className="flex justify-between">
                       <Button
-                        disabled={true}
+                        asChild
                         className="bg-chart-3 hover:bg-chart-3/80 dark:bg-chart-2 dark:hover:bg-chart-2/80 cursor-pointer transition-all"
                       >
-                        <Eye />
+                        <Link href={`/nachweis/${nachweis.id}`}>
+                          <Eye />
+                        </Link>
                       </Button>
                       <Button
                         disabled={true}
@@ -480,12 +490,15 @@ export function AllNachweiseView() {
                       className="giphy-embed mt-2"
                       allowFullScreen
                     ></iframe>
-                          <Link href="/erstellen" className="flex items-center cursor-pointer transition-all">
-                              <Button className="mt-4 cursor-pointer transition-all">
-                                  <Plus/>
-                                  {t('nachweis.nachweisErstellen')}
-                              </Button>
-                          </Link>
+                    <Link
+                      href="/erstellen"
+                      className="flex items-center cursor-pointer transition-all"
+                    >
+                      <Button className="mt-4 cursor-pointer transition-all">
+                        <Plus />
+                        {t('nachweis.nachweisErstellen')}
+                      </Button>
+                    </Link>
                   </div>
                 </TableCell>
               </TableRow>

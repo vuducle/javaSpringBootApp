@@ -1,12 +1,14 @@
 import {
-    Home,
-    Plus,
-    Book,
-    User as UserIcon,
-    Menu,
-    X,
-    Briefcase,
-    GraduationCap, LogOut, Key,
+  Home,
+  Plus,
+  Book,
+  User as UserIcon,
+  Menu,
+  X,
+  Briefcase,
+  GraduationCap,
+  LogOut,
+  Key,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAppDispatch } from '@/store';
@@ -16,20 +18,21 @@ import { ThemeToggleButton } from './ThemeToggleButton';
 import { Logo } from './Logo';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useState } from 'react';
-import {useRouter} from "next/navigation";
+import { useRouter, usePathname } from 'next/navigation';
 
 export function Navbar({ user }: { user: User }) {
   const [isOpen, setIsOpen] = useState(false);
   const isAuthenticated = user.isLoggedIn;
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = () => {
     try {
-        dispatch(clearUser());
-        router.push('/login');
+      dispatch(clearUser());
+      router.push('/login');
     } catch (error) {
-        console.error(error);
+      console.error(error);
     }
   };
 
@@ -75,11 +78,20 @@ export function Navbar({ user }: { user: User }) {
                 if (link.userOnly && !isUser) {
                   return null;
                 }
+                const isActive =
+                  pathname === link.href ||
+                  (link.href !== '/' &&
+                    pathname?.startsWith(link.href));
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="text-foreground hover:bg-accent px-3 py-2 rounded-md text-sm font-medium flex items-center"
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`${
+                      isActive
+                        ? 'bg-primary text-white'
+                        : 'text-foreground hover:bg-accent'
+                    } px-3 py-2 rounded-md text-sm font-medium flex items-center`}
                   >
                     <link.icon className="mr-2 h-5 w-5" />
                     {link.label}
@@ -94,8 +106,8 @@ export function Navbar({ user }: { user: User }) {
               <LanguageSwitcher />
               <ThemeToggleButton />
               <Button onClick={handleLogout}>
-                  <LogOut/>
-                  Logout
+                <LogOut />
+                Logout
               </Button>
             </div>
           </div>
@@ -119,11 +131,20 @@ export function Navbar({ user }: { user: User }) {
               if (link.userOnly && !isUser) {
                 return null;
               }
+              const isActive =
+                pathname === link.href ||
+                (link.href !== '/' &&
+                  pathname?.startsWith(link.href));
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-foreground hover:bg-accent block px-3 py-2 rounded-md text-base font-medium flex items-center"
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`${
+                    isActive
+                      ? 'bg-primary text-white'
+                      : 'text-foreground hover:bg-accent'
+                  } px-3 py-2 rounded-md text-base font-medium flex items-center`}
                 >
                   <link.icon className="mr-2 h-5 w-5" />
                   {link.label}
@@ -138,14 +159,14 @@ export function Navbar({ user }: { user: User }) {
               <ThemeToggleButton />
               {isAuthenticated ? (
                 <Button onClick={handleLogout} className="w-full">
-                    <LogOut />
-                    Logout
+                  <LogOut />
+                  Logout
                 </Button>
               ) : (
                 <Button asChild className="w-full">
                   <Link href="/login">
-                      <Key />
-                      Login
+                    <Key />
+                    Login
                   </Link>
                 </Button>
               )}

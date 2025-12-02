@@ -162,7 +162,21 @@
     "deleteAllError": "Fehler beim Löschen aller Nachweise.",
     "noNachweiseFound": "Keine Nachweise gefunden. 📝",
     "startAddingNachweis": "Beginne mit dem Hinzufügen eines neuen Nachweises.",
-    "nachweisErstellen": "Nachweis erstellen"
+    "nachweisErstellen": "Nachweis erstellen",
+    "viewer": {
+      "title": "Ausbildungsnachweis",
+      "download": "Herunterladen",
+      "openInNewTab": "In neuem Tab öffnen",
+      "noPdfAvailable": "Kein PDF verfügbar.",
+      "loading": "Lade PDF…",
+      "emptyPdf": "PDF ist leer.",
+      "accessDenied": "Zugriff verweigert. Du bist nicht berechtigt, dieses PDF anzusehen.",
+      "accessDeniedToast": "Zugriff verweigert",
+      "notFound": "PDF nicht gefunden.",
+      "notFoundToast": "PDF nicht gefunden",
+      "loadError": "Fehler beim Laden des PDFs",
+      "serverNoPdf": "Server hat kein PDF zurückgegeben."
+    }
   },
   "profile": {
     "title": "Profil",
