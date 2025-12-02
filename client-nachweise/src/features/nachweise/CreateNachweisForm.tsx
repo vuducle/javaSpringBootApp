@@ -31,7 +31,7 @@ import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/context/LanguageContext';
 import { useAppSelector } from '@/store';
 import { selectUser } from '@/store/slices/userSlice';
-import Image from 'next/image';
+// Image import removed (not used)
 
 // Templates für Bereiche und Tätigkeiten
 const BEREICH_TEMPLATES = [
@@ -218,7 +218,11 @@ const TrainerSelectItem = forwardRef<
   { trainer: Ausbilder }
 >(({ trainer, ...props }, ref) => {
   return (
-    <div ref={ref} {...props} className="flex items-center space-x-4 p-2">
+    <div
+      ref={ref}
+      {...props}
+      className="flex items-center space-x-4 p-2"
+    >
       <Avatar>
         <AvatarImage
           src={`${
@@ -244,12 +248,14 @@ export function CreateNachweisForm() {
   const { t } = useTranslation();
   const user = useAppSelector(selectUser);
   const [ausbilderList, setAusbilderList] = useState<Ausbilder[]>([]);
-  const [currentAusbilder, setCurrentAusbilder] = useState<Ausbilder | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [currentAusbilder, setCurrentAusbilder] =
+    useState<Ausbilder | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [createdNachweisId, setCreatedNachweisId] = useState<
     string | null
   >(null);
+  const [nummerError, setNummerError] = useState<string>('');
 
   const {
     register,
@@ -265,6 +271,46 @@ export function CreateNachweisForm() {
       nummer: 1,
     },
   });
+
+  // Prüft, ob der Benutzer bereits einen Nachweis mit dieser Nummer hat
+  const checkNummerExists = async (nummer: number) => {
+    if (!nummer) {
+      console.log('checkNummerExists: Nummer ist leer oder 0');
+      return;
+    }
+
+    console.log(
+      'checkNummerExists wird aufgerufen mit Nummer:',
+      nummer
+    );
+
+    try {
+      const res = await api.get(
+        `/api/nachweise/my-nachweise/exists/by-nummer/${nummer}`
+      );
+      console.log('API Response:', res.data);
+      const data = res.data;
+      if (data && data.exists) {
+        const msg = `Sie haben bereits einen Nachweis mit der Nummer ${nummer}.`;
+        console.log('Setze Fehler und zeige Toast:', msg);
+        setNummerError(msg);
+        showToast(msg, 'error');
+      } else {
+        console.log('Nummer ist verfügbar, lösche Fehler');
+        setNummerError('');
+        showToast('Nummer ist verfügbar!', 'success');
+      }
+    } catch (error: unknown) {
+      console.error(
+        'Fehler bei der Prüfung der Nachweisnummer:',
+        error
+      );
+      const msg = 'Konnte Nummer nicht validieren.';
+      console.log('Zeige Fehler-Toast:', msg);
+      setNummerError(msg);
+      showToast(msg, 'error');
+    }
+  };
 
   // Cleanup PDF URL on unmount
   useEffect(() => {
@@ -457,7 +503,6 @@ export function CreateNachweisForm() {
         return [];
       }
     };
-
     const fetchUserProfile = async (ausbilder: Ausbilder[]) => {
       try {
         const response = await api.get('/api/user/profile');
@@ -497,6 +542,23 @@ export function CreateNachweisForm() {
 
   const onSubmit = async (data: PdfGenerationFormValues) => {
     console.log('Form submitted with data:', data);
+
+    // Prüfe erst, ob die Nummer bereits existiert
+    try {
+      const res = await api.get(
+        `/api/nachweise/my-nachweise/exists/by-nummer/${data.nummer}`
+      );
+      if (res.data && res.data.exists) {
+        const msg = `Sie haben bereits einen Nachweis mit der Nummer ${data.nummer}.`;
+        setNummerError(msg);
+        showToast(msg, 'error');
+        return; // Verhindere das Absenden
+      }
+    } catch (error) {
+      console.error('Fehler beim Prüfen der Nummer:', error);
+      // Fahre trotzdem fort - der Server wird auch prüfen
+    }
+
     setIsLoading(true);
     try {
       // Konvertiere die PDF-Felder in activities
@@ -801,12 +863,14 @@ export function CreateNachweisForm() {
                     </p>
                   )}
                 </div>
-                 {currentAusbilder && (
+                {currentAusbilder && (
                   <div className="space-y-2">
                     <Label>Dein aktueller Ausbilder</Label>
                     <Card>
                       <CardContent className="pt-4">
-                        <TrainerSelectItem trainer={currentAusbilder} />
+                        <TrainerSelectItem
+                          trainer={currentAusbilder}
+                        />
                       </CardContent>
                     </Card>
                   </div>
@@ -856,11 +920,22 @@ export function CreateNachweisForm() {
                   <Input
                     id="nummer"
                     type="number"
-                    {...register('nummer', { valueAsNumber: true })}
+                    {...register('nummer', {
+                      valueAsNumber: true,
+                      onBlur: (
+                        e: React.FocusEvent<HTMLInputElement>
+                      ) => checkNummerExists(Number(e.target.value)),
+                    })}
+                    className={nummerError ? 'border-red-500' : ''}
                   />
                   {errors.nummer && (
                     <p className="text-sm text-red-500">
                       {errors.nummer.message}
+                    </p>
+                  )}
+                  {nummerError && (
+                    <p className="text-sm text-red-500">
+                      {nummerError}
                     </p>
                   )}
                 </div>
@@ -1248,7 +1323,9 @@ export function CreateNachweisForm() {
                             }
                           />
                         ) : (
-                          <span>{t('nachweis.ausbilderPlaceholder')}</span>
+                          <span>
+                            {t('nachweis.ausbilderPlaceholder')}
+                          </span>
                         )}
                       </SelectValue>
                     </SelectTrigger>
@@ -1311,7 +1388,10 @@ export function CreateNachweisForm() {
               <Button
                 type="button"
                 onClick={() => {
-                  console.log('Created Nachweis ID:', createdNachweisId);
+                  console.log(
+                    'Created Nachweis ID:',
+                    createdNachweisId
+                  );
                   console.log('Auth Token:', user.token);
                 }}
               >

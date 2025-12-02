@@ -7,14 +7,19 @@ import { X } from 'lucide-react';
 
 const FirefoxWarning = () => {
   const { t } = useTranslation();
-  
+
   // Check if browser is Firefox
-  const userAgent = typeof window !== 'undefined' ? navigator.userAgent.toLowerCase() : '';
+  const userAgent =
+    typeof window !== 'undefined'
+      ? navigator.userAgent.toLowerCase()
+      : '';
   const isFirefox = userAgent.indexOf('firefox') > -1;
-  
+
   const [isDismissed, setIsDismissed] = useState(() => {
     if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('firefox-warning-dismissed') === 'true';
+      return (
+        sessionStorage.getItem('firefox-warning-dismissed') === 'true'
+      );
     }
     return false;
   });
