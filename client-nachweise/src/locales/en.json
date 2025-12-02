@@ -141,7 +141,9 @@
     "endDate": "End Date",
     "statusANGENOMMEN": "Approved",
     "statusABGELEHNT": "Rejected",
-    "statusIN_BEARBEITUNG": "In Progress"
+    "statusIN_BEARBEITUNG": "In Progress",
+    "azubi": "Apprentice",
+    "aktion": "Actions"
   },
   "profile": {
     "title": "Profile",

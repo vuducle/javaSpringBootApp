@@ -142,7 +142,9 @@
     "endDate": "Enddatum",
     "statusANGENOMMEN": "Angenommen",
     "statusABGELEHNT": "Abgelehnt",
-    "statusIN_BEARBEITUNG": "In Bearbeitung"
+    "statusIN_BEARBEITUNG": "In Bearbeitung",
+    "azubi": "Azubi",
+    "aktion": "Aktionen"
   },
   "profile": {
     "title": "Profil",
