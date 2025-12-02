@@ -302,7 +302,10 @@ export function Profile() {
             <div className="space-y-2">
               <Label htmlFor="name">{t('profile.name')}</Label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden />
+                <User
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4"
+                  aria-hidden
+                />
                 <Input
                   id="name"
                   {...register('name')}
@@ -318,7 +321,10 @@ export function Profile() {
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
               <div className="relative">
-                <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden />
+                <AtSign
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4"
+                  aria-hidden
+                />
                 <Input
                   id="username"
                   {...register('username')}
@@ -334,7 +340,10 @@ export function Profile() {
             <div className="space-y-2">
               <Label htmlFor="email">{t('profile.email')}</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden />
+                <Mail
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4"
+                  aria-hidden
+                />
                 <Input
                   id="email"
                   type="email"
@@ -353,7 +362,10 @@ export function Profile() {
                 {t('profile.ausbildungsjahr')}
               </Label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden />
+                <Calendar
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4"
+                  aria-hidden
+                />
                 <Input
                   id="ausbildungsjahr"
                   type="text"
@@ -372,7 +384,10 @@ export function Profile() {
                 {t('profile.telefonnummer')}
               </Label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden />
+                <Phone
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4"
+                  aria-hidden
+                />
                 <Input
                   id="telefonnummer"
                   {...register('telefonnummer')}
@@ -383,7 +398,10 @@ export function Profile() {
             <div className="space-y-2">
               <Label htmlFor="team">{t('profile.trainer')}</Label>
               <div className="relative">
-                <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden />
+                <Users
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4"
+                  aria-hidden
+                />
                 <Select
                   onValueChange={(value) =>
                     setValue('team', value, { shouldDirty: true })
@@ -401,7 +419,10 @@ export function Profile() {
                   </SelectTrigger>
                   <SelectContent>
                     {trainers.map((trainer) => (
-                      <SelectItem key={trainer.id} value={trainer.name}>
+                      <SelectItem
+                        key={trainer.id}
+                        value={trainer.name}
+                      >
                         <TrainerSelectItem trainer={trainer} />
                       </SelectItem>
                     ))}
