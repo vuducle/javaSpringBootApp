@@ -29,24 +29,34 @@ import java.io.IOException;
 
 /**
  * 👑 **Was geht hier ab?**
- * Das ist der absolute Master-Service für die Ausbildungsnachweise. Hier passiert die
+ * Das ist der absolute Master-Service für die Ausbildungsnachweise. Hier
+ * passiert die
  * komplette Magie. Dieser Service ist der Dirigent, der die anderen Services
- * (`PdfExportService`, `EmailService`, `NachweisAuditService`) koordiniert, um den
+ * (`PdfExportService`, `EmailService`, `NachweisAuditService`) koordiniert, um
+ * den
  * ganzen Lebenszyklus eines Nachweises zu managen.
  *
  * Die Main-Quests dieses Services:
- * - **erstelleNachweis()**: Nicht nur ein simpler DB-Eintrag. Dieser Flow erstellt den Nachweis,
- *   ruft den `PdfExportService` auf, um ein PDF zu backen, speichert das PDF ab UND schickt
- *   dem Ausbilder direkt 'ne Mail mit dem PDF im Anhang. All-in-One-Paket.
- * - **kriegeNachweise...()**: Holt die Nachweise aus der DB, mit Filter, Paginierung und allem
- *   Drum und Dran, damit im Frontend alles fresh aussieht.
- * - **loescheNachweis()**: Killt nicht nur den Eintrag in der Datenbank, sondern sucht auch
- *   die zugehörige PDF-Datei auf dem Server und löscht sie. No ghosts in the machine.
- * - **updateNachweisStatus()**: Wenn der Ausbilder einen Nachweis annimmt oder ablehnt,
- *   updated dieser Service den Status, loggt die Aktion über den `NachweisAuditService`
- *   und schickt dem Azubi 'ne Benachrichtigungs-Mail.
- * - **aktualisiereNachweisDurchAzubi()**: Wenn der Azubi was ändert, wird der Status
- *   zurückgesetzt, das PDF neu generiert und der Ausbilder wieder benachrichtigt.
+ * - **erstelleNachweis()**: Nicht nur ein simpler DB-Eintrag. Dieser Flow
+ * erstellt den Nachweis,
+ * ruft den `PdfExportService` auf, um ein PDF zu backen, speichert das PDF ab
+ * UND schickt
+ * dem Ausbilder direkt 'ne Mail mit dem PDF im Anhang. All-in-One-Paket.
+ * - **kriegeNachweise...()**: Holt die Nachweise aus der DB, mit Filter,
+ * Paginierung und allem
+ * Drum und Dran, damit im Frontend alles fresh aussieht.
+ * - **loescheNachweis()**: Killt nicht nur den Eintrag in der Datenbank,
+ * sondern sucht auch
+ * die zugehörige PDF-Datei auf dem Server und löscht sie. No ghosts in the
+ * machine.
+ * - **updateNachweisStatus()**: Wenn der Ausbilder einen Nachweis annimmt oder
+ * ablehnt,
+ * updated dieser Service den Status, loggt die Aktion über den
+ * `NachweisAuditService`
+ * und schickt dem Azubi 'ne Benachrichtigungs-Mail.
+ * - **aktualisiereNachweisDurchAzubi()**: Wenn der Azubi was ändert, wird der
+ * Status
+ * zurückgesetzt, das PDF neu generiert und der Ausbilder wieder benachrichtigt.
  *
  * Kurz: Der heftigste Service hier, der das Kern-Feature der App rockt.
  */
@@ -378,14 +388,16 @@ public class NachweisService {
         Nachweis alterNachweis = nachweisRepository.findById(nachweisId)
                 .orElseThrow(
                         () -> new ResourceNotFoundException("Nachweis mit der ID " + nachweisId + " nicht gefunden."));
-        // Eine Kopie des alten Nachweises erstellen, um den Zustand vor der Änderung zu speichern
+        // Eine Kopie des alten Nachweises erstellen, um den Zustand vor der Änderung zu
+        // speichern
         Nachweis alterNachweisKopie = new Nachweis(alterNachweis); // Annahme: Es gibt einen Kopierkonstruktor
 
         alterNachweis.setStatus(neuerStatus);
         alterNachweis.setComment(comment);
         Nachweis updatedNachweis = nachweisRepository.save(alterNachweis);
 
-        nachweisAuditService.loggeNachweisAktion(updatedNachweis.getId(), "STATUS_AKTUALISIERT", username, alterNachweisKopie, updatedNachweis);
+        nachweisAuditService.loggeNachweisAktion(updatedNachweis.getId(), "STATUS_AKTUALISIERT", username,
+                alterNachweisKopie, updatedNachweis);
 
         // Send email to Azubi about status update
         User azubi = updatedNachweis.getAzubi();
@@ -552,7 +564,8 @@ public class NachweisService {
         }
 
         Nachweis updatedNachweis = nachweisRepository.save(alterNachweis);
-        nachweisAuditService.loggeNachweisAktion(updatedNachweis.getId(), "AKTUALISIERT_AZUBI", username, alterNachweisKopie, updatedNachweis);
+        nachweisAuditService.loggeNachweisAktion(updatedNachweis.getId(), "AKTUALISIERT_AZUBI", username,
+                alterNachweisKopie, updatedNachweis);
 
         try {
             byte[] pdfBytes = pdfExportService.generateAusbildungsnachweisPdf(updatedNachweis);
@@ -617,5 +630,41 @@ public class NachweisService {
         }
 
         return updatedNachweis;
+    }
+
+    /**
+     * Retrieves the PDF bytes for a Nachweis from the saved file.
+     * Falls back to generating a new PDF if the file doesn't exist.
+     */
+    public byte[] getPdfBytes(Nachweis nachweis) throws IOException {
+        String userVollerName = nachweis.getAzubi().getName()
+                .toLowerCase()
+                .replaceAll(" ", "_");
+        UUID userId = nachweis.getAzubi().getId();
+        UUID nachweisId = nachweis.getId();
+
+        Path userDirectory = rootLocation.resolve(userVollerName + "_" + userId.toString());
+        Path pdfFile = userDirectory.resolve(nachweisId.toString() + ".pdf");
+
+        // Try to read the saved PDF file
+        if (Files.exists(pdfFile)) {
+            log.info("Reading saved PDF from: {}", pdfFile);
+            return Files.readAllBytes(pdfFile);
+        }
+
+        // Fallback: generate new PDF if file doesn't exist
+        log.warn("PDF file not found at {}, generating new PDF", pdfFile);
+        byte[] pdfBytes = pdfExportService.generateAusbildungsnachweisPdf(nachweis);
+
+        // Save the generated PDF for future use
+        try {
+            Files.createDirectories(userDirectory);
+            Files.write(pdfFile, pdfBytes);
+            log.info("Saved generated PDF to: {}", pdfFile);
+        } catch (IOException e) {
+            log.error("Failed to save generated PDF: {}", e.getMessage());
+        }
+
+        return pdfBytes;
     }
 }

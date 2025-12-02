@@ -1,11 +1,14 @@
 package org.example.javamusicapp.service.nachweis;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDResources;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
+import org.apache.pdfbox.pdmodel.interactive.form.PDVariableText;
 import org.example.javamusicapp.model.Activity;
 import org.example.javamusicapp.model.Nachweis;
 import org.example.javamusicapp.model.enums.Weekday;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -35,19 +38,27 @@ import java.math.BigDecimal;
  * und Einsen) aus. Dieses Byte-Array kann dann gespeichert oder per Mail
  * verschickt werden.
  */
+@Slf4j
 @Service
 public class PdfExportService {
 
     private static final String TEMPLATE_PATH = "static/ausbildungsnachweis.pdf";
 
     public byte[] generateAusbildungsnachweisPdf(Nachweis nachweis) throws IOException {
+        log.info("=== Starting PDF generation for Nachweis ID: {} ===", nachweis.getId());
+        log.info("Nachweis Name: {}", nachweis.getName());
+        log.info("Activities count: {}", nachweis.getActivities() != null ? nachweis.getActivities().size() : 0);
+
         ClassPathResource resource = new ClassPathResource(TEMPLATE_PATH);
         try (InputStream is = resource.getInputStream(); PDDocument document = PDDocument.load(is)) {
             PDAcroForm form = document.getDocumentCatalog().getAcroForm();
             if (form == null)
                 throw new IOException("PDF template has no AcroForm fields");
 
-            // Ensure appearances are generated so filled values are visible
+            // Generate appearances for consistent rendering across all PDF viewers
+            // Set NeedAppearances=true to tell viewers to generate appearances from field
+            // values
+            // This ensures consistent rendering even though we don't have the ArialMT font
             form.setNeedAppearances(true);
 
             // Fill name and basic fields if present (use exact PDF field names)
@@ -89,7 +100,7 @@ public class PdfExportService {
             setIfExists(form, "Gesamtstunden", safeString(grandTotal));
 
             // Signatures / meta
-            setIfExists(form, "Remark", null);
+            setIfExists(form, "Remark", nachweis.getComment());
             // Ausbilder name
             if (nachweis.getAusbilder() != null) {
                 String ausb = nachweis.getAusbilder().getName() != null ? nachweis.getAusbilder().getName()
@@ -100,22 +111,35 @@ public class PdfExportService {
             setIfExists(form, "Sig_Azubi", safeString(nachweis.getSignaturAzubi()));
             setIfExists(form, "Sig_Ausbilder", safeString(nachweis.getSignaturAusbilder()));
 
+            // Do NOT call refreshAppearances() - it fails with ArialMT font
+            // NeedAppearances=true tells the viewer to generate them
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             document.save(baos);
-            return baos.toByteArray();
+            byte[] pdfBytes = baos.toByteArray();
+            log.info("=== PDF generation completed. Size: {} bytes ===", pdfBytes.length);
+            return pdfBytes;
         }
     }
 
     private void setIfExists(PDAcroForm form, String fieldName, Object value) {
-        if (value == null)
+        if (value == null) {
+            log.debug("PDF Field '{}': Value is null, not setting.", fieldName);
             return;
+        }
         PDField field = form.getField(fieldName);
         if (field != null) {
             try {
+                // Clear the field first to ensure clean state
+                field.setValue("");
+                // Set the actual value
                 field.setValue(value.toString());
+                log.debug("PDF Field '{}' set to '{}'", fieldName, value);
             } catch (IOException e) {
-                // log? for now ignore individual field errors
+                log.warn("Error setting PDF field '{}' to '{}': {}", fieldName, value, e.getMessage());
             }
+        } else {
+            log.debug("PDF Field '{}' not found in template.", fieldName);
         }
     }
 

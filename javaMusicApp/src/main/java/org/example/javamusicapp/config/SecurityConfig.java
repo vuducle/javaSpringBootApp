@@ -66,7 +66,8 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/uploads/profile-images/**"
+            "/uploads/profile-images/**",
+            "/generated_pdfs/**" // PDFs public für Prototyp
     };
 
     private final JwtAuthEntryPoint unauthorizedHandler;
@@ -108,7 +109,9 @@ public class SecurityConfig {
                 // Add rate-limit filter before JWT filter so rate limiting applies early
                 .addFilterBefore(
                         rateLimitFilter,
-                        JwtAuthenticationFilter.class);
+                        JwtAuthenticationFilter.class)
+                .headers()
+                .frameOptions().disable(); // Für H2-Console, falls benötigt
 
         return http.build();
     }
@@ -147,7 +150,8 @@ public class SecurityConfig {
                 registry.addMapping("/**")
                         .allowedOrigins(origins)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
+                        .allowedHeaders("*")
+                        .exposedHeaders("X-Nachweis-Data", "X-Requested-By", "X-PDF-MD5", "X-PDF-Size");
             }
         };
     }

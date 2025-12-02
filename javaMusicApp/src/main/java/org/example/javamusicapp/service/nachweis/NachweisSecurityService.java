@@ -53,4 +53,11 @@ public class NachweisSecurityService {
             return false;
         }
     }
+
+    public boolean isAusbilderForNachweis(Authentication authentication, UUID nachweisId) {
+        String username = authentication.getName();
+        return nachweisRepository.findById(nachweisId)
+                .map(nachweis -> nachweis.getAusbilder().getUsername().equals(username))
+                .orElse(false);
+    }
 }

@@ -18,8 +18,6 @@ import org.example.javamusicapp.model.Nachweis;
 import org.example.javamusicapp.repository.NachweisRepository;
 import org.example.javamusicapp.service.nachweis.NachweisService;
 import org.example.javamusicapp.service.nachweis.PdfExportService;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,46 +27,69 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.UUID;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 📝 **Was geht hier ab?**
- * This is the G.O.A.T. Controller für alles, was mit den Ausbildungsnachweisen zu tun hat.
- * Hier können Azubis ihre Nachweise erstellen, bearbeiten und einsehen. Ausbilder/Admins
- * können die Dinger checken, annehmen, ablehnen und alle Nachweise von allen Azubis sehen.
+ * This is the G.O.A.T. Controller für alles, was mit den Ausbildungsnachweisen
+ * zu tun hat.
+ * Hier können Azubis ihre Nachweise erstellen, bearbeiten und einsehen.
+ * Ausbilder/Admins
+ * können die Dinger checken, annehmen, ablehnen und alle Nachweise von allen
+ * Azubis sehen.
  *
  * Die Endpunkte sind lit und regeln basically das ganze Leben eines Nachweises:
- * - **POST /**: Azubi erstellt einen neuen Nachweis für die Woche. Im Backend wird direkt
- *   ein PDF generiert und gespeichert.
+ * - **POST /**: Azubi erstellt einen neuen Nachweis für die Woche. Im Backend
+ * wird direkt
+ * ein PDF generiert und gespeichert.
  * - **GET /my-nachweise**: Azubi kann alle seine bisherigen Nachweise sehen,
- *   filtern (z.B. nur die offenen) und seitenweise durchblättern.
- * - **GET /{id}/pdf**: Holt das generierte PDF für einen Nachweis. Safe, dass nur der
- *   Besitzer oder ein Admin das kann.
- * - **PUT /{id}**: Azubi kann einen Nachweis bearbeiten (z.B. nach Feedback vom Ausbilder).
- * - **PUT /{id}/status**: Admin/Ausbilder gibt dem Nachweis seinen Segen (`ANGENOMMEN`) oder
- *   lehnt ihn ab (`ABGELEHNT`).
+ * filtern (z.B. nur die offenen) und seitenweise durchblättern.
+ * - **GET /{id}/pdf**: Holt das generierte PDF für einen Nachweis. Safe, dass
+ * nur der
+ * Besitzer oder ein Admin das kann.
+ * - **PUT /{id}**: Azubi kann einen Nachweis bearbeiten (z.B. nach Feedback vom
+ * Ausbilder).
+ * - **PUT /{id}/status**: Admin/Ausbilder gibt dem Nachweis seinen Segen
+ * (`ANGENOMMEN`) oder
+ * lehnt ihn ab (`ABGELEHNT`).
  * - **DELETE /{id}**: Löscht einen Nachweis.
- * - **Admin-Endpunkte (/admin/**):** Extra krasse Endpunkte, mit denen Admins/Ausbilder
- *   alle Nachweise von allen Usern sehen und verwalten können.
+ * - **Admin-Endpunkte (/admin/**):** Extra krasse Endpunkte, mit denen
+ * Admins/Ausbilder
+ * alle Nachweise von allen Usern sehen und verwalten können.
  */
 @RestController
 @RequestMapping("/api/nachweise")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Nachweise", description = "API für die Verwaltung von Ausbildungsnachweisen")
+@Slf4j
 public class NachweisController {
 
     private final NachweisService nachweisService;
     private final PdfExportService pdfExportService;
     private final NachweisRepository nachweisRepository;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
-    private final Path rootLocation = Paths.get("generated_pdfs");
+    private String calculateMD5(byte[] data) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] hash = md.digest(data);
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1)
+                    hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            return "error";
+        }
+    }
 
     @PostMapping
     @Operation(summary = "Erstellt einen neuen Nachweis und generiert ein PDF.", description = "Erstellt einen neuen Nachweis, speichert ihn, generiert ein PDF und legt es auf dem Server ab. "
@@ -109,27 +130,53 @@ public class NachweisController {
     @ApiResponse(responseCode = "200", description = "PDF gefunden und zurückgegeben.")
     @ApiResponse(responseCode = "403", description = "Verboten - Sie sind nicht der Besitzer dieses Nachweises.")
     @ApiResponse(responseCode = "404", description = "Nachweis oder PDF nicht gefunden.")
-    @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isOwner(authentication, #id)")
-    public ResponseEntity<Resource> getNachweisPdf(@PathVariable UUID id) {
+    @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isOwner(authentication, #id) or @nachweisSecurityService.isAusbilderForNachweis(authentication, #id)")
+    public ResponseEntity<byte[]> getNachweisPdf(@PathVariable UUID id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String username = userDetails != null ? userDetails.getUsername() : "unknown";
+        log.info("=== PDF REQUEST: User '{}' requesting PDF for Nachweis ID: {} ===", username, id);
+
         Nachweis nachweis = nachweisRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Nachweis not found")); // Should be a proper exception
+                .orElseThrow(() -> new ResourceNotFoundException("Nachweis not found"));
+
+        log.info("Nachweis details - Azubi: {}, Ausbilder: {}, Activities: {}",
+                nachweis.getAzubi().getUsername(),
+                nachweis.getAusbilder().getUsername(),
+                nachweis.getActivities().size());
 
         try {
-            String userVollerName = nachweis.getAzubi().getName().toLowerCase().replaceAll(" ", "_");
-            Path userDirectory = rootLocation.resolve(userVollerName + "_" + nachweis.getAzubi().getId().toString());
-            Path file = userDirectory.resolve(nachweis.getId().toString() + ".pdf");
-            Resource resource = new UrlResource(file.toUri());
+            // Try to read the saved PDF file first
+            byte[] pdfBytes = nachweisService.getPdfBytes(nachweis);
 
-            if (resource.exists() || resource.isReadable()) {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_PDF);
-                headers.setContentDispositionFormData("attachment", "ausbildungsnachweis.pdf");
-                return new ResponseEntity<>(resource, headers, HttpStatus.OK);
-            } else {
-                throw new RuntimeException("Could not read the file!");
+            // Calculate MD5 hash for debugging
+            String md5Hash = calculateMD5(pdfBytes);
+            log.info("PDF loaded successfully. Size: {} bytes, MD5: {}, Sending to user '{}'", pdfBytes.length, md5Hash,
+                    username);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", "ausbildungsnachweis.pdf");
+
+            // Add cache control headers to prevent caching issues
+            headers.setCacheControl("no-cache, no-store, must-revalidate");
+            headers.setPragma("no-cache");
+            headers.setExpires(0);
+
+            // Add ETag based on nachweis ID and last modified date to enable proper caching
+            String etag = String.format("\"%s\"", nachweis.getId().toString());
+            headers.setETag(etag);
+
+            try {
+                headers.add("X-Nachweis-Data", objectMapper.writeValueAsString(nachweis));
+                headers.add("X-Requested-By", username);
+                headers.add("X-PDF-MD5", md5Hash);
+                headers.add("X-PDF-Size", String.valueOf(pdfBytes.length));
+            } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                // log error, but don't fail the request
             }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Error: " + e.getMessage());
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -139,7 +186,8 @@ public class NachweisController {
     @ApiResponse(responseCode = "403", description = "Verboten - Sie sind nicht berechtigt, diesen Nachweis zu löschen.")
     @ApiResponse(responseCode = "404", description = "Nachweis nicht gefunden.")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isOwner(authentication, #id)")
-    public ResponseEntity<Void> deleteNachweis(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Void> deleteNachweis(@PathVariable UUID id,
+            @AuthenticationPrincipal UserDetails userDetails) {
         nachweisService.loescheNachweis(id, userDetails.getUsername());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -202,7 +250,7 @@ public class NachweisController {
     @ApiResponse(responseCode = "400", description = "Ungültiger Status oder Nachweis-ID.")
     @ApiResponse(responseCode = "403", description = "Verboten - Nur Administratoren können den Nachweisstatus aktualisieren.")
     @ApiResponse(responseCode = "404", description = "Nachweis nicht gefunden.")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isAusbilderForNachweis(authentication, #id)")
     public ResponseEntity<Nachweis> updateNachweisStatus(@PathVariable UUID id,
             @Valid @RequestBody NachweisStatusUpdateRequest request, @AuthenticationPrincipal UserDetails userDetails) {
         if (!id.equals(request.getNachweisId())) {
