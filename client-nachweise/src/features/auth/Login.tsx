@@ -21,6 +21,11 @@ import { useState } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
+import {Key, Lock, Mail} from "lucide-react";
+
+function Envelope() {
+    return null;
+}
 
 export default function LoginForm() {
   const [email, setEmail] = useState<string>('');
@@ -97,7 +102,10 @@ export default function LoginForm() {
             </CardHeader>
             <CardContent className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="email">{t('login.emailLabel')}</Label>
+                <Label htmlFor="email">
+                    <Mail />
+                    {t('login.emailLabel')}
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -109,6 +117,7 @@ export default function LoginForm() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="password">
+                    <Lock/>
                   {t('login.passwordLabel')}
                 </Label>
                 <Input
@@ -134,6 +143,7 @@ export default function LoginForm() {
             </CardContent>
             <CardFooter>
               <Button className="w-full" onClick={handleLogin}>
+                  <Key/>
                 {t('login.submitButton')}
               </Button>
             </CardFooter>

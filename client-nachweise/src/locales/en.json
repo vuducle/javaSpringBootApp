@@ -150,7 +150,18 @@
     "deleteConfirmButton": "Delete",
     "deleteSuccess": "Record deleted successfully.",
     "deleteError": "Error deleting record.",
-    "deleting": "Deleting..."
+    "deleting": "Deleting...",
+    "deleteAll": "Delete all",
+    "deleteAllTitle": "Delete all records?",
+    "deleteAllDescription": "Warning: This will delete all your records and cannot be undone.",
+    "deleteAllTypeConfirm": "Please type 'sudo rm -rf' to confirm deletion.",
+    "deleteAllPlaceholder": "sudo rm -rf",
+    "deleteAllConfirmButton": "Delete all",
+    "deleteAllSuccess": "All records deleted.",
+    "deleteAllError": "Error deleting all records.",
+    "noNachweiseFound": "No records found. 📝",
+    "startAddingNachweis": "Start by adding a new record.",
+    "nachweisErstellen": "Create record"
   },
   "profile": {
     "title": "Profile",

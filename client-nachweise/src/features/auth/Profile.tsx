@@ -29,6 +29,18 @@ import {
 import api from '@/lib/api';
 import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/context/LanguageContext';
+import {
+  User,
+  AtSign,
+  Mail,
+  Calendar,
+  Phone,
+  Users,
+  Image as ImageIcon,
+  UploadCloud,
+  Trash2,
+  Save,
+} from 'lucide-react';
 
 const profileSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -37,6 +49,7 @@ const profileSchema = z.object({
   telefonnummer: z.string().optional(),
   team: z.string().optional(),
   profileImageUrl: z.string().optional(),
+  username: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -205,7 +218,7 @@ export function Profile() {
   );
 
   return (
-    <Card className="w-full max-w-3xl bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg rounded-2xl text-dark dark:text-light">
+    <Card className="w-full max-w-3xl bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg rounded-2xl text-dark dark:text-light my-4 lg:my-8">
       <CardHeader className="text-center">
         <CardTitle className="text-3xl font-bold">
           {t('profile.title')}
@@ -253,6 +266,7 @@ export function Profile() {
                 variant="outline"
                 className="bg-transparent hover:bg-white/10 border-white/30"
               >
+                <ImageIcon className="mr-2 h-4 w-4" aria-hidden />
                 {t('profile.changeImage')}
               </Button>
               <Button
@@ -260,6 +274,7 @@ export function Profile() {
                 disabled={!selectedFile}
                 className="bg-blue-500 hover:bg-blue-600"
               >
+                <UploadCloud className="mr-2 h-4 w-4" aria-hidden />
                 {t('profile.uploadImage')}
               </Button>
               {user.profileImageUrl && (
@@ -268,6 +283,7 @@ export function Profile() {
                   variant="destructive"
                   className="bg-red-500 hover:bg-red-600"
                 >
+                  <Trash2 className="mr-2 h-4 w-4" aria-hidden />
                   {t('profile.deleteImage')}
                 </Button>
               )}
@@ -285,11 +301,14 @@ export function Profile() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="name">{t('profile.name')}</Label>
-              <Input
-                id="name"
-                {...register('name')}
-                className="bg-white/5 border-white/20 focus:ring-white/50"
-              />
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden />
+                <Input
+                  id="name"
+                  {...register('name')}
+                  className="bg-white/5 border-white/20 focus:ring-white/50 pl-10"
+                />
+              </div>
               {errors.name && (
                 <p className="text-sm text-red-400">
                   {errors.name.message}
@@ -297,13 +316,32 @@ export function Profile() {
               )}
             </div>
             <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <div className="relative">
+                <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden />
+                <Input
+                  id="username"
+                  {...register('username')}
+                  className="bg-white/5 border-white/20 focus:ring-white/50 pl-10"
+                />
+              </div>
+              {errors.username && (
+                <p className="text-sm text-red-400">
+                  {errors.username.message}
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="email">{t('profile.email')}</Label>
-              <Input
-                id="email"
-                type="email"
-                {...register('email')}
-                className="bg-white/5 border-white/20 focus:ring-white/50"
-              />
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden />
+                <Input
+                  id="email"
+                  type="email"
+                  {...register('email')}
+                  className="bg-white/5 border-white/20 focus:ring-white/50 pl-10"
+                />
+              </div>
               {errors.email && (
                 <p className="text-sm text-red-400">
                   {errors.email.message}
@@ -314,12 +352,15 @@ export function Profile() {
               <Label htmlFor="ausbildungsjahr">
                 {t('profile.ausbildungsjahr')}
               </Label>
-              <Input
-                id="ausbildungsjahr"
-                type="text"
-                {...register('ausbildungsjahr')}
-                className="bg-white/5 border-white/20 focus:ring-white/50"
-              />
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden />
+                <Input
+                  id="ausbildungsjahr"
+                  type="text"
+                  {...register('ausbildungsjahr')}
+                  className="bg-white/5 border-white/20 focus:ring-white/50 pl-10"
+                />
+              </div>
               {errors.ausbildungsjahr && (
                 <p className="text-sm text-red-400">
                   {errors.ausbildungsjahr.message}
@@ -330,37 +371,43 @@ export function Profile() {
               <Label htmlFor="telefonnummer">
                 {t('profile.telefonnummer')}
               </Label>
-              <Input
-                id="telefonnummer"
-                {...register('telefonnummer')}
-                className="bg-white/5 border-white/20 focus:ring-white/50"
-              />
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden />
+                <Input
+                  id="telefonnummer"
+                  {...register('telefonnummer')}
+                  className="bg-white/5 border-white/20 focus:ring-white/50 pl-10"
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="team">{t('profile.trainer')}</Label>
-              <Select
-                onValueChange={(value) =>
-                  setValue('team', value, { shouldDirty: true })
-                }
-                defaultValue={user.team}
-              >
-                <SelectTrigger className="bg-white/5 border-white/20 focus:ring-white/50 h-auto">
-                  {selectedTrainer ? (
-                    <TrainerSelectItem trainer={selectedTrainer} />
-                  ) : (
-                    <SelectValue
-                      placeholder={t('profile.selectTrainer')}
-                    />
-                  )}
-                </SelectTrigger>
-                <SelectContent>
-                  {trainers.map((trainer) => (
-                    <SelectItem key={trainer.id} value={trainer.name}>
-                      <TrainerSelectItem trainer={trainer} />
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="relative">
+                <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden />
+                <Select
+                  onValueChange={(value) =>
+                    setValue('team', value, { shouldDirty: true })
+                  }
+                  defaultValue={user.team}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/20 focus:ring-white/50 h-auto pl-10">
+                    {selectedTrainer ? (
+                      <TrainerSelectItem trainer={selectedTrainer} />
+                    ) : (
+                      <SelectValue
+                        placeholder={t('profile.selectTrainer')}
+                      />
+                    )}
+                  </SelectTrigger>
+                  <SelectContent>
+                    {trainers.map((trainer) => (
+                      <SelectItem key={trainer.id} value={trainer.name}>
+                        <TrainerSelectItem trainer={trainer} />
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
           <div className="flex justify-end">
@@ -369,6 +416,7 @@ export function Profile() {
               disabled={!isDirty}
               className="bg-green-500 hover:bg-green-600 px-8 py-3 text-lg font-semibold"
             >
+              <Save className="mr-2 h-4 w-4" aria-hidden />
               {t('profile.updateProfile')}
             </Button>
           </div>

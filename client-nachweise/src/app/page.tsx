@@ -9,7 +9,6 @@ import { useEffect } from 'react';
 
 export default function Home() {
   const user = useAppSelector(selectUser);
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -19,10 +18,7 @@ export default function Home() {
     }
   }, [user.isLoggedIn, router]);
 
-  const handleLogout = () => {
-    dispatch(clearUser());
-    router.push('/login');
-  };
+
 
   if (!user.isLoggedIn) {
     return null;
@@ -36,13 +32,7 @@ export default function Home() {
           <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-primary">
             {t('home.welcome').replace('{name}', user.name ?? '')}
           </h1>
-          <Button
-            variant="default"
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
-            onClick={handleLogout}
-          >
-            {t('home.logout')}
-          </Button>
+
         </div>
       </main>
     </div>

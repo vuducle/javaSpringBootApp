@@ -1,12 +1,12 @@
 import {
-  Home,
-  Plus,
-  Book,
-  User as UserIcon,
-  Menu,
-  X,
-  Briefcase,
-  GraduationCap,
+    Home,
+    Plus,
+    Book,
+    User as UserIcon,
+    Menu,
+    X,
+    Briefcase,
+    GraduationCap, LogOut, Key,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAppDispatch } from '@/store';
@@ -16,14 +16,21 @@ import { ThemeToggleButton } from './ThemeToggleButton';
 import { Logo } from './Logo';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useState } from 'react';
+import {useRouter} from "next/navigation";
 
 export function Navbar({ user }: { user: User }) {
   const [isOpen, setIsOpen] = useState(false);
   const isAuthenticated = user.isLoggedIn;
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const handleLogout = () => {
-    dispatch(clearUser());
+    try {
+        dispatch(clearUser());
+        router.push('/login');
+    } catch (error) {
+        console.error(error);
+    }
   };
 
   const navLinks = [
@@ -86,7 +93,10 @@ export function Navbar({ user }: { user: User }) {
               <RoleIcon className="h-6 w-6 text-foreground" />
               <LanguageSwitcher />
               <ThemeToggleButton />
-              <Button onClick={handleLogout}>Logout</Button>
+              <Button onClick={handleLogout}>
+                  <LogOut/>
+                  Logout
+              </Button>
             </div>
           </div>
           <div className="-mr-2 flex md:hidden">
@@ -128,11 +138,15 @@ export function Navbar({ user }: { user: User }) {
               <ThemeToggleButton />
               {isAuthenticated ? (
                 <Button onClick={handleLogout} className="w-full">
-                  Logout
+                    <LogOut />
+                    Logout
                 </Button>
               ) : (
                 <Button asChild className="w-full">
-                  <Link href="/login">Login</Link>
+                  <Link href="/login">
+                      <Key />
+                      Login
+                  </Link>
                 </Button>
               )}
             </div>

@@ -3,6 +3,7 @@
 
 import { useTranslation } from "@/context/LanguageContext";
 import { Button } from "./button";
+import {Flag} from "lucide-react";
 
 export function LanguageSwitcher() {
   const { locale, setLocale } = useTranslation();
@@ -13,6 +14,7 @@ export function LanguageSwitcher() {
 
   return (
     <Button variant="outline" size="icon" onClick={toggleLocale}>
+
       {locale.toUpperCase()}
     </Button>
   );

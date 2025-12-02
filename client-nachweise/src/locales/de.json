@@ -151,7 +151,18 @@
     "deleteConfirmButton": "Löschen",
     "deleteSuccess": "Nachweis erfolgreich gelöscht.",
     "deleteError": "Fehler beim Löschen des Nachweises.",
-    "deleting": "Lösche..."
+    "deleting": "Lösche...",
+    "deleteAll": "Alle löschen",
+    "deleteAllTitle": "Alle Nachweise löschen?",
+    "deleteAllDescription": "Achtung: Diese Aktion löscht alle deine Nachweise und kann nicht rückgängig gemacht werden.",
+    "deleteAllTypeConfirm": "Bitte gib 'sudo rm -rf' ein, um das Löschen zu bestätigen.",
+    "deleteAllPlaceholder": "sudo rm -rf",
+    "deleteAllConfirmButton": "Alle löschen",
+    "deleteAllSuccess": "Alle Nachweise wurden gelöscht.",
+    "deleteAllError": "Fehler beim Löschen aller Nachweise.",
+    "noNachweiseFound": "Keine Nachweise gefunden. 📝",
+    "startAddingNachweis": "Beginne mit dem Hinzufügen eines neuen Nachweises.",
+    "nachweisErstellen": "Nachweis erstellen"
   },
   "profile": {
     "title": "Profil",
