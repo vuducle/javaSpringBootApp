@@ -144,7 +144,14 @@
     "statusABGELEHNT": "Abgelehnt",
     "statusIN_BEARBEITUNG": "In Bearbeitung",
     "azubi": "Azubi",
-    "aktion": "Aktionen"
+    "aktion": "Aktionen",
+    "deleteConfirmTitle": "Nachweis löschen?",
+    "deleteConfirmDescription": "Möchtest du diesen Nachweis wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteCancel": "Abbrechen",
+    "deleteConfirmButton": "Löschen",
+    "deleteSuccess": "Nachweis erfolgreich gelöscht.",
+    "deleteError": "Fehler beim Löschen des Nachweises.",
+    "deleting": "Lösche..."
   },
   "profile": {
     "title": "Profil",

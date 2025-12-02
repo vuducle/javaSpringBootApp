@@ -143,7 +143,14 @@
     "statusABGELEHNT": "Rejected",
     "statusIN_BEARBEITUNG": "In Progress",
     "azubi": "Apprentice",
-    "aktion": "Actions"
+    "aktion": "Actions",
+    "deleteConfirmTitle": "Delete record?",
+    "deleteConfirmDescription": "Are you sure you want to delete this record? This action cannot be undone.",
+    "deleteCancel": "Cancel",
+    "deleteConfirmButton": "Delete",
+    "deleteSuccess": "Record deleted successfully.",
+    "deleteError": "Error deleting record.",
+    "deleting": "Deleting..."
   },
   "profile": {
     "title": "Profile",
