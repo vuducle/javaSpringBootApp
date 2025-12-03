@@ -41,6 +41,7 @@ import {
   Trash2,
   Save,
 } from 'lucide-react';
+import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
 
 const profileSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -210,7 +211,12 @@ export function Profile() {
   };
 
   if (!user) {
-    return <div>Loading...</div>;
+    return (
+      <StatusPlaceholder
+        loading
+        loadingText={t('loading') ?? 'Lade...'}
+      />
+    );
   }
 
   const selectedTrainer = trainers.find(

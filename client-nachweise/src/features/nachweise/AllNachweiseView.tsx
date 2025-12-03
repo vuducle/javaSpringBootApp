@@ -47,6 +47,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import Link from 'next/link';
+import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
 
 interface Nachweis {
   id: string;
@@ -96,6 +97,7 @@ export function AllNachweiseView() {
   const [deleteAllConfirmText, setDeleteAllConfirmText] =
     useState('');
   const [isDeletingAll, setIsDeletingAll] = useState(false);
+  // local loading state is not needed because SWR provides isLoading
 
   // Open delete confirmation
   const openDeleteModal = useCallback((id: string) => {
@@ -195,7 +197,7 @@ export function AllNachweiseView() {
   ]);
 
   // SWR with dedupe, caching, and automatic revalidation
-  const { data, isLoading } = useSWR(
+  const { data, error, isLoading } = useSWR(
     [
       '/api/nachweise/my-nachweise',
       {
@@ -348,7 +350,29 @@ export function AllNachweiseView() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data?.content && data.content.length > 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-6">
+                  <StatusPlaceholder
+                    loading
+                    loadingText={t('common.loading') ?? 'Lädt...'}
+                  />
+                </TableCell>
+              </TableRow>
+            ) : error ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-6">
+                  <StatusPlaceholder
+                    error
+                    errorImage="https://http.cat/status/400"
+                    errorText={
+                      t('nachweis.loadingError') ??
+                      t('nachweis.errorMessage')
+                    }
+                  />
+                </TableCell>
+              </TableRow>
+            ) : data?.content && data.content.length > 0 ? (
               // ---- IF-Teil: Daten sind vorhanden ----
               data?.content?.map((nachweis: Nachweis) => (
                 <TableRow
