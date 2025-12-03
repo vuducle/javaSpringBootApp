@@ -17,6 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
@@ -57,6 +60,14 @@ public class UserController {
     private final UserService userService;
     private final NachweisSecurityService nachweisSecurityService;
 
+    /**
+     * Ändert das Passwort des aktuell angemeldeten Users.
+     * 
+     * @param request        Die alten und neuen Passwortinformationen.
+     * @param authentication Die Authentifizierungsinformationen des aktuell
+     *                       angemeldeten Benutzers.
+     * @return Eine ResponseEntity mit dem Ergebnis der Passwortänderung.
+     */
     @Operation(summary = "Passwort ändern", description = "Ändert das Passwort des aktuell angemeldeten Users")
     @PutMapping("/change-password")
     public ResponseEntity<String> changePassword(
@@ -73,6 +84,13 @@ public class UserController {
         }
     }
 
+    /**
+     * Gibt alle aktuellen Admin-User zurück.
+     * 
+     * @param authentication Die Authentifizierungsinformationen des aktuell
+     *                       angemeldeten Benutzers.
+     * @return Eine ResponseEntity mit der Liste der Admin-User.
+     */
     @Operation(summary = "Admin-Liste", description = "Gibt alle aktuellen Admin-User zurück")
     @GetMapping("/admins")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isAusbilder(authentication)")
@@ -84,6 +102,14 @@ public class UserController {
         return ResponseEntity.ok(resp);
     }
 
+    /**
+     * Gibt alle User zurück, die Nachweise als Ausbilder haben können. (für
+     * Ausbilder-Auswahl beim PDF-Erstellen)
+     * 
+     * @param authentication Die Authentifizierungsinformationen des aktuell
+     *                       angemeldeten Benutzers.
+     * @return Eine ResponseEntity mit der Liste der Ausbilder-User.
+     */
     @Operation(summary = "Ausbilder-Liste", description = "Gibt alle User zurück, die Nachweise als Ausbilder haben können (für Ausbilder-Auswahl beim PDF-Erstellen)")
     @GetMapping("/ausbilder")
     public ResponseEntity<java.util.List<UserResponse>> listAusbilder(Authentication authentication) {
@@ -94,6 +120,12 @@ public class UserController {
         return ResponseEntity.ok(resp);
     }
 
+    /**
+     * Hilfsmethode, um ein User-Objekt in ein UserResponse-DTO zu konvertieren.
+     * 
+     * @param user Das User-Objekt.
+     * @return Das UserResponse-DTO.
+     */
     private UserResponse toUserResponse(User user) {
         return new UserResponse(
                 user.getId(),
@@ -106,6 +138,14 @@ public class UserController {
                 user.getTeam());
     }
 
+    /**
+     * Lädt ein Profilbild für den aktuell angemeldeten User hoch.
+     * 
+     * @param file           Die hochzuladende Bilddatei.
+     * @param authentication Die Authentifizierungsinformationen des aktuell
+     *                       angemeldeten Benutzers.
+     * @return Eine ResponseEntity mit dem aktualisierten Benutzerprofil.
+     */
     @Operation(summary = "Profilbild hochladen", description = "Lädt ein Profilbild für den aktuell angemeldeten User hoch")
     @PutMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> uploadProfileImage(
@@ -125,6 +165,13 @@ public class UserController {
         }
     }
 
+    /**
+     * Ruft das Profil des aktuell angemeldeten Users ab.
+     * 
+     * @param authentication Die Authentifizierungsinformationen des aktuell
+     *                       angemeldeten Benutzers.
+     * @return Eine ResponseEntity mit dem Benutzerprofil.
+     */
     @Operation(summary = "User-Profil abrufen", description = "Gibt das Profil des aktuell angemeldeten Users zurück")
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getUserProfile(Authentication authentication) {
@@ -136,6 +183,14 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Aktualisiert das Profil des aktuell angemeldeten Users.
+     * 
+     * @param request        Die neuen Profilinformationen.
+     * @param authentication Die Authentifizierungsinformationen des aktuell
+     *                       angemeldeten Benutzers.
+     * @return Eine ResponseEntity mit dem aktualisierten Benutzerprofil.
+     */
     @Operation(summary = "User-Profil aktualisieren", description = "Aktualisiert das Profil des aktuell angemeldeten Users")
     @PutMapping("/profile")
     public ResponseEntity<UserResponse> updateUserProfile(
@@ -147,6 +202,14 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Löscht das Profilbild des aktuell angemeldeten Users.
+     * 
+     * @param authentication Die Authentifizierungsinformationen des aktuell
+     *                       angemeldeten Benutzers.
+     * @return Eine ResponseEntity mit dem aktualisierten Benutzerprofil ohne
+     *         Profilbild.
+     */
     @Operation(summary = "Profilbild löschen", description = "Löscht das Profilbild des aktuell angemeldeten Users")
     @DeleteMapping("/profile-image")
     public ResponseEntity<UserResponse> deleteProfileImage(Authentication authentication) {
@@ -164,6 +227,16 @@ public class UserController {
         }
     }
 
+    /**
+     * Weist einem anderen Benutzer die ROLE_ADMIN zu. Nur für bestehende Admins
+     * oder Ausbilder.
+     * 
+     * @param username       Der Benutzername des Benutzers, dem die Admin-Rolle
+     *                       zugewiesen werden soll.
+     * @param authentication Die Authentifizierungsinformationen des aktuell
+     *                       angemeldeten Benutzers.
+     * @return Eine ResponseEntity mit dem Ergebnis der Operation.
+     */
     @Operation(summary = "Admin-Rolle zuweisen", description = "Weist einem anderen Benutzer die ROLE_ADMIN zu. Nur für bestehende Admins oder Ausbilder.")
     @PutMapping("/{username}/grant-admin")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isAusbilder(authentication)")
@@ -181,6 +254,18 @@ public class UserController {
         }
     }
 
+    /**
+     * Entzieht einem Benutzer die ROLE_ADMIN. Nur für bestehende Admins oder
+     * Ausbilder.
+     * 
+     * @param username       Der Benutzername des Benutzers, dem die Admin-Rolle
+     *                       entzogen werden soll.
+     * @param authentication Die Authentifizierungsinformationen des aktuell
+     *                       angemeldeten Benutzers.
+     * @param keepAsNoRole   Optionaler Parameter, um den Benutzer ohne Rolle zu
+     *                       belassen.
+     * @return Eine ResponseEntity mit dem Ergebnis der Operation.
+     */
     @Operation(summary = "Admin-Rolle entziehen", description = "Entzieht einem Benutzer die ROLE_ADMIN. Nur für bestehende Admins oder Ausbilder.")
     @DeleteMapping("/{username}/revoke-admin")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isAusbilder(authentication)")
@@ -223,6 +308,15 @@ public class UserController {
         }
     }
 
+    /**
+     * Löscht einen Benutzer und alle zugehörigen Daten (Nachweise, Profilbild).
+     * Nur für Admins oder Ausbilder.
+     * 
+     * @param username       Der Benutzername des zu löschenden Benutzers.
+     * @param authentication Die Authentifizierungsinformationen des aktuell
+     *                       angemeldeten Benutzers.
+     * @return Eine ResponseEntity mit dem Ergebnis der Löschoperation.
+     */
     @Operation(summary = "Benutzer löschen", description = "Löscht einen Benutzer und alle zugehörigen Daten (Nachweise, Profilbild). Nur für Admins oder Ausbilder.")
     @DeleteMapping("/{username}")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isAusbilder(authentication)")
@@ -240,21 +334,46 @@ public class UserController {
         }
     }
 
+    /**
+     * Ruft alle Benutzer ab mit optionalen Filtern und Pagination.
+     * Nur für Administratoren zugänglich.
+     * 
+     * @param team            Optionaler Filter für das Team.
+     * @param ausbildungsjahr Optionaler Filter für das Ausbildungsjahr.
+     * @param rolle           Optionaler Filter für die Rolle.
+     * @param page            Seitenindex für die Pagination (Standard: 0).
+     * @param size            Seitengröße für die Pagination (Standard: 10).
+     * @return Seite mit Benutzerantworten.
+     */
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Ruft alle Benutzer ab", description = "Gibt eine Liste aller Benutzer im System zurück. Nur für Administratoren zugänglich.")
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        List<User> users = userService.findAll();
-        List<UserResponse> userResponseList = users.stream()
-                .map(UserResponse::new)
-                .toList();
-        return ResponseEntity.ok(userResponseList);
+    public ResponseEntity<Page<UserResponse>> getAllUsers(
+            @RequestParam(required = false) String team,
+            @RequestParam(required = false) Integer ausbildungsjahr,
+            @RequestParam(required = false) String rolle,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> users = userService.findAllWithFilters(team, ausbildungsjahr, rolle, pageable);
+        Page<UserResponse> userResponsePage = users.map(UserResponse::new);
+        return ResponseEntity.ok(userResponsePage);
     }
 
+    /*
+     * Aktualisiert das Profil eines bestimmten Benutzers durch einen Administrator.
+     * 
+     * @param username Der Benutzername des zu aktualisierenden Benutzers.
+     * 
+     * @param request Die neuen Profilinformationen.
+     * 
+     * @return Das aktualisierte Benutzerprofil.
+     */
     @PutMapping("/users/{username}/profile")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Aktualisiert das Profil eines Benutzers", description = "Aktualisiert die Profilinformationen eines bestimmten Benutzers. Nur für Administratoren zugänglich.")
-    public ResponseEntity<UserResponse> updateUserProfileByAdmin(@PathVariable String username, @RequestBody org.example.javamusicapp.controller.userController.dto.UserUpdateRequest request) {
+    public ResponseEntity<UserResponse> updateUserProfileByAdmin(@PathVariable String username,
+            @RequestBody org.example.javamusicapp.controller.userController.dto.UserUpdateRequest request) {
         User updatedUser = userService.updateUserProfileByAdmin(username, request);
         return ResponseEntity.ok(new UserResponse(updatedUser));
     }

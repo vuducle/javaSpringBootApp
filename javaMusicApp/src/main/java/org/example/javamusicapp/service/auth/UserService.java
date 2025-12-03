@@ -9,6 +9,7 @@ import org.example.javamusicapp.model.Role;
 import org.example.javamusicapp.model.enums.ERole;
 import org.example.javamusicapp.service.nachweis.NachweisService;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -38,6 +39,8 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * 👑 **Was geht hier ab?**
@@ -248,6 +251,15 @@ public class UserService implements UserDetailsService {
 
     public List<User> findAll() {
         return userRepository.findAll();
+    }
+
+    public Page<User> findAllWithFilters(String team, Integer ausbildungsjahr, String rolle, Pageable pageable) {
+        Specification<User> spec = Specification
+                .where(org.example.javamusicapp.repository.specification.UserSpecification.hasTeam(team))
+                .and(org.example.javamusicapp.repository.specification.UserSpecification
+                        .hasAusbildungsjahr(ausbildungsjahr))
+                .and(org.example.javamusicapp.repository.specification.UserSpecification.hasRole(rolle));
+        return userRepository.findAll(spec, pageable);
     }
 
     public List<String> listUsernamesByRole(ERole role) {
