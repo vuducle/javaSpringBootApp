@@ -17,9 +17,13 @@
     "welcome": "Willkommen, {name}!",
     "logout": "Abmelden"
   },
+  "dashboard": {
+    "traineeWelcome": "Willkommen im Azubi-Dashboard, {name}!",
+    "trainerWelcome": "Willkommen im Ausbilder-Dashboard, {name}!"
+  },
   "loginPage": {
     "mainTitle": "Die Welt der Ausbildungsnachweise",
-    "subtitle": "Für Azubis und Ausbilder. Nachweise eintragen, kontrollieren, speichern und jederzeit einsehen."
+    "subtitle": "Für Azubis und Ausbilder/innen. Nachweise eintragen, kontrollieren, speichern und jederzeit einsehen."
   },
   "footer": {
     "love": "Mit SpringBoot und Next.js programmiert",
@@ -30,7 +34,7 @@
     "title": "Datenschutzerklärung",
     "section1": {
       "title": "Einleitung",
-      "paragraph1": "Willkommen zu deiner Datenschutzerklärung. Diese Anwendung ist ausschließlich für Auszubildende (Azubis) und Ausbilder konzipiert. Deine Privatsphäre ist uns wichtig. Diese Richtlinie erklärt, wie wir deine Informationen sammeln, verwenden, offenlegen und schützen, wenn du unsere Anwendung nutzt.",
+      "paragraph1": "Willkommen zu deiner Datenschutzerklärung. Diese Anwendung ist ausschließlich für Auszubildende (Azubis) und Ausbilder/innen konzipiert. Deine Privatsphäre ist uns wichtig. Diese Richtlinie erklärt, wie wir deine Informationen sammeln, verwenden, offenlegen und schützen, wenn du unsere Anwendung nutzt.",
       "paragraph2": "Bitte lies diese Datenschutzerklärung sorgfältig durch. Wenn du den Bedingungen dieser Datenschutzerklärung nicht zustimmst, nutze die Anwendung bitte nicht."
     },
     "section2": {
@@ -38,7 +42,7 @@
       "paragraph1": "Wir können auf verschiedene Weisen Informationen über dich sammeln. Die Informationen, die wir in der Anwendung sammeln können, umfassen:",
       "listItem1": "Persönliche Daten: Persönlich identifizierbare Informationen, wie dein Name, deine E-Mail-Adresse und Telefonnummer, sowie demografische Informationen, wie dein Alter und Geschlecht, die du uns freiwillig gibst, wenn du dich in der Anwendung registrierst oder wenn du dich entscheidest, an verschiedenen Aktivitäten im Zusammenhang mit der Anwendung teilzunehmen.",
       "listItem2": "Abgeleitete Daten: Informationen, die unsere Server automatisch sammeln, wenn du auf die Anwendung zugreifst, wie deine IP-Adresse, dein Browsertyp, dein Betriebssystem, deine Zugriffszeiten und die Seiten, die du direkt vor und nach dem Zugriff auf die Anwendung angesehen hast.",
-      "listItem3": "Wir sammeln keine Finanzdaten. Alle relevanten Daten für die Ausbildungsnachweise werden direkt zwischen Azubis und Ausbildern verwaltet."
+      "listItem3": "Wir sammeln keine Finanzdaten. Alle relevanten Daten für die Ausbildungsnachweise werden direkt zwischen Azubis und Ausbilder/innenn verwaltet."
     },
     "section3": {
       "title": "Cookie-Richtlinie",
@@ -95,8 +99,8 @@
     "nr": "Nachweisnummer",
     "ausbildungsjahr": "Ausbildungsjahr",
     "ausbildungsjahrPlaceholder": "z.B. 1. Ausbildungsjahr",
-    "ausbilder": "Ausbilder auswählen",
-    "ausbilderPlaceholder": "-- Bitte Ausbilder wählen --",
+    "Ausbilder/innen": "Ausbilder/innen auswählen",
+    "Ausbilder/innenPlaceholder": "-- Bitte Ausbilder/innen wählen --",
     "listEvery": "Liste jede",
     "monday": "Montag",
     "tuesday": "Dienstag",
@@ -113,11 +117,17 @@
     "remark": "Bemerkung",
     "dateAzubi": "Datum Azubi",
     "sigAzubi": "Unterschrift Azubi",
-    "sigAusbilder": "Unterschrift Ausbilder",
+    "sigAusbilder/innen": "Unterschrift Ausbilder/innen",
     "submitButton": "Nachweis erstellen & PDF generieren",
     "submitting": "Erstelle Nachweis...",
     "successMessage": "Nachweis erfolgreich erstellt!",
     "errorMessage": "Fehler beim Erstellen des Nachweises",
+    "editTitle": "Nachweis bearbeiten",
+    "editDescription": "Bearbeite deinen abgelehnten Nachweis und sende ihn erneut ein.",
+    "updateButton": "Nachweis aktualisieren",
+    "updating": "Aktualisiere Nachweis...",
+    "updateSuccessMessage": "Nachweis erfolgreich aktualisiert!",
+    "errorLoadingNachweis": "Fehler beim Laden des Nachweises",
     "listTitle": "Meine Nachweise",
     "listDescription": "Hier siehst du alle deine eingereichten Ausbildungsnachweise.",
     "statusFilter": "Status filtern",
@@ -199,12 +209,15 @@
     "deleteSuccess": "Profilbild erfolgreich gelöscht.",
     "deleteError": "Beim Löschen Ihres Profilbildes ist ein unerwarteter Fehler aufgetreten.",
     "selectFile": "Bitte wählen Sie eine Datei zum Hochladen aus.",
-    "trainer": "Ausbilder",
-    "selectTrainer": "Wähle deinen Ausbilder",
+    "trainer": "Ausbilder/innen",
+    "selectTrainer": "Wähle deinen Ausbilder/innen",
     "imageSizeHint": "Maximale Dateigröße: 2MB"
   },
   "firefoxWarning": {
     "title": "Browser-Hinweis",
     "message": "Die PDF-Generierung kann in Firefox derzeit Probleme verursachen. Für eine optimale Nutzung empfehlen wir Chrome oder Safari. Diese Funktion wird noch entwickelt."
+  },
+  "common": {
+    "cancel": "Abbrechen"
   }
 }

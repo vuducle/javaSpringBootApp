@@ -3,8 +3,8 @@
 import { ThemeProvider } from './ThemeProvider';
 import StoreProvider from './StoreProvider';
 import { LanguageProvider } from '@/context/LanguageContext';
-import { CookieBanner } from '@/components/ui/CookieBanner';
-import { Footer } from '@/components/ui/Footer';
+import { CookieBanner } from '@/components/core/CookieBanner';
+import { Footer } from '@/components/core/Footer';
 
 export function Providers({
   children,

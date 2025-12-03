@@ -13,9 +13,9 @@ import {
 import Link from 'next/link';
 import { useAppDispatch } from '@/store';
 import { clearUser, User } from '@/store/slices/userSlice';
-import { Button } from './button';
+import { Button } from '../ui/button';
 import { ThemeToggleButton } from './ThemeToggleButton';
-import { Logo } from './Logo';
+import { Logo } from '../ui/Logo';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';

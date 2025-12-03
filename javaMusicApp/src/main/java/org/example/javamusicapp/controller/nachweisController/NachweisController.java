@@ -39,23 +39,31 @@ import java.util.UUID;
 
 /**
  * 📝 **Was geht hier ab?**
- * This is the G.O.A.T. Controller für alles, was mit den Ausbildungsnachweisen zu tun hat.
- * Hier können Azubis ihre Nachweise erstellen, bearbeiten und einsehen. Ausbilder/Admins
- * können die Dinger checken, annehmen, ablehnen und alle Nachweise von allen Azubis sehen.
+ * This is the G.O.A.T. Controller für alles, was mit den Ausbildungsnachweisen
+ * zu tun hat.
+ * Hier können Azubis ihre Nachweise erstellen, bearbeiten und einsehen.
+ * Ausbilder/Admins
+ * können die Dinger checken, annehmen, ablehnen und alle Nachweise von allen
+ * Azubis sehen.
  *
  * Die Endpunkte sind lit und regeln basically das ganze Leben eines Nachweises:
- * - **POST /**: Azubi erstellt einen neuen Nachweis für die Woche. Im Backend wird direkt
- *   ein PDF generiert und gespeichert.
+ * - **POST /**: Azubi erstellt einen neuen Nachweis für die Woche. Im Backend
+ * wird direkt
+ * ein PDF generiert und gespeichert.
  * - **GET /my-nachweise**: Azubi kann alle seine bisherigen Nachweise sehen,
- *   filtern (z.B. nur die offenen) und seitenweise durchblättern.
- * - **GET /{id}/pdf**: Holt das generierte PDF für einen Nachweis. Safe, dass nur der
- *   Besitzer oder ein Admin das kann.
- * - **PUT /{id}**: Azubi kann einen Nachweis bearbeiten (z.B. nach Feedback vom Ausbilder).
- * - **PUT /{id}/status**: Admin/Ausbilder gibt dem Nachweis seinen Segen (`ANGENOMMEN`) oder
- *   lehnt ihn ab (`ABGELEHNT`).
+ * filtern (z.B. nur die offenen) und seitenweise durchblättern.
+ * - **GET /{id}/pdf**: Holt das generierte PDF für einen Nachweis. Safe, dass
+ * nur der
+ * Besitzer oder ein Admin das kann.
+ * - **PUT /{id}**: Azubi kann einen Nachweis bearbeiten (z.B. nach Feedback vom
+ * Ausbilder).
+ * - **PUT /{id}/status**: Admin/Ausbilder gibt dem Nachweis seinen Segen
+ * (`ANGENOMMEN`) oder
+ * lehnt ihn ab (`ABGELEHNT`).
  * - **DELETE /{id}**: Löscht einen Nachweis.
- * - **Admin-Endpunkte (/admin/**):** Extra krasse Endpunkte, mit denen Admins/Ausbilder
- *   alle Nachweise von allen Usern sehen und verwalten können.
+ * - **Admin-Endpunkte (/admin/**):** Extra krasse Endpunkte, mit denen
+ * Admins/Ausbilder
+ * alle Nachweise von allen Usern sehen und verwalten können.
  */
 @RestController
 @RequestMapping("/api/nachweise")
@@ -105,13 +113,24 @@ public class NachweisController {
     }
 
     @GetMapping("/my-nachweise/exists/by-nummer/{nummer}")
-    @Operation(summary = "Prüft, ob ein Nachweis mit der angegebenen Nummer für den aktuellen Benutzer bereits existiert.",
-            description = "Gibt zurück, ob der aktuell authentifizierte Benutzer bereits einen Nachweis mit dieser Nummer hat.")
+    @Operation(summary = "Prüft, ob ein Nachweis mit der angegebenen Nummer für den aktuellen Benutzer bereits existiert.", description = "Gibt zurück, ob der aktuell authentifizierte Benutzer bereits einen Nachweis mit dieser Nummer hat.")
     @ApiResponse(responseCode = "200", description = "Prüfung erfolgreich durchgeführt.")
     public ResponseEntity<java.util.Map<String, Boolean>> checkIfNummerExistsForCurrentUser(
             @PathVariable int nummer, @AuthenticationPrincipal UserDetails userDetails) {
         boolean exists = nachweisService.checkIfNummerExistsForUser(nummer, userDetails.getUsername());
         return ResponseEntity.ok(java.util.Collections.singletonMap("exists", exists));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Holt einen Nachweis anhand seiner ID.", description = "Ruft die Daten eines bestimmten Nachweises ab. Nur für den Besitzer oder einen Admin zugänglich.")
+    @ApiResponse(responseCode = "200", description = "Nachweis gefunden und zurückgegeben.")
+    @ApiResponse(responseCode = "403", description = "Verboten - Sie sind nicht der Besitzer dieses Nachweises.")
+    @ApiResponse(responseCode = "404", description = "Nachweis nicht gefunden.")
+    @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isOwner(authentication, #id)")
+    public ResponseEntity<Nachweis> getNachweisById(@PathVariable UUID id) {
+        Nachweis nachweis = nachweisRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Nachweis not found"));
+        return ResponseEntity.ok(nachweis);
     }
 
     @GetMapping("/{id}/pdf")
@@ -149,7 +168,8 @@ public class NachweisController {
     @ApiResponse(responseCode = "403", description = "Verboten - Sie sind nicht berechtigt, diesen Nachweis zu löschen.")
     @ApiResponse(responseCode = "404", description = "Nachweis nicht gefunden.")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isOwner(authentication, #id)")
-    public ResponseEntity<Void> deleteNachweis(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Void> deleteNachweis(@PathVariable UUID id,
+            @AuthenticationPrincipal UserDetails userDetails) {
         nachweisService.loescheNachweis(id, userDetails.getUsername());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

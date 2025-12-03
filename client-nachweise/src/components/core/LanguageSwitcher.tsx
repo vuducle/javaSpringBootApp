@@ -2,7 +2,7 @@
 "use client";
 
 import { useTranslation } from "@/context/LanguageContext";
-import { Button } from "./button";
+import { Button } from "../ui/button";
 import {Flag} from "lucide-react";
 
 export function LanguageSwitcher() {

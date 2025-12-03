@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from './Providers';
 import { ToastProvider } from './ToastProvider';
-import { AuthNavbarWrapper } from '@/components/ui/AuthNavbarWrapper';
+import { AuthNavbarWrapper } from '@/components/core/AuthNavbarWrapper';
 import { SessionExpiredModal } from '@/components/SessionExpiredModal';
 import FirefoxWarning from '@/components/FirefoxWarning';
 

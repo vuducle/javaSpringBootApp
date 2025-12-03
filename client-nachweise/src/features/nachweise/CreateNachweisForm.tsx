@@ -685,86 +685,62 @@ export function CreateNachweisForm() {
               <Label htmlFor={`${dayPrefix}_Sec_${num}`}>
                 {t('nachweis.section')} {num}
               </Label>
-              <Select
+              <Input
+                id={`${dayPrefix}_Sec_${num}`}
+                list={`${dayPrefix}_Sec_${num}_list`}
+                placeholder="Bereich eingeben..."
                 value={String(
                   watch(
                     `${dayPrefix}_Sec_${num}` as keyof PdfGenerationFormValues
                   ) || ''
                 )}
-                onValueChange={(value) => {
+                onChange={(e) =>
                   setValue(
                     `${dayPrefix}_Sec_${num}` as keyof PdfGenerationFormValues,
-                    value
-                  );
-                  // Wenn ein Bereich ausgewählt wird, leere die Tätigkeit
-                  if (
-                    value &&
-                    value !==
-                      watch(
-                        `${dayPrefix}_Sec_${num}` as keyof PdfGenerationFormValues
-                      )
-                  ) {
-                    setValue(
-                      `${dayPrefix}_${num}` as keyof PdfGenerationFormValues,
-                      ''
-                    );
-                  }
-                }}
-              >
-                <SelectTrigger id={`${dayPrefix}_Sec_${num}`}>
-                  <SelectValue placeholder="Bereich wählen..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {BEREICH_TEMPLATES.map((bereich) => (
-                    <SelectItem key={bereich} value={bereich}>
-                      {bereich}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    e.target.value
+                  )
+                }
+              />
+              <datalist id={`${dayPrefix}_Sec_${num}_list`}>
+                {BEREICH_TEMPLATES.map((bereich) => (
+                  <option key={bereich} value={bereich} />
+                ))}
+              </datalist>
             </div>
             <div>
               <Label htmlFor={`${dayPrefix}_${num}`}>
                 {t('nachweis.activity')} {num}
               </Label>
-              <Select
+              <Input
+                id={`${dayPrefix}_${num}`}
+                list={`${dayPrefix}_${num}_list`}
+                placeholder="Tätigkeit eingeben..."
                 value={String(
                   watch(
                     `${dayPrefix}_${num}` as keyof PdfGenerationFormValues
                   ) || ''
                 )}
-                onValueChange={(value) => {
+                onChange={(e) =>
                   setValue(
                     `${dayPrefix}_${num}` as keyof PdfGenerationFormValues,
-                    value
-                  );
-                }}
-                disabled={
-                  !watch(
-                    `${dayPrefix}_Sec_${num}` as keyof PdfGenerationFormValues
+                    e.target.value
                   )
                 }
-              >
-                <SelectTrigger id={`${dayPrefix}_${num}`}>
-                  <SelectValue placeholder="Tätigkeit wählen..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {(watch(
-                    `${dayPrefix}_Sec_${num}` as keyof PdfGenerationFormValues
-                  )
-                    ? TAETIGKEIT_TEMPLATES[
-                        watch(
-                          `${dayPrefix}_Sec_${num}` as keyof PdfGenerationFormValues
-                        ) as string
-                      ] || []
-                    : []
-                  ).map((taetigkeit) => (
-                    <SelectItem key={taetigkeit} value={taetigkeit}>
-                      {taetigkeit}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
+              <datalist id={`${dayPrefix}_${num}_list`}>
+                {(watch(
+                  `${dayPrefix}_Sec_${num}` as keyof PdfGenerationFormValues
+                )
+                  ? TAETIGKEIT_TEMPLATES[
+                      watch(
+                        `${dayPrefix}_Sec_${num}` as keyof PdfGenerationFormValues
+                      ) as string
+                    ] || []
+                  : []
+                ).map((taetigkeit) => (
+                  <option key={taetigkeit} value={taetigkeit} />
+                ))}
+              </datalist>
             </div>
             <div>
               <Label htmlFor={`${dayPrefix}_Time_${num}`}>
@@ -772,46 +748,12 @@ export function CreateNachweisForm() {
               </Label>
               <Input
                 id={`${dayPrefix}_Time_${num}`}
+                type="number"
+                step="0.5"
+                placeholder="0.0"
                 {...register(
                   `${dayPrefix}_Time_${num}` as keyof PdfGenerationFormValues
                 )}
-              />
-            </div>
-          </div>
-          {/* Bearbeitbare Textzeile unter den Dropdowns */}
-          <div className="grid grid-cols-2 gap-2 pl-2">
-            <div>
-              <Input
-                placeholder="Bereich anpassen..."
-                value={String(
-                  watch(
-                    `${dayPrefix}_Sec_${num}` as keyof PdfGenerationFormValues
-                  ) || ''
-                )}
-                onChange={(e) =>
-                  setValue(
-                    `${dayPrefix}_Sec_${num}` as keyof PdfGenerationFormValues,
-                    e.target.value
-                  )
-                }
-                className="text-sm"
-              />
-            </div>
-            <div>
-              <Input
-                placeholder="Tätigkeit anpassen..."
-                value={String(
-                  watch(
-                    `${dayPrefix}_${num}` as keyof PdfGenerationFormValues
-                  ) || ''
-                )}
-                onChange={(e) =>
-                  setValue(
-                    `${dayPrefix}_${num}` as keyof PdfGenerationFormValues,
-                    e.target.value
-                  )
-                }
-                className="text-sm"
               />
             </div>
           </div>
@@ -985,91 +927,65 @@ export function CreateNachweisForm() {
                         <Label htmlFor={`sa_Sec_${num}`}>
                           {t('nachweis.section')} {num}
                         </Label>
-                        <Select
+                        <Input
+                          id={`sa_Sec_${num}`}
+                          list={`sa_Sec_${num}_list`}
+                          placeholder="Bereich eingeben..."
                           value={String(
                             watch(
                               `sa_Sec_${num}` as keyof PdfGenerationFormValues
                             ) || ''
                           )}
-                          onValueChange={(value) => {
+                          onChange={(e) =>
                             setValue(
                               `sa_Sec_${num}` as keyof PdfGenerationFormValues,
-                              value
-                            );
-                            if (
-                              value &&
-                              value !==
-                                watch(
-                                  `sa_Sec_${num}` as keyof PdfGenerationFormValues
-                                )
-                            ) {
-                              setValue(
-                                `sa_${num}` as keyof PdfGenerationFormValues,
-                                ''
-                              );
-                            }
-                          }}
-                        >
-                          <SelectTrigger id={`sa_Sec_${num}`}>
-                            <SelectValue placeholder="Bereich wählen..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {BEREICH_TEMPLATES.map((bereich) => (
-                              <SelectItem
-                                key={bereich}
-                                value={bereich}
-                              >
-                                {bereich}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                              e.target.value
+                            )
+                          }
+                        />
+                        <datalist id={`sa_Sec_${num}_list`}>
+                          {BEREICH_TEMPLATES.map((bereich) => (
+                            <option key={bereich} value={bereich} />
+                          ))}
+                        </datalist>
                       </div>
                       <div>
                         <Label htmlFor={`sa_${num}`}>
                           {t('nachweis.activity')} {num}
                         </Label>
-                        <Select
+                        <Input
+                          id={`sa_${num}`}
+                          list={`sa_${num}_list`}
+                          placeholder="Tätigkeit eingeben..."
                           value={String(
                             watch(
                               `sa_${num}` as keyof PdfGenerationFormValues
                             ) || ''
                           )}
-                          onValueChange={(value) => {
+                          onChange={(e) =>
                             setValue(
                               `sa_${num}` as keyof PdfGenerationFormValues,
-                              value
-                            );
-                          }}
-                          disabled={
-                            !watch(
-                              `sa_Sec_${num}` as keyof PdfGenerationFormValues
+                              e.target.value
                             )
                           }
-                        >
-                          <SelectTrigger id={`sa_${num}`}>
-                            <SelectValue placeholder="Tätigkeit wählen..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {(watch(
-                              `sa_Sec_${num}` as keyof PdfGenerationFormValues
-                            )
-                              ? TAETIGKEIT_TEMPLATES[
-                                  watch(
-                                    `sa_Sec_${num}` as keyof PdfGenerationFormValues
-                                  ) as string
-                                ] || []
-                              : []
-                            ).map((taetigkeit) => (
-                              <SelectItem
-                                key={taetigkeit}
-                                value={taetigkeit}
-                              >
-                                {taetigkeit}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        />
+                        <datalist id={`sa_${num}_list`}>
+                          {(watch(
+                            `sa_Sec_${num}` as keyof PdfGenerationFormValues
+                          )
+                            ? TAETIGKEIT_TEMPLATES[
+                                watch(
+                                  `sa_Sec_${num}` as keyof PdfGenerationFormValues
+                                ) as string
+                              ] || []
+                            : []
+                          ).map((taetigkeit) => (
+                            <option
+                              key={taetigkeit}
+                              value={taetigkeit}
+                            />
+                          ))}
+                        </datalist>
                       </div>
                       <div>
                         <Label htmlFor={`sa_Time_${num}`}>
@@ -1077,45 +993,12 @@ export function CreateNachweisForm() {
                         </Label>
                         <Input
                           id={`sa_Time_${num}`}
+                          type="number"
+                          step="0.5"
+                          placeholder="0.0"
                           {...register(
                             `sa_Time_${num}` as keyof PdfGenerationFormValues
                           )}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 pl-2">
-                      <div>
-                        <Input
-                          placeholder="Bereich anpassen..."
-                          value={String(
-                            watch(
-                              `sa_Sec_${num}` as keyof PdfGenerationFormValues
-                            ) || ''
-                          )}
-                          onChange={(e) =>
-                            setValue(
-                              `sa_Sec_${num}` as keyof PdfGenerationFormValues,
-                              e.target.value
-                            )
-                          }
-                          className="text-sm"
-                        />
-                      </div>
-                      <div>
-                        <Input
-                          placeholder="Tätigkeit anpassen..."
-                          value={String(
-                            watch(
-                              `sa_${num}` as keyof PdfGenerationFormValues
-                            ) || ''
-                          )}
-                          onChange={(e) =>
-                            setValue(
-                              `sa_${num}` as keyof PdfGenerationFormValues,
-                              e.target.value
-                            )
-                          }
-                          className="text-sm"
                         />
                       </div>
                     </div>
@@ -1135,91 +1018,65 @@ export function CreateNachweisForm() {
                         <Label htmlFor={`su_Sec_${num}`}>
                           {t('nachweis.section')} {num}
                         </Label>
-                        <Select
+                        <Input
+                          id={`su_Sec_${num}`}
+                          list={`su_Sec_${num}_list`}
+                          placeholder="Bereich eingeben..."
                           value={String(
                             watch(
                               `su_Sec_${num}` as keyof PdfGenerationFormValues
                             ) || ''
                           )}
-                          onValueChange={(value) => {
+                          onChange={(e) =>
                             setValue(
                               `su_Sec_${num}` as keyof PdfGenerationFormValues,
-                              value
-                            );
-                            if (
-                              value &&
-                              value !==
-                                watch(
-                                  `su_Sec_${num}` as keyof PdfGenerationFormValues
-                                )
-                            ) {
-                              setValue(
-                                `su_${num}` as keyof PdfGenerationFormValues,
-                                ''
-                              );
-                            }
-                          }}
-                        >
-                          <SelectTrigger id={`su_Sec_${num}`}>
-                            <SelectValue placeholder="Bereich wählen..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {BEREICH_TEMPLATES.map((bereich) => (
-                              <SelectItem
-                                key={bereich}
-                                value={bereich}
-                              >
-                                {bereich}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                              e.target.value
+                            )
+                          }
+                        />
+                        <datalist id={`su_Sec_${num}_list`}>
+                          {BEREICH_TEMPLATES.map((bereich) => (
+                            <option key={bereich} value={bereich} />
+                          ))}
+                        </datalist>
                       </div>
                       <div>
                         <Label htmlFor={`su_${num}`}>
                           {t('nachweis.activity')} {num}
                         </Label>
-                        <Select
+                        <Input
+                          id={`su_${num}`}
+                          list={`su_${num}_list`}
+                          placeholder="Tätigkeit eingeben..."
                           value={String(
                             watch(
                               `su_${num}` as keyof PdfGenerationFormValues
                             ) || ''
                           )}
-                          onValueChange={(value) => {
+                          onChange={(e) =>
                             setValue(
                               `su_${num}` as keyof PdfGenerationFormValues,
-                              value
-                            );
-                          }}
-                          disabled={
-                            !watch(
-                              `su_Sec_${num}` as keyof PdfGenerationFormValues
+                              e.target.value
                             )
                           }
-                        >
-                          <SelectTrigger id={`su_${num}`}>
-                            <SelectValue placeholder="Tätigkeit wählen..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {(watch(
-                              `su_Sec_${num}` as keyof PdfGenerationFormValues
-                            )
-                              ? TAETIGKEIT_TEMPLATES[
-                                  watch(
-                                    `su_Sec_${num}` as keyof PdfGenerationFormValues
-                                  ) as string
-                                ] || []
-                              : []
-                            ).map((taetigkeit) => (
-                              <SelectItem
-                                key={taetigkeit}
-                                value={taetigkeit}
-                              >
-                                {taetigkeit}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        />
+                        <datalist id={`su_${num}_list`}>
+                          {(watch(
+                            `su_Sec_${num}` as keyof PdfGenerationFormValues
+                          )
+                            ? TAETIGKEIT_TEMPLATES[
+                                watch(
+                                  `su_Sec_${num}` as keyof PdfGenerationFormValues
+                                ) as string
+                              ] || []
+                            : []
+                          ).map((taetigkeit) => (
+                            <option
+                              key={taetigkeit}
+                              value={taetigkeit}
+                            />
+                          ))}
+                        </datalist>
                       </div>
                       <div>
                         <Label htmlFor={`su_Time_${num}`}>
@@ -1227,45 +1084,12 @@ export function CreateNachweisForm() {
                         </Label>
                         <Input
                           id={`su_Time_${num}`}
+                          type="number"
+                          step="0.5"
+                          placeholder="0.0"
                           {...register(
                             `su_Time_${num}` as keyof PdfGenerationFormValues
                           )}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 pl-2">
-                      <div>
-                        <Input
-                          placeholder="Bereich anpassen..."
-                          value={String(
-                            watch(
-                              `su_Sec_${num}` as keyof PdfGenerationFormValues
-                            ) || ''
-                          )}
-                          onChange={(e) =>
-                            setValue(
-                              `su_Sec_${num}` as keyof PdfGenerationFormValues,
-                              e.target.value
-                            )
-                          }
-                          className="text-sm"
-                        />
-                      </div>
-                      <div>
-                        <Input
-                          placeholder="Tätigkeit anpassen..."
-                          value={String(
-                            watch(
-                              `su_${num}` as keyof PdfGenerationFormValues
-                            ) || ''
-                          )}
-                          onChange={(e) =>
-                            setValue(
-                              `su_${num}` as keyof PdfGenerationFormValues,
-                              e.target.value
-                            )
-                          }
-                          className="text-sm"
                         />
                       </div>
                     </div>

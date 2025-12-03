@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button } from './button';
+import { Button } from '../ui/button';
 import {
   Card,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from './card';
+} from '../ui/card';
 import { useTranslation } from '@/context/LanguageContext';
 
 export function CookieBanner() {

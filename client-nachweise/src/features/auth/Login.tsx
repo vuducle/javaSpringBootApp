@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { LanguageSwitcher } from '@/components/core/LanguageSwitcher';
 import { useTranslation } from '@/context/LanguageContext';
 import { useAppDispatch } from '@/store';
 import { setUser } from '@/store/slices/userSlice';

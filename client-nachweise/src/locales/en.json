@@ -17,6 +17,10 @@
     "welcome": "Welcome, {name}!",
     "logout": "Logout"
   },
+  "dashboard": {
+    "traineeWelcome": "Welcome to the Trainee Dashboard, {name}!",
+    "trainerWelcome": "Welcome to the Trainer Dashboard, {name}!"
+  },
   "loginPage": {
     "mainTitle": "The World of Training Records",
     "subtitle": "For apprentices and trainers. Enter, check, save, and view records at any time."
@@ -117,6 +121,12 @@
     "submitting": "Creating Record...",
     "successMessage": "Record successfully created!",
     "errorMessage": "Error creating record",
+    "editTitle": "Edit Record",
+    "editDescription": "Edit your rejected training record and resubmit it.",
+    "updateButton": "Update Record",
+    "updating": "Updating Record...",
+    "updateSuccessMessage": "Record successfully updated!",
+    "errorLoadingNachweis": "Error loading record",
     "listTitle": "My Training Records",
     "listDescription": "Here you can see all your submitted training records.",
     "statusFilter": "Filter by status",
@@ -205,5 +215,8 @@
   "firefoxWarning": {
     "title": "Browser Notice",
     "message": "PDF generation may currently cause issues in Firefox. For optimal usage, we recommend Chrome or Safari. This feature is still under development."
+  },
+  "common": {
+    "cancel": "Cancel"
   }
 }

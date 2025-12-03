@@ -339,9 +339,9 @@ export function AllNachweiseView() {
               <TableHead className="text-xs uppercase text-muted-foreground">
                 {t('nachweis.status')}
               </TableHead>
-                <TableHead className="text-xs uppercase text-muted-foreground">
-                    {t('nachweis.kommentar')}
-                </TableHead>
+              <TableHead className="text-xs uppercase text-muted-foreground">
+                {t('nachweis.kommentar')}
+              </TableHead>
               <TableHead className="text-xs uppercase text-muted-foreground">
                 {t('nachweis.aktion')}
               </TableHead>
@@ -448,9 +448,9 @@ export function AllNachweiseView() {
                       </span>
                     </span>
                   </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                        {nachweis.comment}
-                    </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {nachweis.comment}
+                  </TableCell>
                   <TableCell>
                     <div className="flex justify-between">
                       <Button
@@ -462,10 +462,19 @@ export function AllNachweiseView() {
                         </Link>
                       </Button>
                       <Button
-                        disabled={true}
-                        className="bg-chart-4 hover:bg-chart-4/80 dark:bg-chart-4 dark:hover:bg-chart-4/80 cursor-pointer transition-all"
+                        asChild={nachweis.status === 'ABGELEHNT'}
+                        disabled={nachweis.status !== 'ABGELEHNT'}
+                        className="bg-chart-4 hover:bg-chart-4/80 dark:bg-chart-4 dark:hover:bg-chart-4/80 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Pen />
+                        {nachweis.status === 'ABGELEHNT' ? (
+                          <Link
+                            href={`/nachweis/${nachweis.id}/edit`}
+                          >
+                            <Pen />
+                          </Link>
+                        ) : (
+                          <Pen />
+                        )}
                       </Button>
                       <Button
                         onClick={() => openDeleteModal(nachweis.id)}
