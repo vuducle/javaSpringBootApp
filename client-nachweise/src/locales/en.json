@@ -173,6 +173,7 @@
     "startAddingNachweis": "Start by adding a new record.",
     "nachweisErstellen": "Create record",
     "nachweiseAnschauen": "View records",
+    "sortBy": "Sort by",
     "kommentar": "Comment",
     "viewer": {
       "title": "Training Record",

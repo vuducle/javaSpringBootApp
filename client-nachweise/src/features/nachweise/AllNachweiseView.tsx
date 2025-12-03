@@ -45,6 +45,8 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 import Link from 'next/link';
 import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
@@ -90,6 +92,8 @@ export function AllNachweiseView() {
   const [status, setStatus] = useState<string>('ALL');
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
+  const [sortBy, setSortBy] = useState<string>('datumStart');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -120,13 +124,15 @@ export function AllNachweiseView() {
       try {
         await api.delete(`/api/nachweise/${deleteId}`);
         showToast(t('nachweis.deleteSuccess'), 'success');
-        // revalidate the list
+        // revalidate the list (preserve current sorting)
         mutate([
           '/api/nachweise/my-nachweise',
           {
             status: status === 'ALL' ? undefined : status,
             page,
             size,
+            sortBy,
+            sortDir,
           },
         ]);
         closeDeleteModal();
@@ -145,6 +151,8 @@ export function AllNachweiseView() {
       status,
       page,
       size,
+      sortBy,
+      sortDir,
       mutate,
       showToast,
       t,
@@ -169,10 +177,16 @@ export function AllNachweiseView() {
     try {
       await api.delete('/api/nachweise/my-nachweise/all');
       showToast(t('nachweis.deleteAllSuccess'), 'success');
-      // revalidate list
+      // revalidate list (preserve current sorting)
       mutate([
         '/api/nachweise/my-nachweise',
-        { status: status === 'ALL' ? undefined : status, page, size },
+        {
+          status: status === 'ALL' ? undefined : status,
+          page,
+          size,
+          sortBy,
+          sortDir,
+        },
       ]);
       closeDeleteAllModal();
     } catch (err) {
@@ -191,6 +205,8 @@ export function AllNachweiseView() {
     status,
     page,
     size,
+    sortBy,
+    sortDir,
     showToast,
     t,
     closeDeleteAllModal,
@@ -204,6 +220,8 @@ export function AllNachweiseView() {
         status: status === 'ALL' ? undefined : status,
         page,
         size,
+        sortBy,
+        sortDir,
       },
     ],
     ([url, params]) => fetcher(url, params),
@@ -287,6 +305,53 @@ export function AllNachweiseView() {
                   <SelectItem value="50">50</SelectItem>
                 </SelectContent>
               </Select>
+              <div className="flex items-center space-x-2">
+                <label className="text-sm">
+                  {t('nachweis.sortBy') ?? 'Sort by'}:
+                </label>
+                <Select
+                  onValueChange={(v) => {
+                    setSortBy(v);
+                    setPage(0);
+                  }}
+                  value={sortBy}
+                >
+                  <SelectTrigger className="w-[160px]">
+                    <SelectValue
+                      placeholder={t('nachweis.sortBy') ?? 'Sort by'}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="datumStart">
+                      {t('nachweis.startDate')}
+                    </SelectItem>
+                    <SelectItem value="datumEnde">
+                      {t('nachweis.endDate')}
+                    </SelectItem>
+                    <SelectItem value="nummer">
+                      {t('nachweis.nummer')}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  size="sm"
+                  aria-label={
+                    sortDir === 'asc'
+                      ? 'Sort ascending'
+                      : 'Sort descending'
+                  }
+                  onClick={() => {
+                    setSortDir((s) => (s === 'asc' ? 'desc' : 'asc'));
+                    setPage(0);
+                  }}
+                >
+                  {sortDir === 'asc' ? (
+                    <ChevronUp />
+                  ) : (
+                    <ChevronDown />
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
           <div className="flex items-center space-x-2">
