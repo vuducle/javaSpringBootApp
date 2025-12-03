@@ -1,3 +1,9 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Benutzer erstellen',
+};
+
 export default function UserErstellenPage() {
   return (
     <div>

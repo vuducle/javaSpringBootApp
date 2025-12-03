@@ -212,7 +212,14 @@
     "selectFile": "Please select a file to upload.",
     "trainer": "Trainer",
     "selectTrainer": "Select your trainer",
-    "imageSizeHint": "Maximum file size: 2MB"
+    "imageSizeHint": "Maximum file size: 2MB",
+    "oldPassword": "Old Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "passwordTooShort": "Password must be at least 8 characters long.",
+    "passwordComplexity": "Password must contain at least one uppercase letter, one number, and one special character.",
+    "passwordsDontMatch": "Passwords do not match.",
+    "newPasswordRequired": "New password is required"
   },
   "firefoxWarning": {
     "title": "Browser Notice",

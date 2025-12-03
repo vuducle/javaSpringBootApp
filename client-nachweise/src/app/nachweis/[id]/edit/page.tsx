@@ -1,15 +1,10 @@
-'use client';
+import type { Metadata } from 'next';
+import EditNachweisPageClient from './EditNachweisPageClient';
 
-import { EditNachweisForm } from '@/features/nachweise/EditNachweisForm';
-import { useParams } from 'next/navigation';
+export const metadata: Metadata = {
+  title: 'Nachweis bearbeiten',
+};
 
 export default function EditNachweisPage() {
-  const params = useParams();
-  const nachweisId = params.id as string;
-
-  return (
-    <div className="container mx-auto py-8">
-      <EditNachweisForm nachweisId={nachweisId} />
-    </div>
-  );
+  return <EditNachweisPageClient />;
 }

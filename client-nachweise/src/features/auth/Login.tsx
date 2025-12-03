@@ -17,14 +17,14 @@ import { useAppDispatch } from '@/store';
 import { setUser } from '@/store/slices/userSlice';
 import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
-import {Key, Lock, Mail} from "lucide-react";
+import { Key, Lock, Mail } from 'lucide-react';
 
 function Envelope() {
-    return null;
+  return null;
 }
 
 export default function LoginForm() {
@@ -35,13 +35,15 @@ export default function LoginForm() {
   const router = useRouter();
   const { t } = useTranslation();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e?: FormEvent<HTMLFormElement>) => {
+    if (e) e.preventDefault();
     try {
       const response = await api.post('/api/auth/login', {
         email,
         password,
       });
-      const { accessToken, refreshToken, id, name, roles } = response.data;
+      const { accessToken, refreshToken, id, name, roles } =
+        response.data;
       dispatch(
         setUser({
           token: accessToken,
@@ -100,53 +102,55 @@ export default function LoginForm() {
                 {t('login.description')}
               </CardDescription>
             </CardHeader>
-            <CardContent className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="email">
+            <form onSubmit={handleLogin} className="w-full">
+              <CardContent className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="email">
                     <Mail />
                     {t('login.emailLabel')}
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder={t('login.emailPlaceholder')}
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password">
-                    <Lock/>
-                  {t('login.passwordLabel')}
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <div className="text-sm">
-                <Link
-                  href="/forgot-password"
-                  className="font-medium text-primary hover:underline"
-                  passHref
-                >
-                  {t('login.forgotPassword')}
-                </Link>
-              </div>
-              {error && (
-                <p className="text-destructive text-sm">{error}</p>
-              )}
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full" onClick={handleLogin}>
-                  <Key/>
-                {t('login.submitButton')}
-              </Button>
-            </CardFooter>
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder={t('login.emailPlaceholder')}
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="password">
+                    <Lock />
+                    {t('login.passwordLabel')}
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+                <div className="text-sm">
+                  <Link
+                    href="/forgot-password"
+                    className="font-medium text-primary hover:underline"
+                    passHref
+                  >
+                    {t('login.forgotPassword')}
+                  </Link>
+                </div>
+                {error && (
+                  <p className="text-destructive text-sm">{error}</p>
+                )}
+              </CardContent>
+              <CardFooter>
+                <Button className="w-full" type="submit">
+                  <Key />
+                  {t('login.submitButton')}
+                </Button>
+              </CardFooter>
+            </form>
           </Card>
         </div>
       </div>

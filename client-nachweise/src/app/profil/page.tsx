@@ -1,4 +1,9 @@
+import type { Metadata } from 'next';
 import { Profile } from "@/features/auth/Profile";
+
+export const metadata: Metadata = {
+  title: 'Profil',
+};
 
 export default function ProfilePage() {
   return (

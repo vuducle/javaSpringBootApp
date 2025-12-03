@@ -43,15 +43,67 @@ import {
 } from 'lucide-react';
 import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
 
-const profileSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
-  ausbildungsjahr: z.union([z.string(), z.number()]).pipe(z.string()),
-  telefonnummer: z.string().optional(),
-  team: z.string().optional(),
-  profileImageUrl: z.string().optional(),
-  username: z.string().optional(),
-});
+type ProfileTranslationKeys = `profile.${| 'passwordTooShort'
+  | 'passwordComplexity'
+  | 'passwordsDontMatch'
+  | 'oldPasswordRequired'
+  | 'newPasswordRequired'}`;
+
+const profileSchema = z
+  .object({
+    name: z.string().min(1, 'Name is required'),
+    email: z.string().email('Invalid email address'),
+    ausbildungsjahr: z.union([z.string(), z.number()]).pipe(z.string()),
+    telefonnummer: z.string().optional(),
+    team: z.string().optional(),
+    profileImageUrl: z.string().optional(),
+    username: z.string().optional(),
+    oldPassword: z.string().optional(),
+    password: z.string().optional(),
+    confirmPassword: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.oldPassword && data.oldPassword.length > 0) {
+        return data.password && data.password.length > 0;
+      }
+      return true;
+    },
+    {
+      message: 'profile.newPasswordRequired',
+      path: ['password'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.password && data.password.length > 0) {
+        return data.password.length >= 8;
+      }
+      return true;
+    },
+    {
+      message: 'profile.passwordTooShort',
+      path: ['password'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.password && data.password.length > 0) {
+        return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+          data.password
+        );
+      }
+      return true;
+    },
+    {
+      message: 'profile.passwordComplexity',
+      path: ['password'],
+    }
+  )
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'profile.passwordsDontMatch',
+    path: ['confirmPassword'],
+  });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
@@ -146,8 +198,30 @@ export function Profile() {
 
   const onSubmit = async (data: ProfileFormValues) => {
     try {
-      await api.put('/api/user/profile', data);
+      const { oldPassword, password, ...profileData } = data;
+
+      if (oldPassword && oldPassword.length > 0 && password && password.length > 0) {
+        await api.put('/api/user/change-password', { oldPassword, newPassword: password });
+      }
+
+      const changedData: Partial<ProfileFormValues> = {};
+      for (const key in profileData) {
+        if (
+          profileData[key as keyof typeof profileData] !==
+          user![key as keyof typeof user]
+        ) {
+          changedData[key as keyof typeof changedData] =
+            profileData[key as keyof typeof profileData];
+        }
+      }
+
+      if (Object.keys(changedData).length > 0) {
+        const response = await api.put('/api/user/profile', profileData);
+        setUser(response.data);
+      }
+
       showToast(t('profile.updateSuccess'), 'success');
+      reset({ ...data, ...changedData });
     } catch (error: unknown) {
       if (error instanceof Error) {
         showToast(error.message, 'error');
@@ -435,6 +509,70 @@ export function Profile() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div className="space-y-2">
+              <Label htmlFor="oldPassword">{t('profile.oldPassword')}</Label>
+              <div className="relative">
+                <Save
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4"
+                  aria-hidden
+                />
+                <Input
+                  id="oldPassword"
+                  type="password"
+                  {...register('oldPassword')}
+                  className="bg-white/5 border-white/20 focus:ring-white/50 pl-10"
+                />
+              </div>
+              {errors.oldPassword && (
+                <p className="text-sm text-red-400">
+                  {t(errors.oldPassword.message as ProfileTranslationKeys)}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div className="space-y-2">
+              <Label htmlFor="password">{t('profile.newPassword')}</Label>
+              <div className="relative">
+                <Save
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4"
+                  aria-hidden
+                />
+                <Input
+                  id="password"
+                  type="password"
+                  {...register('password')}
+                  className="bg-white/5 border-white/20 focus:ring-white/50 pl-10"
+                />
+              </div>
+              {errors.password && (
+                <p className="text-sm text-red-400">
+                  {t(errors.password.message as ProfileTranslationKeys)}
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">{t('profile.confirmPassword')}</Label>
+              <div className="relative">
+                <Save
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4"
+                  aria-hidden
+                />
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  {...register('confirmPassword')}
+                  className="bg-white/5 border-white/20 focus:ring-white/50 pl-10"
+                />
+              </div>
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-400">
+                  {t(errors.confirmPassword.message as ProfileTranslationKeys)}
+                </p>
+              )}
             </div>
           </div>
           <div className="flex justify-end">
