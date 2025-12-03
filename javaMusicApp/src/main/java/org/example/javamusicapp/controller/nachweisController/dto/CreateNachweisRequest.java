@@ -21,8 +21,7 @@ public class CreateNachweisRequest {
     @Schema(description = "Enddatum der Nachweiswoche", example = "2025-11-28")
     private LocalDate datumEnde;
 
-    @Min(value = 1, message = "Nachweisnummer muss mindestens 1 sein")
-    @Schema(description = "Die Nummer des Nachweises", example = "42")
+    @Schema(description = "Die Nummer des Nachweises. Senden Sie 0, damit die Nummer automatisch generiert wird.", example = "42")
     private int nummer;
 
     @Schema(description = "Liste der Aktivitäten für die Woche. Wenn nicht angegeben, wird eine Standardliste erstellt.")

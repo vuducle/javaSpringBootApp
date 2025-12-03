@@ -123,6 +123,15 @@ public class NachweisController {
         return ResponseEntity.ok(java.util.Collections.singletonMap("exists", exists));
     }
 
+    @GetMapping("/my-nachweise/next-nummer")
+    @Operation(summary = "Gibt die nächste verfügbare Nachweisnummer für den aktuellen Benutzer zurück.", description = "Ermittelt die höchste existierende Nachweisnummer und gibt die nächsthöhere zurück.")
+    @ApiResponse(responseCode = "200", description = "Nächste Nummer erfolgreich ermittelt.")
+    public ResponseEntity<java.util.Map<String, Integer>> getNextNachweisNummer(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        int nextNummer = nachweisService.getNextNachweisNummerForUser(userDetails.getUsername());
+        return ResponseEntity.ok(java.util.Collections.singletonMap("nextNummer", nextNummer));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Holt einen Nachweis anhand seiner ID.", description = "Ruft die Daten eines bestimmten Nachweises ab. Nur für den Besitzer oder einen Admin zugänglich.")
     @ApiResponse(responseCode = "200", description = "Nachweis gefunden und zurückgegeben.")

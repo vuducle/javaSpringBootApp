@@ -528,11 +528,32 @@ export function CreateNachweisForm() {
         setValue('name', user.name || '');
       }
     };
+    const fetchNextNummer = async () => {
+      try {
+        const response = await api.get(
+          '/api/nachweise/my-nachweise/next-nummer'
+        );
+        console.log('Nächste Nummer API Antwort:', response.data);
+        if (
+          response.data &&
+          typeof response.data.nextNummer === 'number'
+        ) {
+          setValue('nummer', response.data.nextNummer);
+        }
+      } catch (error) {
+        console.error(
+          'Fehler beim Abrufen der nächsten Nummer:',
+          error
+        );
+        // Bei Fehler bleibt die Default-Nummer (1)
+      }
+    };
 
     const initialize = async () => {
       const ausbilder = await fetchAusbilder();
       if (user.isLoggedIn) {
         await fetchUserProfile(ausbilder);
+        await fetchNextNummer();
       }
     };
 
@@ -631,6 +652,26 @@ export function CreateNachweisForm() {
 
         // Set PDF URL for preview only
         setPdfUrl(url);
+
+        // Fetch next nummer for the next creation
+        try {
+          const nextNummerResponse = await api.get(
+            '/api/my-nachweise/next-nummer'
+          );
+          if (
+            nextNummerResponse.data &&
+            typeof nextNummerResponse.data.nextNummer === 'number'
+          ) {
+            setValue('nummer', nextNummerResponse.data.nextNummer);
+          }
+        } catch (error) {
+          console.error(
+            'Fehler beim Abrufen der nächsten Nummer:',
+            error
+          );
+          // Wenn Fehler, erhöhe einfach die aktuelle Nummer um 1
+          setValue('nummer', data.nummer + 1);
+        }
       }
     } catch (error: unknown) {
       if (error instanceof Error) {

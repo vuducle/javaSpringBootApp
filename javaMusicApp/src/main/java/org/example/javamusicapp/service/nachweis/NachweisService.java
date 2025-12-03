@@ -76,7 +76,15 @@ public class NachweisService {
         nachweis.setName(user.getName());
         nachweis.setDatumStart(request.getDatumStart());
         nachweis.setDatumEnde(request.getDatumEnde());
-        nachweis.setNummer(request.getNummer());
+
+        if (request.getNummer() == 0) {
+            // Auto-increment the nummer if it's not provided
+            Integer maxNummer = nachweisRepository.findMaxNummerByAzubiId(user.getId());
+            nachweis.setNummer(maxNummer + 1);
+        } else {
+            nachweis.setNummer(request.getNummer());
+        }
+
         nachweis.setAusbildungsjahr(request.getAusbildungsjahr());
         nachweis.setAzubi(user);
         nachweis.setAusbilder(ausbilder);
@@ -634,6 +642,13 @@ public class NachweisService {
 
         return nachweisRepository.existsByNummerAndAzubiId(nummer, azubi.getId());
 
+    }
+
+    public int getNextNachweisNummerForUser(String username) {
+        User azubi = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Benutzer nicht gefunden: " + username));
+        Integer maxNummer = nachweisRepository.findMaxNummerByAzubiId(azubi.getId());
+        return maxNummer + 1;
     }
 
 }

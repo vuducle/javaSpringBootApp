@@ -23,4 +23,7 @@ public interface NachweisRepository extends JpaRepository<Nachweis, UUID> {
     boolean existsByAusbilderUsername(String username);
 
     boolean existsByNummerAndAzubiId(int nummer, UUID azubiId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(MAX(n.nummer), 0) FROM Nachweis n WHERE n.azubi.id = :azubiId")
+    Integer findMaxNummerByAzubiId(@org.springframework.data.repository.query.Param("azubiId") UUID azubiId);
 }
