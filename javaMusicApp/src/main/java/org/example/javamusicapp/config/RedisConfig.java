@@ -1,14 +1,21 @@
 package org.example.javamusicapp.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory; // NEUER Import
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
 
 /**
  * 🚀 **Was geht hier ab?**
@@ -21,6 +28,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  * Diese Klasse stellt sicher, dass die App weiß, wo Redis läuft und wie sie damit quatschen soll.
  */
 @Configuration
+@EnableCaching
 @EnableRedisRepositories(basePackages = "org.example.javamusicapp.repository")
 public class RedisConfig {
 
@@ -53,5 +61,20 @@ public class RedisConfig {
 
         template.afterPropertiesSet();
         return template;
+    }
+
+    @Bean
+    public RedisCacheConfiguration cacheConfiguration() {
+        return RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(10))
+                .disableCachingNullValues()
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+    }
+
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory connectionFactory, RedisCacheConfiguration cacheConfiguration) {
+        return RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(cacheConfiguration)
+                .build();
     }
 }

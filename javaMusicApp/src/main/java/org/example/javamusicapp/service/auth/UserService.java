@@ -8,6 +8,9 @@ import org.example.javamusicapp.repository.RoleRepository;
 import org.example.javamusicapp.model.Role;
 import org.example.javamusicapp.model.enums.ERole;
 import org.example.javamusicapp.service.nachweis.NachweisService;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -90,7 +93,7 @@ public class UserService implements UserDetailsService {
     private float imageQuality;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository,
-            RoleAuditService roleAuditService, NachweisService nachweisService) {
+            RoleAuditService roleAuditService, @Lazy NachweisService nachweisService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
@@ -105,6 +108,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
+    @CacheEvict(value = "users", key = "#username")
     public void deleteUser(String username, String performedBy) {
         User user = findByUsername(username);
 
@@ -136,6 +140,7 @@ public class UserService implements UserDetailsService {
 
     // ... (rest of the file remains the same)
     // ...
+    @CacheEvict(value = "users", key = "#targetUsername")
     public void grantAdminRoleToUser(String targetUsername, String performedBy) {
         User target = userRepository.findByUsername(targetUsername)
                 .orElseThrow(() -> new IllegalArgumentException("Zielbenutzer nicht gefunden: " + targetUsername));
@@ -178,6 +183,7 @@ public class UserService implements UserDetailsService {
      * @param keepAsNoRole   if true, do not auto-assign ROLE_USER after revoke; if
      *                       false, assign ROLE_USER when missing
      */
+    @CacheEvict(value = "users", key = "#targetUsername")
     public void revokeAdminRoleFromUser(String targetUsername, String performedBy, boolean keepAsNoRole) {
         User target = userRepository.findByUsername(targetUsername)
                 .orElseThrow(() -> new IllegalArgumentException("Zielbenutzer nicht gefunden: " + targetUsername));
@@ -260,17 +266,22 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
+    @Cacheable(value = "users", key = "#username")
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // The "username" parameter is treated as the email for authentication purposes
+        log.debug("Fetching user details for '{}' from database", username);
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Benutzer mit E-Mail nicht gefunden: " + username));
     }
 
+    @Cacheable(value = "users", key = "#username")
     public User findByUsername(String username) {
+        log.debug("Fetching user '{}' from database", username);
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 
+    @CacheEvict(value = "users", key = "#username")
     public void changePassword(String username, String oldPassword, String newPassword) {
         User user = findByUsername(username);
 
@@ -285,6 +296,7 @@ public class UserService implements UserDetailsService {
         log.info("AUDIT: Passwort wurde vom Benutzer '{}' geändert.", username);
     }
 
+    @CacheEvict(value = "users", key = "#user.username")
     public void resetPassword(User user, String newPassword) {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
@@ -292,6 +304,7 @@ public class UserService implements UserDetailsService {
                 user.getUsername());
     }
 
+    @CacheEvict(value = "users", key = "#username")
     public User updateUserProfile(String username,
             org.example.javamusicapp.controller.userController.dto.UserUpdateRequest request) {
         User user = findByUsername(username);
@@ -306,6 +319,7 @@ public class UserService implements UserDetailsService {
      * speichert es im Dateisystem.
      * Unterstützt JPEG-Formate. Löscht das alte Profilbild
      */
+    @CacheEvict(value = "users", key = "#username")
     public User uploadProfileImage(String username, MultipartFile file) throws IOException {
         User user = findByUsername(username);
 
@@ -474,6 +488,7 @@ public class UserService implements UserDetailsService {
         return savedUser;
     }
 
+    @CacheEvict(value = "users", key = "#username")
     public User deleteProfileImage(String username) throws IOException {
         User user = findByUsername(username);
 
