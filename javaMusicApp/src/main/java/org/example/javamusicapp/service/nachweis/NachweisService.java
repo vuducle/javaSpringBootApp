@@ -19,7 +19,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 
+import org.example.javamusicapp.repository.specification.NachweisSpecification;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -254,14 +257,14 @@ public class NachweisService {
         }
     }
 
-    public Page<Nachweis> kriegeAlleNachweiseMitFilterUndPagination(EStatus status, int page, int size, String sortBy, String sortDir) {
+    public Page<Nachweis> kriegeAlleNachweiseMitFilterUndPagination(EStatus status, UUID ausbilderId, int page, int size, String sortBy, String sortDir) {
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        if (status != null) {
-            return nachweisRepository.findAllByStatus(status, pageable);
-        } else {
-            return nachweisRepository.findAll(pageable);
-        }
+        
+        Specification<Nachweis> spec = Specification.where(NachweisSpecification.hasStatus(status))
+                .and(NachweisSpecification.hasAusbilderId(ausbilderId));
+
+        return nachweisRepository.findAll(spec, pageable);
     }
 
     public Page<Nachweis> findNachweiseByUserIdMitFilterUndPagination(UUID userId, EStatus status, int page, int size, String sortBy, String sortDir) {

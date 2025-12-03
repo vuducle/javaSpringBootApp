@@ -78,6 +78,12 @@ public class NachweisController {
 
     private final Path rootLocation = Paths.get("generated_pdfs");
 
+    /**
+     * Erstellt einen neuen Nachweis und generiert ein PDF.
+     * Erstellt einen neuen Nachweis, speichert ihn, generiert ein PDF und legt es
+     * auf dem Server ab.
+     * Wenn die Aktivitätenliste leer ist, wird eine Standardliste erstellt
+     */
     @PostMapping
     @Operation(summary = "Erstellt einen neuen Nachweis und generiert ein PDF.", description = "Erstellt einen neuen Nachweis, speichert ihn, generiert ein PDF und legt es auf dem Server ab. "
             +
@@ -98,6 +104,12 @@ public class NachweisController {
         return new ResponseEntity<>(nachweis, HttpStatus.CREATED);
     }
 
+    /**
+     * Ruft alle Nachweise für den aktuell angemeldeten Azubi ab, mit optionaler
+     * Filterung, Pagination und Sortierung.
+     * Gibt eine Liste aller Nachweise zurück, die dem aktuell authentifizierten
+     * Azubi gehören. Kann nach Status gefiltert, paginiert und sortiert werden.
+     */
     @GetMapping("/my-nachweise")
     @Operation(summary = "Ruft alle Nachweise für den aktuell angemeldeten Azubi ab, mit optionaler Filterung, Pagination und Sortierung.", description = "Gibt eine Liste aller Nachweise zurück, die dem aktuell authentifizierten Azubi gehören. Kann nach Status gefiltert, paginiert und sortiert werden.")
     @ApiResponse(responseCode = "200", description = "Liste der Nachweise erfolgreich abgerufen.")
@@ -114,6 +126,12 @@ public class NachweisController {
         return ResponseEntity.ok(nachweise);
     }
 
+    /**
+     * Prüft, ob ein Nachweis mit der angegebenen Nummer für den aktuellen Benutzer
+     * bereits existiert.
+     * Gibt zurück, ob der aktuell authentifizierte Benutzer bereits einen Nachweis
+     * mit dieser Nummer hat.
+     */
     @GetMapping("/my-nachweise/exists/by-nummer/{nummer}")
     @Operation(summary = "Prüft, ob ein Nachweis mit der angegebenen Nummer für den aktuellen Benutzer bereits existiert.", description = "Gibt zurück, ob der aktuell authentifizierte Benutzer bereits einen Nachweis mit dieser Nummer hat.")
     @ApiResponse(responseCode = "200", description = "Prüfung erfolgreich durchgeführt.")
@@ -123,6 +141,11 @@ public class NachweisController {
         return ResponseEntity.ok(java.util.Collections.singletonMap("exists", exists));
     }
 
+    /**
+     * Gibt die nächste verfügbare Nachweisnummer für den aktuellen Benutzer zurück.
+     * Ermittelt die höchste existierende Nachweisnummer und gibt die nächsthöhere
+     * zurück
+     */
     @GetMapping("/my-nachweise/next-nummer")
     @Operation(summary = "Gibt die nächste verfügbare Nachweisnummer für den aktuellen Benutzer zurück.", description = "Ermittelt die höchste existierende Nachweisnummer und gibt die nächsthöhere zurück.")
     @ApiResponse(responseCode = "200", description = "Nächste Nummer erfolgreich ermittelt.")
@@ -132,6 +155,10 @@ public class NachweisController {
         return ResponseEntity.ok(java.util.Collections.singletonMap("nextNummer", nextNummer));
     }
 
+    /*
+     * Holt einen Nachweis anhand seiner ID.
+     * Nur der Besitzer oder ein Admin kann den Nachweis abrufen.
+     */
     @GetMapping("/{id}")
     @Operation(summary = "Holt einen Nachweis anhand seiner ID.", description = "Ruft die Daten eines bestimmten Nachweises ab. Nur für den Besitzer oder einen Admin zugänglich.")
     @ApiResponse(responseCode = "200", description = "Nachweis gefunden und zurückgegeben.")
@@ -144,6 +171,10 @@ public class NachweisController {
         return ResponseEntity.ok(nachweis);
     }
 
+    /**
+     * Holt das PDF eines Nachweises anhand seiner ID.
+     * Nur der Besitzer oder ein Admin kann das PDF abrufen.
+     */
     @GetMapping("/{id}/pdf")
     @Operation(summary = "Holt ein Nachweis-PDF anhand seiner ID.", description = "Ruft das PDF eines bestimmten Nachweises ab. Nur für den Besitzer oder einen Admin zugänglich.")
     @ApiResponse(responseCode = "200", description = "PDF gefunden und zurückgegeben.")
@@ -173,6 +204,10 @@ public class NachweisController {
         }
     }
 
+    /**
+     * Löscht einen Nachweis anhand seiner ID.
+     * Nur der Besitzer oder ein Admin kann einen Nachweis löschen.
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Löscht einen Nachweis anhand seiner ID.", description = "Löscht einen bestimmten Nachweis. Nur der Besitzer oder ein Admin kann einen Nachweis löschen.")
     @ApiResponse(responseCode = "204", description = "Nachweis erfolgreich gelöscht.")
@@ -185,6 +220,11 @@ public class NachweisController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Löscht alle Nachweise und zugehörige PDFs.
+     * Nur Administratoren können alle Nachweise löschen.
+     * 
+     */
     @DeleteMapping("/all")
     @Operation(summary = "Löscht alle Nachweise und zugehörige PDFs.", description = "Löscht alle Nachweise aus der Datenbank und alle generierten PDF-Dateien. Nur für Administratoren zugänglich.")
     @ApiResponse(responseCode = "204", description = "Alle Nachweise und PDFs erfolgreich gelöscht.")
@@ -195,6 +235,11 @@ public class NachweisController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Löscht alle Nachweise und zugehörige PDFs des aktuell angemeldeten Azubis.
+     * Nur der Azubi selbst kann seine Nachweise löschen.
+     * 
+     */
     @DeleteMapping("/my-nachweise/all")
     @Operation(summary = "Löscht alle Nachweise und zugehörige PDFs des aktuell angemeldeten Azubis.", description = "Löscht alle Nachweise aus der Datenbank und alle generierten PDF-Dateien, die dem aktuell authentifizierten Azubi gehören.")
     @ApiResponse(responseCode = "204", description = "Alle Nachweise und PDFs des Azubis erfolgreich gelöscht.")
@@ -205,21 +250,37 @@ public class NachweisController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Ruft alle Nachweise für alle Benutzer ab (Admin-Zugriff), mit optionaler
+     * Filterung, Pagination und Sortierung.
+     * Gibt eine Liste aller Nachweise im System zurück. Kann nach Status,
+     * Ausbilder-ID gefiltert, paginiert und sortiert werden. Nur für
+     * Administratoren zugänglich.
+     */
     @GetMapping("/admin/all")
-    @Operation(summary = "Ruft alle Nachweise für alle Benutzer ab (Admin-Zugriff), mit optionaler Filterung, Pagination und Sortierung.", description = "Gibt eine Liste aller Nachweise im System zurück. Kann nach Status gefiltert, paginiert und sortiert werden. Nur für Administratoren zugänglich.")
+    @Operation(summary = "Ruft alle Nachweise für alle Benutzer ab (Admin-Zugriff), mit optionaler Filterung, Pagination und Sortierung.", description = "Gibt eine Liste aller Nachweise im System zurück. Kann nach Status, Ausbilder-ID gefiltert, paginiert und sortiert werden. Nur für Administratoren zugänglich.")
     @ApiResponse(responseCode = "200", description = "Liste aller Nachweise erfolgreich abgerufen.")
     @ApiResponse(responseCode = "403", description = "Verboten - Nur Administratoren können alle Nachweise abrufen.")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<Nachweis>> getAllNachweise(
             @RequestParam(required = false) EStatus status,
+            @RequestParam(required = false) UUID ausbilderId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "datumStart") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
-        Page<Nachweis> nachweise = nachweisService.kriegeAlleNachweiseMitFilterUndPagination(status, page, size, sortBy, sortDir);
+        Page<Nachweis> nachweise = nachweisService.kriegeAlleNachweiseMitFilterUndPagination(status, ausbilderId, page,
+                size, sortBy, sortDir);
         return ResponseEntity.ok(nachweise);
     }
 
+    /**
+     * Ruft alle Nachweise für einen bestimmten Benutzer ab (Admin-Zugriff), mit
+     * optionaler Filterung, Pagination und Sortierung.
+     * Gibt eine Liste aller Nachweise für den angegebenen Benutzer zurück. Kann
+     * nach Status gefiltert, paginiert und sortiert werden. Nur für Administratoren
+     * zugänglich.
+     */
     @GetMapping("/admin/user/{userId}")
     @Operation(summary = "Ruft alle Nachweise für einen bestimmten Benutzer ab (Admin-Zugriff), mit optionaler Filterung, Pagination und Sortierung.", description = "Gibt eine Liste aller Nachweise für den angegebenen Benutzer zurück. Kann nach Status gefiltert, paginiert und sortiert werden. Nur für Administratoren zugänglich.")
     @ApiResponse(responseCode = "200", description = "Liste der Nachweise für den Benutzer erfolgreich abgerufen.")
@@ -241,6 +302,11 @@ public class NachweisController {
         return ResponseEntity.ok(nachweise);
     }
 
+    /**
+     * Aktualisiert den Status eines Nachweises (Admin-Zugriff).
+     * Ermöglicht Administratoren, den Status eines Nachweises auf ANGENOMMEN oder
+     * ABGELEHNT zu setzen.
+     */
     @PutMapping("/{id}/status")
     @Operation(summary = "Aktualisiert den Status eines Nachweises (Admin-Zugriff).", description = "Ermöglicht Administratoren, den Status eines Nachweises auf ANGENOMMEN oder ABGELEHNT zu setzen.")
     @ApiResponse(responseCode = "200", description = "Nachweisstatus erfolgreich aktualisiert.")
@@ -258,6 +324,10 @@ public class NachweisController {
         return ResponseEntity.ok(updatedNachweis);
     }
 
+    /**
+     * Aktualisiert einen Nachweis durch den Azubi.
+     * Der Status des Nachweises wird dabei auf IN_BEARBEITUNG zurückgesetzt.
+     */
     @PutMapping("/{id}")
     @Operation(summary = "Aktualisiert einen Nachweis durch den Azubi.", description = "Ermöglicht dem Azubi, seinen eigenen Nachweis zu aktualisieren. Der Status wird auf IN_BEARBEITUNG zurückgesetzt.")
     @ApiResponse(responseCode = "200", description = "Nachweis erfolgreich aktualisiert.")
