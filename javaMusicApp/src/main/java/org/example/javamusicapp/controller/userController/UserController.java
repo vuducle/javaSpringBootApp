@@ -19,6 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.HttpStatus;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * 👤 **Was geht hier ab?**
  * Dieser Controller ist der Place-to-be für alles, was das eigene User-Profil
@@ -234,5 +238,24 @@ public class UserController {
             log.error("Fehler beim Löschen von Benutzer {}: {}", username, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Fehler beim Löschen des Benutzers.");
         }
+    }
+
+    @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Ruft alle Benutzer ab", description = "Gibt eine Liste aller Benutzer im System zurück. Nur für Administratoren zugänglich.")
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
+        List<User> users = userService.findAll();
+        List<UserResponse> userResponseList = users.stream()
+                .map(UserResponse::new)
+                .toList();
+        return ResponseEntity.ok(userResponseList);
+    }
+
+    @PutMapping("/users/{username}/profile")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Aktualisiert das Profil eines Benutzers", description = "Aktualisiert die Profilinformationen eines bestimmten Benutzers. Nur für Administratoren zugänglich.")
+    public ResponseEntity<UserResponse> updateUserProfileByAdmin(@PathVariable String username, @RequestBody org.example.javamusicapp.controller.userController.dto.UserUpdateRequest request) {
+        User updatedUser = userService.updateUserProfileByAdmin(username, request);
+        return ResponseEntity.ok(new UserResponse(updatedUser));
     }
 }

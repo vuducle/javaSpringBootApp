@@ -246,6 +246,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findAllByRoles_Name(ERole.ROLE_ADMIN);
     }
 
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
     public List<String> listUsernamesByRole(ERole role) {
         return userRepository.findAllByRoles_Name(role).stream().map(User::getUsername).collect(Collectors.toList());
     }
@@ -293,6 +297,15 @@ public class UserService implements UserDetailsService {
     }
 
     public User updateUserProfile(String username,
+            org.example.javamusicapp.controller.userController.dto.UserUpdateRequest request) {
+        User user = findByUsername(username);
+        user.setAusbildungsjahr(request.getAusbildungsjahr());
+        user.setTelefonnummer(request.getTelefonnummer());
+        user.setTeam(request.getTeam());
+        return userRepository.save(user);
+    }
+
+    public User updateUserProfileByAdmin(String username,
             org.example.javamusicapp.controller.userController.dto.UserUpdateRequest request) {
         User user = findByUsername(username);
         user.setAusbildungsjahr(request.getAusbildungsjahr());

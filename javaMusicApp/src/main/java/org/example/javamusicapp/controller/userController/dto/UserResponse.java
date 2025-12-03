@@ -1,5 +1,6 @@
 package org.example.javamusicapp.controller.userController.dto;
 
+import org.example.javamusicapp.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,4 +19,15 @@ public class UserResponse {
     private Integer ausbildungsjahr;
     private String telefonnummer;
     private String team;
+
+    public UserResponse(User user) {
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.name = user.getName();
+        this.email = user.getEmail();
+        this.profileImageUrl = user.getProfileImageUrl();
+        this.ausbildungsjahr = user.getAusbildungsjahr();
+        this.telefonnummer = user.getTelefonnummer();
+        this.team = user.getTeam();
+    }
 }
