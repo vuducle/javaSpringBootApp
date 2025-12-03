@@ -173,6 +173,7 @@
     "noNachweiseFound": "Keine Nachweise gefunden. 📝",
     "startAddingNachweis": "Beginne mit dem Hinzufügen eines neuen Nachweises.",
     "nachweisErstellen": "Nachweis erstellen",
+    "nachweiseAnschauen": "Nachweise anschauen",
     "kommentar": "Kommentar",
     "viewer": {
       "title": "Ausbildungsnachweis",
@@ -219,5 +220,37 @@
   },
   "common": {
     "cancel": "Abbrechen"
+  },
+  "quotes": {
+    "q1": "Der einzige Weg, großartige Arbeit zu leisten, ist, zu lieben, was man tut.",
+    "q2": "Erfolg ist nicht endgültig, Misserfolg ist nicht fatal: Es ist der Mut, weiterzumachen, der zählt.",
+    "q3": "Glaube daran, dass du es kannst, und du bist schon auf halbem Weg.",
+    "q4": "Die Zukunft gehört denen, die an die Schönheit ihrer Träume glauben.",
+    "q5": "Höre nicht auf, wenn du müde bist. Höre auf, wenn du fertig bist.",
+    "quoteCardTitle": "Zitat des Tages"
+  },
+  "proverbs": {
+    "de1": "Wer rastet, der rostet.",
+    "de1_author": "Deutsches Sprichwort",
+    "de2": "Übung macht den Meister.",
+    "de2_author": "Deutsches Sprichwort",
+    "vi1": "Ein Tag Reisen, ein Korb voll Weisheit.",
+    "vi1_original": "Đi một ngày đàng, học một sàng khôn.",
+    "vi1_author": "Vietnamesisches Sprichwort",
+    "vi2": "Mit Geduld wird aus Eisen eine Nadel.",
+    "vi2_original": "Có công mài sắt, có ngày nên kim.",
+    "vi2_author": "Vietnamesisches Sprichwort",
+    "en1": "Ein rollender Stein setzt kein Moos an.",
+    "en1_original": "A rolling stone gathers no moss.",
+    "en1_author": "Englisches Sprichwort",
+    "en2": "Übung macht den Meister.",
+    "en2_original": "Practice makes perfect.",
+    "en2_author": "Englisches Sprichwort",
+    "id1": "Stück für Stück wird es ein Hügel.",
+    "id1_original": "Sedikit demi sedikit, lama-lama menjadi bukit.",
+    "id1_author": "Indonesisches Sprichwort",
+    "id2": "Wo ein Wille ist, ist auch ein Weg.",
+    "id2_original": "Di mana ada kemauan, di situ ada jalan.",
+    "id2_author": "Indonesisches Sprichwort"
   }
 }

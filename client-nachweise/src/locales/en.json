@@ -172,6 +172,7 @@
     "noNachweiseFound": "No records found. 📝",
     "startAddingNachweis": "Start by adding a new record.",
     "nachweisErstellen": "Create record",
+    "nachweiseAnschauen": "View records",
     "kommentar": "Comment",
     "viewer": {
       "title": "Training Record",
@@ -218,5 +219,37 @@
   },
   "common": {
     "cancel": "Cancel"
+  },
+  "quotes": {
+    "q1": "The only way to do great work is to love what you do.",
+    "q2": "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+    "q3": "Believe you can and you're halfway there.",
+    "q4": "The future belongs to those who believe in the beauty of their dreams.",
+    "q5": "Don't stop when you're tired. Stop when you're done.",
+    "quoteCardTitle": "Quote of the Day"
+  },
+  "proverbs": {
+    "de1": "He who rests, rusts.",
+    "de1_original": "Wer rastet, der rostet.",
+    "de1_author": "German Proverb",
+    "de2": "Practice makes perfect.",
+    "de2_original": "Übung macht den Meister.",
+    "de2_author": "German Proverb",
+    "vi1": "A day of traveling will bring a basket of wisdom.",
+    "vi1_original": "Đi một ngày đàng, học một sàng khôn.",
+    "vi1_author": "Vietnamese Proverb",
+    "vi2": "If you have the patience to grind iron, you will one day have a needle.",
+    "vi2_original": "Có công mài sắt, có ngày nên kim.",
+    "vi2_author": "Vietnamese Proverb",
+    "en1": "A rolling stone gathers no moss.",
+    "en1_author": "English Proverb",
+    "en2": "Practice makes perfect.",
+    "en2_author": "English Proverb",
+    "id1": "Little by little, it will become a hill.",
+    "id1_original": "Sedikit demi sedikit, lama-lama menjadi bukit.",
+    "id1_author": "Indonesian Proverb",
+    "id2": "Where there is a will, there is a way.",
+    "id2_original": "Di mana ada kemauan, di situ ada jalan.",
+    "id2_author": "Indonesian Proverb"
   }
 }
