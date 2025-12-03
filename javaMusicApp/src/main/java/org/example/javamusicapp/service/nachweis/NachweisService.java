@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 
+import org.springframework.data.domain.Sort;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -232,10 +233,11 @@ public class NachweisService {
     }
 
     public Page<Nachweis> kriegeNachweiseVonAzubiBenutzernameMitFilterUndPagination(String username, EStatus status,
-            int page, int size) {
+            int page, int size, String sortBy, String sortDir) {
         User azubi = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Benutzer nicht gefunden: " + username));
-        Pageable pageable = PageRequest.of(page, size);
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
         if (status != null) {
             return nachweisRepository.findAllByAzubiIdAndStatus(azubi.getId(), status, pageable);
@@ -244,8 +246,9 @@ public class NachweisService {
         }
     }
 
-    public Page<Nachweis> kriegeAlleNachweiseMitFilterUndPagination(EStatus status, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<Nachweis> kriegeAlleNachweiseMitFilterUndPagination(EStatus status, int page, int size, String sortBy, String sortDir) {
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
         if (status != null) {
             return nachweisRepository.findAllByStatus(status, pageable);
         } else {
@@ -253,8 +256,9 @@ public class NachweisService {
         }
     }
 
-    public Page<Nachweis> findNachweiseByUserIdMitFilterUndPagination(UUID userId, EStatus status, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<Nachweis> findNachweiseByUserIdMitFilterUndPagination(UUID userId, EStatus status, int page, int size, String sortBy, String sortDir) {
+        Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
         if (status != null) {
             return nachweisRepository.findAllByAzubiIdAndStatus(userId, status, pageable);
         } else {
@@ -616,23 +620,23 @@ public class NachweisService {
             throw new RuntimeException("Fehler bei der PDF-Generierung oder Speicherung", e);
         }
 
-                        return updatedNachweis;
+        return updatedNachweis;
 
-                    }
+    }
 
                 
 
-                    public boolean checkIfNummerExistsForUser(int nummer, String username) {
+    public boolean checkIfNummerExistsForUser(int nummer, String username) {
 
-                        User azubi = userRepository.findByUsername(username)
+        User azubi = userRepository.findByUsername(username)
 
-                                .orElseThrow(() -> new ResourceNotFoundException("Benutzer nicht gefunden: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("Benutzer nicht gefunden: " + username));
 
-                        return nachweisRepository.existsByNummerAndAzubiId(nummer, azubi.getId());
+        return nachweisRepository.existsByNummerAndAzubiId(nummer, azubi.getId());
 
-                    }
+    }
 
-                }
+}
 
                 
 

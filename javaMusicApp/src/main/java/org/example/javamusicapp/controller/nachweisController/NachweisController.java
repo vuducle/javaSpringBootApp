@@ -99,16 +99,18 @@ public class NachweisController {
     }
 
     @GetMapping("/my-nachweise")
-    @Operation(summary = "Ruft alle Nachweise für den aktuell angemeldeten Azubi ab, mit optionaler Filterung und Pagination.", description = "Gibt eine Liste aller Nachweise zurück, die dem aktuell authentifizierten Azubi gehören. Kann nach Status gefiltert und paginiert werden.")
+    @Operation(summary = "Ruft alle Nachweise für den aktuell angemeldeten Azubi ab, mit optionaler Filterung, Pagination und Sortierung.", description = "Gibt eine Liste aller Nachweise zurück, die dem aktuell authentifizierten Azubi gehören. Kann nach Status gefiltert, paginiert und sortiert werden.")
     @ApiResponse(responseCode = "200", description = "Liste der Nachweise erfolgreich abgerufen.")
     @ApiResponse(responseCode = "403", description = "Zugriff verweigert, wenn der Benutzer nicht authentifiziert ist.")
     public ResponseEntity<Page<Nachweis>> getMyNachweise(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(required = false) EStatus status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "datumStart") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
         Page<Nachweis> nachweise = nachweisService.kriegeNachweiseVonAzubiBenutzernameMitFilterUndPagination(
-                userDetails.getUsername(), status, page, size);
+                userDetails.getUsername(), status, page, size, sortBy, sortDir);
         return ResponseEntity.ok(nachweise);
     }
 
@@ -195,20 +197,22 @@ public class NachweisController {
     }
 
     @GetMapping("/admin/all")
-    @Operation(summary = "Ruft alle Nachweise für alle Benutzer ab (Admin-Zugriff), mit optionaler Filterung und Pagination.", description = "Gibt eine Liste aller Nachweise im System zurück. Kann nach Status gefiltert und paginiert werden. Nur für Administratoren zugänglich.")
+    @Operation(summary = "Ruft alle Nachweise für alle Benutzer ab (Admin-Zugriff), mit optionaler Filterung, Pagination und Sortierung.", description = "Gibt eine Liste aller Nachweise im System zurück. Kann nach Status gefiltert, paginiert und sortiert werden. Nur für Administratoren zugänglich.")
     @ApiResponse(responseCode = "200", description = "Liste aller Nachweise erfolgreich abgerufen.")
     @ApiResponse(responseCode = "403", description = "Verboten - Nur Administratoren können alle Nachweise abrufen.")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<Nachweis>> getAllNachweise(
             @RequestParam(required = false) EStatus status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<Nachweis> nachweise = nachweisService.kriegeAlleNachweiseMitFilterUndPagination(status, page, size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "datumStart") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        Page<Nachweis> nachweise = nachweisService.kriegeAlleNachweiseMitFilterUndPagination(status, page, size, sortBy, sortDir);
         return ResponseEntity.ok(nachweise);
     }
 
     @GetMapping("/admin/user/{userId}")
-    @Operation(summary = "Ruft alle Nachweise für einen bestimmten Benutzer ab (Admin-Zugriff), mit optionaler Filterung und Pagination.", description = "Gibt eine Liste aller Nachweise für den angegebenen Benutzer zurück. Kann nach Status gefiltert und paginiert werden. Nur für Administratoren zugänglich.")
+    @Operation(summary = "Ruft alle Nachweise für einen bestimmten Benutzer ab (Admin-Zugriff), mit optionaler Filterung, Pagination und Sortierung.", description = "Gibt eine Liste aller Nachweise für den angegebenen Benutzer zurück. Kann nach Status gefiltert, paginiert und sortiert werden. Nur für Administratoren zugänglich.")
     @ApiResponse(responseCode = "200", description = "Liste der Nachweise für den Benutzer erfolgreich abgerufen.")
     @ApiResponse(responseCode = "403", description = "Verboten - Nur Administratoren können Nachweise für andere Benutzer abrufen.")
     @ApiResponse(responseCode = "404", description = "Benutzer nicht gefunden oder keine Nachweise vorhanden.")
@@ -217,9 +221,11 @@ public class NachweisController {
             @PathVariable UUID userId,
             @RequestParam(required = false) EStatus status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "datumStart") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
         Page<Nachweis> nachweise = nachweisService.findNachweiseByUserIdMitFilterUndPagination(userId, status, page,
-                size);
+                size, sortBy, sortDir);
         if (nachweise.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
