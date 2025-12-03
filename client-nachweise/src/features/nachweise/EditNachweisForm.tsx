@@ -1081,7 +1081,7 @@ export function EditNachweisForm({
               </h3>
               <div className="space-y-2">
                 <Label htmlFor="ausbilderId">
-                  {t('nachweis.ausbilder')}
+                  {t('nachweis.Ausbilder/innen')}
                 </Label>
                 <Select
                   value={String(watch('ausbilderId') || '')}
@@ -1125,6 +1125,11 @@ export function EditNachweisForm({
               </div>
 
               <div className="space-y-2">
+                <p className="text-red-500">
+                  Die drei Sachen unten mit Bermerkung/Remark
+                  funktionieren nicht! Aber die Generierung
+                  funktioniert.
+                </p>
                 <Label htmlFor="date_Azubi">
                   {t('nachweis.dateAzubi')}
                 </Label>
