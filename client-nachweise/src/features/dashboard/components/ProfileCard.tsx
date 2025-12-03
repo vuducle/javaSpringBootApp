@@ -4,6 +4,7 @@ import { useTranslation } from '@/context/LanguageContext';
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import Image from 'next/image';
+import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
 
 interface Profile {
   name: string;
@@ -18,14 +19,20 @@ export default function ProfileCard() {
   const { t } = useTranslation();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await api.get('/api/user/profile');
         setProfile(response.data);
-      } catch (error) {
-        console.error('Error fetching profile:', error);
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+        // try to pull message safely
+        const message =
+          (err as unknown as { message?: string })?.message ??
+          'Fehler';
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -35,11 +42,25 @@ export default function ProfileCard() {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <StatusPlaceholder
+        loading
+        loadingText={t('loading') ?? 'Lade...'}
+      />
+    );
   }
 
   if (!profile) {
-    return <div>Error loading profile.</div>;
+    // show cat image for error
+    return (
+      <StatusPlaceholder
+        error={error ?? true}
+        errorImage="https://http.cat/status/400"
+        errorText={
+          t('profile.errorLoading') ?? 'Error loading profile.'
+        }
+      />
+    );
   }
 
   return (

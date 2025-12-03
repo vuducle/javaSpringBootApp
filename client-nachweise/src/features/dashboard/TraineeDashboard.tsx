@@ -11,6 +11,8 @@ import Link from 'next/dist/client/link';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Plus, Eye } from 'lucide-react';
+import Image from 'next/image';
+import CatGIF from './components/CatGIF';
 
 export default function TraineeDashboard() {
   const user = useAppSelector(selectUser);
@@ -55,6 +57,7 @@ export default function TraineeDashboard() {
           <div className="flex flex-col gap-4">
             <ProfileCard />
             <QuoteCard />
+            <CatGIF />
           </div>
         </div>
       </main>

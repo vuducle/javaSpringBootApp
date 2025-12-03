@@ -218,7 +218,8 @@
     "message": "PDF generation may currently cause issues in Firefox. For optimal usage, we recommend Chrome or Safari. This feature is still under development."
   },
   "common": {
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "loading": "Loading..."
   },
   "quotes": {
     "q1": "The only way to do great work is to love what you do.",
@@ -251,5 +252,6 @@
     "id2": "Where there is a will, there is a way.",
     "id2_original": "Di mana ada kemauan, di situ ada jalan.",
     "id2_author": "Indonesian Proverb"
-  }
+  },
+  "loading": "\uD83E\uDD2A Loading ..."
 }

@@ -219,7 +219,8 @@
     "message": "Die PDF-Generierung kann in Firefox derzeit Probleme verursachen. Für eine optimale Nutzung empfehlen wir Chrome oder Safari. Diese Funktion wird noch entwickelt."
   },
   "common": {
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "loading": "Lädt..."
   },
   "quotes": {
     "q1": "Der einzige Weg, großartige Arbeit zu leisten, ist, zu lieben, was man tut.",
@@ -252,5 +253,6 @@
     "id2": "Wo ein Wille ist, ist auch ein Weg.",
     "id2_original": "Di mana ada kemauan, di situ ada jalan.",
     "id2_author": "Indonesisches Sprichwort"
-  }
+  },
+  "loading": "\uD83E\uDD2A Lade..."
 }

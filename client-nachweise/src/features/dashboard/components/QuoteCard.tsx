@@ -2,6 +2,7 @@
 
 import { useTranslation } from '@/context/LanguageContext';
 import { useEffect, useState } from 'react';
+import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
 
 type QuoteKeys = `q${1 | 2 | 3 | 4 | 5}`;
 type ProverbKeyBase =
@@ -28,6 +29,7 @@ export default function QuoteCard() {
     originalQuote: '',
     author: '',
   });
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const quotesKeys: QuoteKeys[] = ['q1', 'q2', 'q3', 'q4', 'q5'];
@@ -74,7 +76,17 @@ export default function QuoteCard() {
       originalQuote: selectedOriginalQuote,
       author: selectedAuthor,
     });
+    setLoading(false);
   }, [locale, t]);
+
+  if (loading) {
+    return (
+      <StatusPlaceholder
+        loading
+        loadingText={t('common.loading') ?? 'Lädt...'}
+      />
+    );
+  }
 
   return (
     <div className="bg-white/60 dark:bg-zinc-800/50 backdrop-blur-md border border-white/20 dark:border-zinc-700/40 shadow-lg rounded-2xl p-6">

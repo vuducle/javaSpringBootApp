@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
+import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
 
 interface Nachweis {
   id: number;
@@ -32,14 +33,19 @@ export default function StatsCard() {
   const { t } = useTranslation();
   const [data, setData] = useState<Nachweis[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchNachweise = async () => {
       try {
         const response = await api.get('/api/nachweise/my-nachweise');
         setData(response.data.content);
-      } catch (error) {
-        console.error('Error fetching nachweise:', error);
+      } catch (err) {
+        console.error('Error fetching nachweise:', err);
+        const message =
+          (err as unknown as { message?: string })?.message ??
+          'Fehler beim Laden';
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -49,7 +55,22 @@ export default function StatsCard() {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <StatusPlaceholder
+        loading
+        loadingText={t('common.loading') ?? 'Lädt...'}
+      />
+    );
+  }
+
+  if (error) {
+    return (
+      <StatusPlaceholder
+        error={error}
+        errorImage="https://http.cat/status/400"
+        errorText={error}
+      />
+    );
   }
 
   const stats = data.reduce(
