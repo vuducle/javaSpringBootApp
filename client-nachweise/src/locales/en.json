@@ -19,7 +19,8 @@
   },
   "dashboard": {
     "traineeWelcome": "Welcome to the Trainee Dashboard, {name}!",
-    "trainerWelcome": "Welcome to the Trainer Dashboard, {name}!"
+    "trainerWelcome": "Welcome to the Trainer Dashboard, {name}!",
+    "trainerWelcomeFormal": "Welcome, Mr./Ms. {name}!"
   },
   "loginPage": {
     "mainTitle": "The World of Training Records",
@@ -261,5 +262,18 @@
     "id2_original": "Di mana ada kemauan, di situ ada jalan.",
     "id2_author": "Indonesian Proverb"
   },
-  "loading": "\uD83E\uDD2A Loading ..."
+  "proTips": {
+    "tip1": "Provide regular feedback on the submitted records.",
+    "tip2": "Use the comment function to provide specific feedback.",
+    "tip3": "Ensure timely review and approval of the records.",
+    "tip4": "Encourage the independence of your trainees by encouraging them to keep careful documentation.",
+    "tip5": "Schedule regular meetings to discuss progress and any difficulties.",
+    "proTipCardTitle": "Pro-Tip for Trainers"
+  },
+  "auditTrail": {
+    "title": "Last Activities",
+    "user": "User",
+    "action": "Action",
+    "time": "Time"
+  }
 }

@@ -76,7 +76,7 @@ public class NachweisAuditService {
                 null, // ID wird von JPA generiert
                 nachweisId,
                 aktion,
-                LocalDateTime.now(),
+                java.time.Instant.now(),
                 benutzerName,
                 alteDatenJson,
                 neueDatenJson);

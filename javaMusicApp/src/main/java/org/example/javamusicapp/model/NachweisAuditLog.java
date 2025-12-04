@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ public class NachweisAuditLog {
     private String aktion; // Z.B. "ERSTELLT", "AKTUALISIERT", "GELOESCHT"
 
     @Column(name = "aktions_zeit", nullable = false)
-    private LocalDateTime aktionsZeit;
+    private Instant aktionsZeit;
 
     @Column(name = "benutzer_name", nullable = false)
     private String benutzerName;

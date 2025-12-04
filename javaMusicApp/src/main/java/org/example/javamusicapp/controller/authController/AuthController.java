@@ -146,6 +146,7 @@ public class AuthController {
             AuthResponse response = new AuthResponse();
             response.setAccessToken(token);
             response.setRefreshToken(refreshToken.getToken());
+            response.setId(userDetails.getId());
             response.setUsername(userDetails.getUsername());
             response.setEmail(userDetails.getEmail());
             response.setName(userDetails.getName());

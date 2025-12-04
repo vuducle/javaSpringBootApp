@@ -19,7 +19,8 @@
   },
   "dashboard": {
     "traineeWelcome": "Willkommen im Azubi-Dashboard, {name}!",
-    "trainerWelcome": "Willkommen im Ausbilder-Dashboard, {name}!"
+    "trainerWelcome": "Willkommen im Ausbilder-Dashboard, {name}!",
+    "trainerWelcomeFormal": "Willkommen, Herr/Frau {name}!"
   },
   "loginPage": {
     "mainTitle": "Die Welt der Ausbildungsnachweise",
@@ -262,5 +263,18 @@
     "id2_original": "Di mana ada kemauan, di situ ada jalan.",
     "id2_author": "Indonesisches Sprichwort"
   },
-  "loading": "\uD83E\uDD2A Lade..."
+  "proTips": {
+    "tip1": "Geben Sie regelmäßig Feedback zu den eingereichten Nachweisen.",
+    "tip2": "Nutzen Sie die Kommentarfunktion, um gezielte Hinweise zu geben.",
+    "tip3": "Achten Sie auf eine zeitnahe Prüfung und Freigabe der Nachweise.",
+    "tip4": "Fördern Sie die Selbstständigkeit Ihrer Azubis, indem Sie sie zur sorgfältigen Dokumentation anhalten.",
+    "tip5": "Planen Sie regelmäßige Gespräche, um die Fortschritte und eventuelle Schwierigkeiten zu besprechen.",
+    "proTipCardTitle": "Pro-Tipp für Ausbilder"
+  },
+  "auditTrail": {
+    "title": "Letzte Aktivitäten",
+    "user": "Benutzer",
+    "action": "Aktion",
+    "time": "Zeit"
+  }
 }

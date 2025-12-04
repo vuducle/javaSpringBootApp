@@ -17,6 +17,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -61,7 +62,7 @@ public class NachweisAuditController {
             @PathVariable("nachweisId") UUID nachweisId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "50") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "aktionsZeit"));
         Page<NachweisAuditLog> audits = auditRepository.findAllByNachweisId(nachweisId, pageable);
         List<NachweisAuditDto> items = new ArrayList<>();
         for (NachweisAuditLog a : audits.getContent()) {
@@ -96,7 +97,7 @@ public class NachweisAuditController {
     public ResponseEntity<AuditPageResponse<NachweisAuditDto>> getAllAudit(Authentication authentication,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "50") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "aktionsZeit"));
         Page<NachweisAuditLog> audits = auditRepository.findAll(pageable);
         List<NachweisAuditDto> items = new ArrayList<>();
         for (NachweisAuditLog a : audits.getContent()) {

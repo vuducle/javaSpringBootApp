@@ -3,9 +3,14 @@ package org.example.javamusicapp.controller.authController.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 @Schema(name = "AuthAntwort", description = "Antwort, die nach erfolgreicher Authentifizierung zurückgegeben wird")
 public class AuthResponse {
+    @Schema(description = "ID des Benutzers", example = "f47ac10b-58cc-4372-a567-0e02b2c3d479")
+    private UUID id;
+
     @Schema(description = "Authentifizierter Benutzername", example = "julianguyen")
     private String username;
 
