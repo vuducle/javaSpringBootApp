@@ -22,6 +22,8 @@ import org.example.javamusicapp.service.auth.UserService;
 import org.example.javamusicapp.service.nachweis.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,21 +39,29 @@ import java.util.Optional;
 
 /**
  * 🔑 **Was geht hier ab?**
- * Dieser Controller ist die absolute Zentrale für alles, was mit Auth zu tun hat.
- * Hier passiert die ganze Magie rund um Login, Registrierung und Passwort-Management.
+ * Dieser Controller ist die absolute Zentrale für alles, was mit Auth zu tun
+ * hat.
+ * Hier passiert die ganze Magie rund um Login, Registrierung und
+ * Passwort-Management.
  * Alle Endpunkte hier sind public, weil man ja noch nicht eingeloggt ist.
  *
  * Die wichtigsten VIBES hier sind:
- * - /register**: Nimmt die Daten für einen neuen User, hasht das Passwort und speichert
- *   den Dude in der Datenbank. Standard, aber muss sein.
- * - /login**: Checkt, ob E-Mail und Passwort matchen. Wenn ja, gibt's als Belohnung einen
- *   Access Token (JWT) und einen Refresh Token. Der Access Token ist dein Ticket für die
- *   geschützten Bereiche der App.
- * /refresh**: Wenn dein Access Token abgelaufen ist (die sind kurzlebig), schickst du
- *   deinen langlebigen Refresh Token hierher und kriegst 'nen brandneuen Access Token zurück.
- *   So bleibst du eingeloggt, ohne jedes Mal dein Passwort neu einzugeben.
- *  /forgot-password & /reset-password**: Wenn du dein Passwort vercheckt hast, kannst du
- *   hier 'nen Link anfordern, um es zurückzusetzen.
+ * - /register**: Nimmt die Daten für einen neuen User, hasht das Passwort und
+ * speichert
+ * den Dude in der Datenbank. Standard, aber muss sein.
+ * - /login**: Checkt, ob E-Mail und Passwort matchen. Wenn ja, gibt's als
+ * Belohnung einen
+ * Access Token (JWT) und einen Refresh Token. Der Access Token ist dein Ticket
+ * für die
+ * geschützten Bereiche der App.
+ * /refresh**: Wenn dein Access Token abgelaufen ist (die sind kurzlebig),
+ * schickst du
+ * deinen langlebigen Refresh Token hierher und kriegst 'nen brandneuen Access
+ * Token zurück.
+ * So bleibst du eingeloggt, ohne jedes Mal dein Passwort neu einzugeben.
+ * /forgot-password & /reset-password**: Wenn du dein Passwort vercheckt hast,
+ * kannst du
+ * hier 'nen Link anfordern, um es zurückzusetzen.
  */
 @Slf4j
 @RestController
@@ -69,6 +79,8 @@ public class AuthController {
     private final AnmeldeversuchService anmeldeversuchService;
     private final UserService userService;
     private final String frontendUrl;
+    @org.springframework.beans.factory.annotation.Value("${jwt.expiration.ms}")
+    private long jwtExpirationMs;
 
     public AuthController(
             AuthenticationManager authenticationManager,
@@ -152,12 +164,55 @@ public class AuthController {
             response.setName(userDetails.getName());
             response.setRoles(userDetails.getRoles().stream().map(Role::getName).map(Enum::name).toList());
 
-            return ResponseEntity.ok(response);
+            // Set access token as HttpOnly cookie so Next.js middleware can read it
+            // server-side. Use secure=true only when frontend uses https.
+            boolean secure = frontendUrl != null && frontendUrl.startsWith("https://");
+            String sameSite = secure ? "None" : "Lax";
+            ResponseCookie cookie = ResponseCookie.from("accessToken", token)
+                    .httpOnly(true)
+                    .secure(secure)
+                    .path("/")
+                    .maxAge(jwtExpirationMs / 1000)
+                    .sameSite(sameSite)
+                    .build();
+
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
         } catch (AuthenticationException e) {
             log.error("Login Fehler für E-Mail {}: {}", request.getEmail(), e.getMessage());
             // Anmeldeversuch-Listener wird den Fehlversuch protokollieren.
             return new ResponseEntity<>("E-Mail oder Passwort ist ungültig.", HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Logout", description = "Logs out the user: clears HttpOnly cookie and invalidates refresh token if provided")
+    public ResponseEntity<?> logout(@RequestBody(required = false) java.util.Map<String, String> body) {
+        String refreshToken = null;
+        if (body != null) {
+            refreshToken = body.get("refreshToken");
+        }
+
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            try {
+                refreshTokenService.deleteByToken(refreshToken);
+            } catch (Exception e) {
+                log.warn("Fehler beim Löschen des Refresh-Tokens: {}", e.getMessage());
+            }
+        }
+
+        boolean secure = frontendUrl != null && frontendUrl.startsWith("https://")
+                || frontendUrl != null && frontendUrl.startsWith("http://");
+        String sameSite = secure ? "None" : "Lax";
+        ResponseCookie cookie = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(secure)
+                .path("/")
+                .maxAge(0)
+                .sameSite(sameSite)
+                .build();
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(java.util.Collections.singletonMap("loggedOut", true));
     }
 
     @PostMapping("/refresh")

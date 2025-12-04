@@ -16,21 +16,29 @@ import java.util.UUID;
 
 /**
  * 🔄 **Was geht hier ab?**
- * Dieser Service ist der Manager für die Refresh Tokens. Access Tokens (JWTs) sind nur
- * kurz gültig, aber wir wollen ja nicht, dass der User sich alle 15 Minuten neu einloggen
+ * Dieser Service ist der Manager für die Refresh Tokens. Access Tokens (JWTs)
+ * sind nur
+ * kurz gültig, aber wir wollen ja nicht, dass der User sich alle 15 Minuten neu
+ * einloggen
  * muss. Hier kommen die Refresh Tokens ins Spiel.
  *
  * Der Vibe ist so:
- * - **createRefreshToken()**: Wenn der User sich einloggt, wird nicht nur ein Access Token,
- *   sondern auch ein langlebiger Refresh Token erstellt. Dieser wird sicher in der
- *   Datenbank gespeichert.
- * - **verifyExpiration()**: Wenn der Access Token abläuft, schickt das Frontend den Refresh
- *   Token an den `/refresh` Endpunkt. Dieser Service checkt dann, ob der Token noch gültig
- *   (also nicht abgelaufen) ist.
- * - **findByToken()**: Sucht den Token in der Datenbank, um den zugehörigen User zu finden
- *   und ihm einen neuen Access Token auszustellen.
- * - **deleteByUserId()**: Wenn der User sich ausloggt (oder ein neuer Refresh Token erstellt wird),
- *   wird der alte Token gelöscht, um die Session ungültig zu machen.
+ * - **createRefreshToken()**: Wenn der User sich einloggt, wird nicht nur ein
+ * Access Token,
+ * sondern auch ein langlebiger Refresh Token erstellt. Dieser wird sicher in
+ * der
+ * Datenbank gespeichert.
+ * - **verifyExpiration()**: Wenn der Access Token abläuft, schickt das Frontend
+ * den Refresh
+ * Token an den `/refresh` Endpunkt. Dieser Service checkt dann, ob der Token
+ * noch gültig
+ * (also nicht abgelaufen) ist.
+ * - **findByToken()**: Sucht den Token in der Datenbank, um den zugehörigen
+ * User zu finden
+ * und ihm einen neuen Access Token auszustellen.
+ * - **deleteByUserId()**: Wenn der User sich ausloggt (oder ein neuer Refresh
+ * Token erstellt wird),
+ * wird der alte Token gelöscht, um die Session ungültig zu machen.
  *
  * Hält den User also smooth eingeloggt, ohne die Security zu vernachlässigen.
  */
@@ -119,5 +127,14 @@ public class RefreshTokenService {
         Optional<RefreshToken> result = refreshTokenRepository.findByToken(token);
         log.info("=== Token found: {}", result.isPresent());
         return result;
+    }
+
+    /**
+     * Löscht einen Refresh-Token anhand seines Token-Strings.
+     * Nützlich beim Logout, wenn der Client den Refresh-Token übermittelt.
+     */
+    @Transactional
+    public void deleteByToken(String token) {
+        refreshTokenRepository.findByToken(token).ifPresent(refreshTokenRepository::delete);
     }
 }

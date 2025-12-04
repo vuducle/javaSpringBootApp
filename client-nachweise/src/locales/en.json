@@ -230,6 +230,13 @@
     "cancel": "Cancel",
     "loading": "Loading..."
   },
+  "notFound": {
+    "title": "404 — Page not found 😵‍💫",
+    "subtitle": "Whoops — this page went missing. Try the homepage or check your records.",
+    "backHome": "Back to Home",
+    "viewRecords": "View records",
+    "hint": "Tip: Use search or the nav above — or refresh if you're feeling lucky ✨"
+  },
   "quotes": {
     "q1": "The only way to do great work is to love what you do.",
     "q2": "Success is not final, failure is not fatal: it is the courage to continue that counts.",
@@ -281,6 +288,14 @@
     "all": "\uD83D\uDC64 Alle",
     "azubis": "\uD83D\uDCDD Trainee",
     "ausbilder": "\uD83D\uDEE0\uFE0F Trainer",
-    "sortBy": "Sort by"
+    "sortBy": "Sort by",
+    "user": "Username",
+    "role": "Role",
+    "nummer": "Phone number",
+    "year": "Year"
+  },
+  "roles": {
+    "admin": "Trainer",
+    "user": "Apprentice"
   }
 }

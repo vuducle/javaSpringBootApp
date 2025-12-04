@@ -13,6 +13,8 @@ import {
 import Link from 'next/link';
 import { useAppDispatch } from '@/store';
 import { clearUser, User } from '@/store/slices/userSlice';
+import api from '@/lib/api';
+import { useToast } from '@/hooks/useToast';
 import { Button } from '../ui/button';
 import { ThemeToggleButton } from './ThemeToggleButton';
 import { Logo } from '../ui/Logo';
@@ -27,12 +29,26 @@ export function Navbar({ user }: { user: User }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const handleLogout = () => {
+  const { showToast } = useToast();
+
+  const handleLogout = async () => {
     try {
+      // Try server-side logout to clear HttpOnly cookie and invalidate refresh token
+      await api.post('/api/auth/logout', {
+        refreshToken: user.refreshToken,
+      });
+    } catch (error) {
+      console.warn(
+        'Server logout failed, proceeding to clear client state',
+        error
+      );
+      showToast(
+        'Logout failed server-side, local session cleared',
+        'warning'
+      );
+    } finally {
       dispatch(clearUser());
       router.push('/login');
-    } catch (error) {
-      console.error(error);
     }
   };
 

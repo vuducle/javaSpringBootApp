@@ -4,6 +4,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8088',
+  withCredentials: true,
 });
 
 // Request interceptor to add auth token to headers

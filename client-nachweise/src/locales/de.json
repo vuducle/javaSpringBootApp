@@ -231,6 +231,13 @@
     "cancel": "Abbrechen",
     "loading": "Lädt..."
   },
+  "notFound": {
+    "title": "404 — Seite nicht gefunden 😵‍💫",
+    "subtitle": "Hoppla — diese Seite ist wohl in den Ferien. Versuch's über die Startseite oder deine Nachweise.",
+    "backHome": "Zur Startseite",
+    "viewRecords": "Nachweise anschauen",
+    "hint": "Tipp: Verwende die Suche oder die Navigation oben — oder aktualisiere die Seite, wenn du mutig bist ✨"
+  },
   "quotes": {
     "q1": "Der einzige Weg, großartige Arbeit zu leisten, ist, zu lieben, was man tut.",
     "q2": "Erfolg ist nicht endgültig, Misserfolg ist nicht fatal: Es ist der Mut, weiterzumachen, der zählt.",
@@ -282,6 +289,14 @@
     "all": "\uD83D\uDC64 Alle",
     "azubis": "\uD83D\uDCDD Azubis",
     "ausbilder": "\uD83D\uDEE0\uFE0F Ausbilder/innen",
-    "sortBy": "Sortieren nach"
+    "sortBy": "Sortieren nach",
+    "user": "Benutzername",
+    "role": "Rolle",
+    "nummer": "Telefonnummer",
+    "year": "Ausbildungsjahr"
+  },
+  "roles": {
+    "admin": "Ausbilder/in",
+    "user": "Azubi"
   }
 }
