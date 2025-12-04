@@ -17,7 +17,7 @@ public class AuthResponse {
     @Schema(description = "E-Mail-Adresse des Benutzers", example = "julianguyen@example.com")
     private String email;
 
-    @Schema(description = "Vollständiger Name des Benutzers", example = "Julian Nguyen")
+    @Schema(description = "Vollständiger Name des Benutzers", example = "Julia Nguyen")
     private String name;
 
     @Schema(description = "Rollen des Benutzers", example = "[\"ROLE_USER\", \"ROLE_ADMIN\"]")

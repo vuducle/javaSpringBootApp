@@ -1,7 +1,9 @@
 package org.example.javamusicapp.service.auth;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.javamusicapp.controller.userController.dto.UserUpdateRequest;
 import org.example.javamusicapp.model.User;
+import org.example.javamusicapp.repository.specification.UserSpecification;
 import org.example.javamusicapp.service.audit.RoleAuditService;
 import org.example.javamusicapp.repository.UserRepository;
 import org.example.javamusicapp.repository.RoleRepository;
@@ -260,12 +262,13 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    public Page<User> findAllWithFilters(String team, Integer ausbildungsjahr, String rolle, Pageable pageable) {
+    public Page<User> findAllWithFilters(String search, String team, Integer ausbildungsjahr, String rolle, Pageable pageable) {
         Specification<User> spec = Specification
-                .where(org.example.javamusicapp.repository.specification.UserSpecification.hasTeam(team))
-                .and(org.example.javamusicapp.repository.specification.UserSpecification
+                .where(UserSpecification.searchByTerm(search))
+                .and(UserSpecification.hasTeam(team))
+                .and(UserSpecification
                         .hasAusbildungsjahr(ausbildungsjahr))
-                .and(org.example.javamusicapp.repository.specification.UserSpecification.hasRole(rolle));
+                .and(UserSpecification.hasRole(rolle));
         return userRepository.findAll(spec, pageable);
     }
 
@@ -316,7 +319,7 @@ public class UserService implements UserDetailsService {
     }
 
     public User updateUserProfile(String username,
-            org.example.javamusicapp.controller.userController.dto.UserUpdateRequest request) {
+            UserUpdateRequest request) {
         User user = findByUsername(username);
         user.setAusbildungsjahr(request.getAusbildungsjahr());
         user.setTelefonnummer(request.getTelefonnummer());
@@ -325,7 +328,7 @@ public class UserService implements UserDetailsService {
     }
 
     public User updateUserProfileByAdmin(String username,
-            org.example.javamusicapp.controller.userController.dto.UserUpdateRequest request) {
+            UserUpdateRequest request) {
         User user = findByUsername(username);
         user.setAusbildungsjahr(request.getAusbildungsjahr());
         user.setTelefonnummer(request.getTelefonnummer());

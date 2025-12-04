@@ -34,7 +34,9 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -135,10 +137,10 @@ public class NachweisController {
     @GetMapping("/my-nachweise/exists/by-nummer/{nummer}")
     @Operation(summary = "Prüft, ob ein Nachweis mit der angegebenen Nummer für den aktuellen Benutzer bereits existiert.", description = "Gibt zurück, ob der aktuell authentifizierte Benutzer bereits einen Nachweis mit dieser Nummer hat.")
     @ApiResponse(responseCode = "200", description = "Prüfung erfolgreich durchgeführt.")
-    public ResponseEntity<java.util.Map<String, Boolean>> checkIfNummerExistsForCurrentUser(
+    public ResponseEntity<Map<String, Boolean>> checkIfNummerExistsForCurrentUser(
             @PathVariable int nummer, @AuthenticationPrincipal UserDetails userDetails) {
         boolean exists = nachweisService.checkIfNummerExistsForUser(nummer, userDetails.getUsername());
-        return ResponseEntity.ok(java.util.Collections.singletonMap("exists", exists));
+        return ResponseEntity.ok(Collections.singletonMap("exists", exists));
     }
 
     /**
@@ -149,7 +151,7 @@ public class NachweisController {
     @GetMapping("/my-nachweise/next-nummer")
     @Operation(summary = "Gibt die nächste verfügbare Nachweisnummer für den aktuellen Benutzer zurück.", description = "Ermittelt die höchste existierende Nachweisnummer und gibt die nächsthöhere zurück.")
     @ApiResponse(responseCode = "200", description = "Nächste Nummer erfolgreich ermittelt.")
-    public ResponseEntity<java.util.Map<String, Integer>> getNextNachweisNummer(
+    public ResponseEntity<Map<String, Integer>> getNextNachweisNummer(
             @AuthenticationPrincipal UserDetails userDetails) {
         int nextNummer = nachweisService.getNextNachweisNummerForUser(userDetails.getUsername());
         return ResponseEntity.ok(java.util.Collections.singletonMap("nextNummer", nextNummer));

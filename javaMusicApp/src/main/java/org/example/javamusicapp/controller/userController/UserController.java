@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.javamusicapp.controller.userController.dto.ChangePasswordRequest;
 import org.example.javamusicapp.controller.userController.dto.UserResponse;
+import org.example.javamusicapp.controller.userController.dto.UserUpdateRequest;
 import org.example.javamusicapp.model.User;
 import org.example.javamusicapp.service.auth.UserService;
 import org.example.javamusicapp.service.nachweis.NachweisSecurityService;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,11 +96,11 @@ public class UserController {
     @Operation(summary = "Admin-Liste", description = "Gibt alle aktuellen Admin-User zurück")
     @GetMapping("/admins")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isAusbilder(authentication)")
-    public ResponseEntity<java.util.List<UserResponse>> listAdmins(Authentication authentication) {
-        java.util.List<User> admins = userService.listAdmins();
-        java.util.List<UserResponse> resp = admins.stream()
+    public ResponseEntity<List<UserResponse>> listAdmins(Authentication authentication) {
+        List<User> admins = userService.listAdmins();
+        List<UserResponse> resp = admins.stream()
                 .map(UserResponse::new)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
         return ResponseEntity.ok(resp);
     }
 
@@ -112,11 +114,11 @@ public class UserController {
      */
     @Operation(summary = "Ausbilder-Liste", description = "Gibt alle User zurück, die Nachweise als Ausbilder haben können (für Ausbilder-Auswahl beim PDF-Erstellen)")
     @GetMapping("/ausbilder")
-    public ResponseEntity<java.util.List<UserResponse>> listAusbilder(Authentication authentication) {
-        java.util.List<User> ausbilder = userService.listAusbilder();
-        java.util.List<UserResponse> resp = ausbilder.stream()
+    public ResponseEntity<List<UserResponse>> listAusbilder(Authentication authentication) {
+        List<User> ausbilder = userService.listAusbilder();
+        List<UserResponse> resp = ausbilder.stream()
                 .map(UserResponse::new)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
         return ResponseEntity.ok(resp);
     }
 
@@ -178,7 +180,7 @@ public class UserController {
     @Operation(summary = "User-Profil aktualisieren", description = "Aktualisiert das Profil des aktuell angemeldeten Users")
     @PutMapping("/profile")
     public ResponseEntity<UserResponse> updateUserProfile(
-            @RequestBody org.example.javamusicapp.controller.userController.dto.UserUpdateRequest request,
+            @RequestBody UserUpdateRequest request,
             Authentication authentication) {
         String username = authentication.getName();
         User updatedUser = userService.updateUserProfile(username, request);
@@ -255,7 +257,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isAusbilder(authentication)")
     public ResponseEntity<String> revokeAdmin(@PathVariable("username") String username,
             Authentication authentication,
-            @org.springframework.web.bind.annotation.RequestParam(value = "keepAsNoRole", defaultValue = "false") boolean keepAsNoRole) {
+            @RequestParam(value = "keepAsNoRole", defaultValue = "false") boolean keepAsNoRole) {
         try {
             // Prevent self-revoke in specific cases:
             // - if caller is ADMIN -> prevent self-revoke
@@ -322,6 +324,7 @@ public class UserController {
      * Ruft alle Benutzer ab mit optionalen Filtern, Sortierung und Pagination.
      * Nur für Administratoren zugänglich.
      *
+     * @param search          Optionaler Suchbegriff für Benutzername, Vorname oder Nachname.
      * @param team            Optionaler Filter für das Team.
      * @param ausbildungsjahr Optionaler Filter für das Ausbildungsjahr.
      * @param rolle           Optionaler Filter für die Rolle.
@@ -332,11 +335,12 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Ruft alle Benutzer ab", description = "Gibt eine Liste aller Benutzer im System zurück. Nur für Administratoren zugänglich.")
     public ResponseEntity<Page<UserResponse>> getAllUsers(
+            @RequestParam(required = false) String search,
             @RequestParam(required = false) String team,
             @RequestParam(required = false) Integer ausbildungsjahr,
             @RequestParam(required = false) String rolle,
             Pageable pageable) {
-        Page<User> users = userService.findAllWithFilters(team, ausbildungsjahr, rolle, pageable);
+        Page<User> users = userService.findAllWithFilters(search, team, ausbildungsjahr, rolle, pageable);
         Page<UserResponse> userResponsePage = users.map(UserResponse::new);
         return ResponseEntity.ok(userResponsePage);
     }
@@ -354,7 +358,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Aktualisiert das Profil eines Benutzers", description = "Aktualisiert die Profilinformationen eines bestimmten Benutzers. Nur für Administratoren zugänglich.")
     public ResponseEntity<UserResponse> updateUserProfileByAdmin(@PathVariable String username,
-            @RequestBody org.example.javamusicapp.controller.userController.dto.UserUpdateRequest request) {
+            @RequestBody UserUpdateRequest request) {
         User updatedUser = userService.updateUserProfileByAdmin(username, request);
         return ResponseEntity.ok(new UserResponse(updatedUser));
     }

@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -186,7 +187,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     @Operation(summary = "Logout", description = "Logs out the user: clears HttpOnly cookie and invalidates refresh token if provided")
-    public ResponseEntity<?> logout(@RequestBody(required = false) java.util.Map<String, String> body) {
+    public ResponseEntity<?> logout(@RequestBody(required = false) Map<String, String> body) {
         String refreshToken = null;
         if (body != null) {
             refreshToken = body.get("refreshToken");

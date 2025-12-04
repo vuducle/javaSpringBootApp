@@ -8,10 +8,10 @@ import org.example.javamusicapp.validation.PasswordStrength;
 @Data
 @Schema(name = "RegistrierungsAnfrage", description = "Anfrage-Payload zum Registrieren eines neuen Benutzers")
 public class RegistrationRequest {
-    @Schema(description = "Eindeutiger Benutzername des Benutzers", example = "julianguyen")
+    @Schema(description = "Eindeutiger Benutzername des Benutzers", example = "deniskunz")
     private String username;
 
-    @Schema(description = "Vollständiger Name des Benutzers", example = "Julian Nguyen")
+    @Schema(description = "Vollständiger Name des Benutzers", example = "Denis Kunz")
     private String name;
 
     @Schema(description = "Benutzerpasswort", example = "Password123!", format = "password")
@@ -19,7 +19,7 @@ public class RegistrationRequest {
     @NotBlank
     private String password;
 
-    @Schema(description = "E-Mail-Adresse des Benutzers", example = "julianguyen@example.com")
+    @Schema(description = "E-Mail-Adresse des Benutzers", example = "deniskunz@example.com")
     private String email;
 
     @Schema(description = "Ausbildungsjahr des Azubis", example = "1")

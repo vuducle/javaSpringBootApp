@@ -1,18 +1,35 @@
 package org.example.javamusicapp.repository.specification;
 
+import jakarta.persistence.criteria.Predicate;
 import org.example.javamusicapp.model.User;
 import org.example.javamusicapp.model.enums.ERole;
 import org.springframework.data.jpa.domain.Specification;
 
 public class UserSpecification {
 
+    public static Specification<User> searchByTerm(String searchTerm) {
+        return (root, query, criteriaBuilder) -> {
+            if (searchTerm == null || searchTerm.isBlank()) {
+                return criteriaBuilder.conjunction();
+            }
+
+            String lowerCaseSearchTerm = searchTerm.toLowerCase();
+            String likePattern = "%" + lowerCaseSearchTerm + "%";
+
+            Predicate usernamePredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("username")), likePattern);
+            Predicate namePredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), likePattern);
+
+            return criteriaBuilder.or(usernamePredicate, namePredicate);
+        };
+    }
+
     public static Specification<User> hasTeam(String team) {
-        return (root, query, criteriaBuilder) -> 
+        return (root, query, criteriaBuilder) ->
             team == null ? criteriaBuilder.conjunction() : criteriaBuilder.equal(root.get("team"), team);
     }
 
     public static Specification<User> hasAusbildungsjahr(Integer ausbildungsjahr) {
-        return (root, query, criteriaBuilder) -> 
+        return (root, query, criteriaBuilder) ->
             ausbildungsjahr == null ? criteriaBuilder.conjunction() : criteriaBuilder.equal(root.get("ausbildungsjahr"), ausbildungsjahr);
     }
 
