@@ -4,6 +4,7 @@ import { useTranslation } from '@/context/LanguageContext';
 import { useEffect, useState } from 'react';
 import  api  from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import StatusPlaceholder from "@/components/ui/StatusPlaceholder";
 
 interface AuditItem {
   id: string;
@@ -37,9 +38,14 @@ export default function AuditTrail() {
     fetchAuditTrail();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+    if (loading) {
+        return (
+            <StatusPlaceholder
+                loading
+                loadingText={t('common.loading') ?? 'Lädt...'}
+            />
+        );
+    }
 
   return (
     <Card className="bg-white dark:bg-zinc-800 shadow-lg rounded-lg mt-4">

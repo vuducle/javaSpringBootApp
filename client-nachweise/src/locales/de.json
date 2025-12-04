@@ -276,5 +276,12 @@
     "user": "Benutzer",
     "action": "Aktion",
     "time": "Zeit"
+  },
+  "userPage": {
+    "title": "\uD83D\uDC64 Benutzer erstellen",
+    "all": "\uD83D\uDC64 Alle",
+    "azubis": "\uD83D\uDCDD Azubis",
+    "ausbilder": "\uD83D\uDEE0\uFE0F Ausbilder/innen",
+    "sortBy": "Sortieren nach"
   }
 }

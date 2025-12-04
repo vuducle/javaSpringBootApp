@@ -1,11 +1,16 @@
 package org.example.javamusicapp.controller.userController.dto;
 
+import org.example.javamusicapp.model.Role;
 import org.example.javamusicapp.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.javamusicapp.model.enums.ERole;
 
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -19,6 +24,7 @@ public class UserResponse {
     private Integer ausbildungsjahr;
     private String telefonnummer;
     private String team;
+    private List<String> roles;
 
     public UserResponse(User user) {
         this.id = user.getId();
@@ -29,5 +35,8 @@ public class UserResponse {
         this.ausbildungsjahr = user.getAusbildungsjahr();
         this.telefonnummer = user.getTelefonnummer();
         this.team = user.getTeam();
+        this.roles = user.getRoles().stream()
+                .map(role -> role.getName().name())
+                .collect(Collectors.toList());
     }
 }

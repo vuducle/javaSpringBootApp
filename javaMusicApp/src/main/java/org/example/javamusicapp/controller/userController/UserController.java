@@ -97,7 +97,7 @@ public class UserController {
     public ResponseEntity<java.util.List<UserResponse>> listAdmins(Authentication authentication) {
         java.util.List<User> admins = userService.listAdmins();
         java.util.List<UserResponse> resp = admins.stream()
-                .map(this::toUserResponse)
+                .map(UserResponse::new)
                 .collect(java.util.stream.Collectors.toList());
         return ResponseEntity.ok(resp);
     }
@@ -115,28 +115,12 @@ public class UserController {
     public ResponseEntity<java.util.List<UserResponse>> listAusbilder(Authentication authentication) {
         java.util.List<User> ausbilder = userService.listAusbilder();
         java.util.List<UserResponse> resp = ausbilder.stream()
-                .map(this::toUserResponse)
+                .map(UserResponse::new)
                 .collect(java.util.stream.Collectors.toList());
         return ResponseEntity.ok(resp);
     }
 
-    /**
-     * Hilfsmethode, um ein User-Objekt in ein UserResponse-DTO zu konvertieren.
-     * 
-     * @param user Das User-Objekt.
-     * @return Das UserResponse-DTO.
-     */
-    private UserResponse toUserResponse(User user) {
-        return new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getName(),
-                user.getEmail(),
-                user.getProfileImageUrl(),
-                user.getAusbildungsjahr(),
-                user.getTelefonnummer(),
-                user.getTeam());
-    }
+
 
     /**
      * Lädt ein Profilbild für den aktuell angemeldeten User hoch.
@@ -155,7 +139,7 @@ public class UserController {
             String username = authentication.getName();
             User updatedUser = userService.uploadProfileImage(username, file);
 
-            UserResponse response = toUserResponse(updatedUser);
+            UserResponse response = new UserResponse(updatedUser);
 
             log.info("Profilbild erfolgreich hochgeladen für User: {}", username);
             return ResponseEntity.ok(response);
@@ -178,7 +162,7 @@ public class UserController {
         String username = authentication.getName();
         User user = userService.findByUsername(username);
 
-        UserResponse response = toUserResponse(user);
+        UserResponse response = new UserResponse(user);
 
         return ResponseEntity.ok(response);
     }
@@ -198,7 +182,7 @@ public class UserController {
             Authentication authentication) {
         String username = authentication.getName();
         User updatedUser = userService.updateUserProfile(username, request);
-        UserResponse response = toUserResponse(updatedUser);
+        UserResponse response = new UserResponse(updatedUser);
         return ResponseEntity.ok(response);
     }
 
@@ -217,7 +201,7 @@ public class UserController {
             String username = authentication.getName();
             User updatedUser = userService.deleteProfileImage(username);
 
-            UserResponse response = toUserResponse(updatedUser);
+            UserResponse response = new UserResponse(updatedUser);
 
             log.info("Profilbild erfolgreich gelöscht für User: {}", username);
             return ResponseEntity.ok(response);

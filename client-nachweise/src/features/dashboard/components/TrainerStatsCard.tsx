@@ -6,6 +6,7 @@ import  api  from '@/lib/api';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 import { useAppSelector } from '@/store';
 import { selectUser } from '@/store/slices/userSlice';
+import StatusPlaceholder from "@/components/ui/StatusPlaceholder";
 
 interface Nachweis {
   id: string;
@@ -67,9 +68,14 @@ export default function TrainerStatsCard() {
     }
   }, [user.id]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+    if (loading) {
+        return (
+            <StatusPlaceholder
+                loading
+                loadingText={t('common.loading') ?? 'Lädt...'}
+            />
+        );
+    }
 
   const stats = data.reduce(
     (acc, nachweis) => {

@@ -154,6 +154,13 @@ public class UserService implements UserDetailsService {
         Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
                 .orElseThrow(() -> new IllegalStateException("ROLE_ADMIN ist nicht konfiguriert"));
 
+        // Finde die ROLE_USER
+        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                .orElseThrow(() -> new IllegalStateException("ROLE_USER ist nicht konfiguriert"));
+
+        // Entferne ROLE_USER, falls vorhanden
+        target.getRoles().remove(userRole);
+
         target.getRoles().add(adminRole);
         userRepository.save(target);
         log.info("ROLE_ADMIN zugewiesen an User: {}", targetUsername);

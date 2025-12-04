@@ -275,5 +275,12 @@
     "user": "User",
     "action": "Action",
     "time": "Time"
+  },
+  "userPage": {
+    "title": "\uD83D\uDC64 Create User",
+    "all": "\uD83D\uDC64 Alle",
+    "azubis": "\uD83D\uDCDD Trainee",
+    "ausbilder": "\uD83D\uDEE0\uFE0F Trainer",
+    "sortBy": "Sort by"
   }
 }

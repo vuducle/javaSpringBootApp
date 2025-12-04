@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import UserView from "@/features/user/UserView";
 
 export const metadata: Metadata = {
   title: 'Benutzer erstellen',
@@ -6,8 +7,8 @@ export const metadata: Metadata = {
 
 export default function UserErstellenPage() {
   return (
-    <div>
-      <h1>User Erstellen</h1>
-    </div>
+    <>
+       <UserView />
+    </>
   );
 }
