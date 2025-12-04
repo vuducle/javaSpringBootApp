@@ -297,5 +297,9 @@
   "roles": {
     "admin": "Trainer",
     "user": "Apprentice"
+  },
+  "sort": {
+    "asc": "Ascending",
+    "desc": "Descending"
   }
 }

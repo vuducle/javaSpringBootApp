@@ -295,6 +295,10 @@
     "nummer": "Telefonnummer",
     "year": "Ausbildungsjahr"
   },
+  "sort": {
+    "asc": "Aufsteigend",
+    "desc": "Absteigend"
+  },
   "roles": {
     "admin": "Ausbilder/in",
     "user": "Azubi"

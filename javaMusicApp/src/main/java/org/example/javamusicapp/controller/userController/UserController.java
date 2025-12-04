@@ -319,14 +319,13 @@ public class UserController {
     }
 
     /**
-     * Ruft alle Benutzer ab mit optionalen Filtern und Pagination.
+     * Ruft alle Benutzer ab mit optionalen Filtern, Sortierung und Pagination.
      * Nur für Administratoren zugänglich.
-     * 
+     *
      * @param team            Optionaler Filter für das Team.
      * @param ausbildungsjahr Optionaler Filter für das Ausbildungsjahr.
      * @param rolle           Optionaler Filter für die Rolle.
-     * @param page            Seitenindex für die Pagination (Standard: 0).
-     * @param size            Seitengröße für die Pagination (Standard: 10).
+     * @param pageable        Pagination- und Sortierungsinformationen.
      * @return Seite mit Benutzerantworten.
      */
     @GetMapping("/users")
@@ -336,9 +335,7 @@ public class UserController {
             @RequestParam(required = false) String team,
             @RequestParam(required = false) Integer ausbildungsjahr,
             @RequestParam(required = false) String rolle,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable) {
         Page<User> users = userService.findAllWithFilters(team, ausbildungsjahr, rolle, pageable);
         Page<UserResponse> userResponsePage = users.map(UserResponse::new);
         return ResponseEntity.ok(userResponsePage);

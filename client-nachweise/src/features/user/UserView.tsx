@@ -15,26 +15,27 @@ import api from '@/lib/api';
 import {
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   Pen,
   Plus,
   Trash,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
-  TableCell,
-  TableHead,
   TableHeader,
+  TableHead,
+  TableCell,
   TableRow,
 } from '@/components/ui/table';
-import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
-import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from '@/components/ui/avatar';
+import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
 
 interface Benutzer {
   id: string;
@@ -69,6 +70,8 @@ export default function UserView() {
   const [status, setStatus] = useState<string>('ALLE');
   const [page, setPage] = useState<number>(0);
   const [size, setSize] = useState<number>(10);
+  const [sortBy, setSortBy] = useState<string | undefined>(undefined);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
   // Map UI filter values to backend role names
   const roleParam = (() => {
@@ -85,8 +88,11 @@ export default function UserView() {
         page,
         size,
         rolle: roleParam,
+        sort: sortBy && `${sortBy},${sortDir}`,
       },
       status,
+      sortBy,
+      sortDir,
     ],
     ([url, params]) => fetcher(url, params),
     {
@@ -130,7 +136,14 @@ export default function UserView() {
             <label className="text-sm">
               {t('nachweis.pageSize')}:
             </label>
-            <Select>
+            <Select
+              value={String(size)}
+              onValueChange={(val: string) => {
+                const parsed = Number(val) || 10;
+                setSize(parsed);
+                setPage(0);
+              }}
+            >
               <SelectTrigger className="w-20">
                 <SelectValue />
               </SelectTrigger>
@@ -144,24 +157,69 @@ export default function UserView() {
             <label className="text-sm">
               {t('userPage.sortBy') ?? 'Sort By'}
             </label>
-            <Select>
-              <SelectTrigger className="w-20">
+            <Select
+              value={sortBy}
+              onValueChange={(val: string) => {
+                setSortBy(val || undefined);
+                setPage(0);
+              }}
+            >
+              <SelectTrigger className="w-40">
                 <SelectValue placeholder={t('userPage.sortBy')} />
               </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="username">
+                  {t('userPage.user')}
+                </SelectItem>
+                <SelectItem value="ausbildungsjahr">
+                  {t('userPage.year')}
+                </SelectItem>
+                <SelectItem value="team">{'Team'}</SelectItem>
+              </SelectContent>
             </Select>
+
+            <Button
+              size="sm"
+              aria-label={
+                sortDir === 'asc'
+                  ? 'Sort ascending'
+                  : 'Sort descending'
+              }
+              onClick={() => {
+                setSortDir((s) => (s === 'asc' ? 'desc' : 'asc'));
+                setPage(0);
+              }}
+            >
+              {sortDir === 'asc' ? <ChevronUp /> : <ChevronDown />}
+            </Button>
           </div>
           <div className="flex items-center space-x-2">
             {/*TODO: Hier kommt ein Suchfeld nach Namen oder Benutzername */}
           </div>
           <div className="flex items-center space-x-2"></div>
           <div className="flex items-center space-x-2">
-            {/*TODO: Hier kommt später ein Button, ein Modal um ein User zu erstellen */}
-            <div>
-              <Button>
+            {/* Pagination controls */}
+            <div className="flex items-center">
+              <Button
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page <= 0}
+              >
                 <ChevronLeft />
               </Button>
-              <span id="pageIndex">Seite</span>
-              <Button>
+
+              <span id="pageIndex" className="px-3 text-sm">
+                {t('nachweis.page') ?? 'Seite'} {page + 1}{' '}
+                {t('nachweis.of') ?? 'von'} {data?.totalPages ?? '-'}
+              </span>
+
+              <Button
+                onClick={() =>
+                  setPage((p) =>
+                    Math.min((data?.totalPages ?? 1) - 1, p + 1)
+                  )
+                }
+                disabled={data ? page >= data.totalPages - 1 : true}
+              >
                 <ChevronRight />
               </Button>
             </div>
@@ -278,7 +336,7 @@ export default function UserView() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm">
+                    <span className="text-sm uppercase bg-primary p-2 rounded-md text-white">
                       {(() => {
                         const role = Array.isArray(java.roles)
                           ? java.roles[0]
