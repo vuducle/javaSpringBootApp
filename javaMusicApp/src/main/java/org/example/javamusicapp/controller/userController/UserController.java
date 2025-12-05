@@ -270,9 +270,9 @@ public class UserController {
                     log.warn("Benutzer {} versucht, sich selbst die Admin-Rolle zu entziehen (verboten)", caller);
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                             .body(new RevokeAdminResponse(
-                                "Entziehen nicht erlaubt: Sie können sich nicht selbst die Admin-Rolle entziehen.",
-                                0,
-                                new ArrayList<>()));
+                                    "Entziehen nicht erlaubt: Sie können sich nicht selbst die Admin-Rolle entziehen.",
+                                    0,
+                                    new ArrayList<>()));
                 }
                 // otherwise allow (shouldn't normally happen because only admins/ausbilder can
                 // call),
@@ -281,7 +281,8 @@ public class UserController {
             }
 
             String caller = (authentication != null) ? authentication.getName() : "system";
-            RevokeAdminResponse response = userService.revokeAdminRoleFromUserWithDependents(username, caller, keepAsNoRole);
+            RevokeAdminResponse response = userService.revokeAdminRoleFromUserWithDependents(username, caller,
+                    keepAsNoRole);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             log.warn("Revoke admin fehlgeschlagen: {}", e.getMessage());

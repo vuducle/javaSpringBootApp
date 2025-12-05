@@ -257,11 +257,13 @@ public class UserService implements UserDetailsService {
      * @return RevokeAdminResponse with count and list of affected trainees
      */
     @Transactional
-    public RevokeAdminResponse revokeAdminRoleFromUserWithDependents(String targetUsername, String performedBy, boolean keepAsNoRole) {
+    public RevokeAdminResponse revokeAdminRoleFromUserWithDependents(String targetUsername, String performedBy,
+            boolean keepAsNoRole) {
         User target = userRepository.findByUsername(targetUsername)
                 .orElseThrow(() -> new IllegalArgumentException("Zielbenutzer nicht gefunden: " + targetUsername));
 
-        // Find all trainees assigned to this trainer (team field contains user ID as string)
+        // Find all trainees assigned to this trainer (team field contains user ID as
+        // string)
         String targetId = target.getId().toString();
         List<User> dependentTrainees = userRepository.findAllByTeam(targetId);
 
@@ -281,11 +283,11 @@ public class UserService implements UserDetailsService {
         List<String> affectedUsernames = dependentTrainees.stream()
                 .map(User::getUsername)
                 .toList();
-        
-        String message = dependentTrainees.isEmpty() 
-            ? "ROLE_ADMIN erfolgreich entzogen von " + targetUsername
-            : String.format("ROLE_ADMIN erfolgreich entzogen von %s. %d Azubi(s) wurden automatisch entfernt.", 
-                targetUsername, dependentTrainees.size());
+
+        String message = dependentTrainees.isEmpty()
+                ? "ROLE_ADMIN erfolgreich entzogen von " + targetUsername
+                : String.format("ROLE_ADMIN erfolgreich entzogen von %s. %d Azubi(s) wurden automatisch entfernt.",
+                        targetUsername, dependentTrainees.size());
 
         return new RevokeAdminResponse(message, dependentTrainees.size(), affectedUsernames);
     }
@@ -305,7 +307,8 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    public Page<User> findAllWithFilters(String search, String team, Integer ausbildungsjahr, String rolle, Pageable pageable) {
+    public Page<User> findAllWithFilters(String search, String team, Integer ausbildungsjahr, String rolle,
+            Pageable pageable) {
         Specification<User> spec = Specification
                 .where(UserSpecification.searchByTerm(search))
                 .and(UserSpecification.hasTeam(team))

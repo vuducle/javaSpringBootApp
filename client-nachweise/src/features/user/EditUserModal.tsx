@@ -138,10 +138,7 @@ export default function EditUserModal({
     }
 
     // Check if we're about to revoke admin — show confirmation first
-    if (
-      form.role !== 'ROLE_ADMIN' &&
-      initialRole === 'ROLE_ADMIN'
-    ) {
+    if (form.role !== 'ROLE_ADMIN' && initialRole === 'ROLE_ADMIN') {
       setShowRevokeConfirm(true);
       return;
     }
@@ -220,9 +217,7 @@ export default function EditUserModal({
 
       // Then revoke admin
       const revokeResponse = await api.delete(
-        `/api/user/${encodeURIComponent(
-          user.username
-        )}/revoke-admin`
+        `/api/user/${encodeURIComponent(user.username)}/revoke-admin`
       );
 
       // Show success with info about affected trainees
@@ -231,8 +226,11 @@ export default function EditUserModal({
         affectedTraineesCount?: number;
         affectedTraineeUsernames?: string[];
       };
-      
-      const message = data.message || t('userPage.revokeAdminSuccess') || 'Admin role revoked';
+
+      const message =
+        data.message ||
+        t('userPage.revokeAdminSuccess') ||
+        'Admin role revoked';
       showToast(message, 'success');
 
       setOpen(false);
@@ -443,11 +441,15 @@ export default function EditUserModal({
       </DialogContent>
 
       {/* Revoke Admin Confirmation Dialog */}
-      <Dialog open={showRevokeConfirm} onOpenChange={setShowRevokeConfirm}>
+      <Dialog
+        open={showRevokeConfirm}
+        onOpenChange={setShowRevokeConfirm}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {t('userPage.revokeConfirmTitle') ?? '⚠️ Admin-Rolle entziehen?'}
+              {t('userPage.revokeConfirmTitle') ??
+                '⚠️ Admin-Rolle entziehen?'}
             </DialogTitle>
             <DialogDescription>
               {t('userPage.revokeConfirmDescription') ??
@@ -456,7 +458,10 @@ export default function EditUserModal({
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="ghost" onClick={() => setShowRevokeConfirm(false)}>
+              <Button
+                variant="ghost"
+                onClick={() => setShowRevokeConfirm(false)}
+              >
                 {t('common.cancel') ?? 'Abbrechen'}
               </Button>
             </DialogClose>
@@ -465,7 +470,10 @@ export default function EditUserModal({
               onClick={handleRevokeConfirmed}
               disabled={saving}
             >
-              {saving ? t('common.loading') : (t('userPage.revokeConfirmButton') ?? 'Admin entziehen')}
+              {saving
+                ? t('common.loading')
+                : t('userPage.revokeConfirmButton') ??
+                  'Admin entziehen'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -85,7 +85,7 @@ class UserServiceRevokeAdminTest {
     void revokeAdminWithDependents_shouldUnassignTraineesAndRevokeRole() {
         // Given
         List<User> dependents = Arrays.asList(trainee1, trainee2);
-        
+
         when(userRepository.findByUsername("trainer1")).thenReturn(Optional.of(adminUser));
         when(userRepository.findAllByTeam(adminUser.getId().toString())).thenReturn(dependents);
         when(roleRepository.findByName(ERole.ROLE_ADMIN)).thenReturn(Optional.of(adminRole));
@@ -96,10 +96,9 @@ class UserServiceRevokeAdminTest {
 
         // When
         RevokeAdminResponse response = userService.revokeAdminRoleFromUserWithDependents(
-            "trainer1", 
-            "system", 
-            false
-        );
+                "trainer1",
+                "system",
+                false);
 
         // Then
         assertNotNull(response);
@@ -131,10 +130,9 @@ class UserServiceRevokeAdminTest {
 
         // When
         RevokeAdminResponse response = userService.revokeAdminRoleFromUserWithDependents(
-            "trainer1", 
-            "system", 
-            false
-        );
+                "trainer1",
+                "system",
+                false);
 
         // Then
         assertNotNull(response);
@@ -155,9 +153,8 @@ class UserServiceRevokeAdminTest {
         when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(IllegalArgumentException.class, () -> 
-            userService.revokeAdminRoleFromUserWithDependents("unknown", "system", false)
-        );
+        assertThrows(IllegalArgumentException.class,
+                () -> userService.revokeAdminRoleFromUserWithDependents("unknown", "system", false));
     }
 
     @Test
@@ -169,8 +166,7 @@ class UserServiceRevokeAdminTest {
         when(userRepository.countByRoles_Name(ERole.ROLE_ADMIN)).thenReturn(1L); // Last admin
 
         // When & Then
-        assertThrows(IllegalStateException.class, () -> 
-            userService.revokeAdminRoleFromUserWithDependents("trainer1", "system", false)
-        );
+        assertThrows(IllegalStateException.class,
+                () -> userService.revokeAdminRoleFromUserWithDependents("trainer1", "system", false));
     }
 }
