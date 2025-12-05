@@ -87,6 +87,12 @@ export default function EditUserModal({
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [showRevokeConfirm, setShowRevokeConfirm] = useState(false);
+  const [showRevokeResult, setShowRevokeResult] = useState(false);
+  const [revokeResult, setRevokeResult] = useState<{
+    message?: string;
+    affectedTraineesCount?: number;
+    affectedTraineeUsernames?: string[];
+  } | null>(null);
   const [form, setForm] = useState({
     name: user.name ?? '',
     email: user.email ?? '',
@@ -233,7 +239,10 @@ export default function EditUserModal({
         'Admin role revoked';
       showToast(message, 'success');
 
+      // Close edit dialog and show a result dialog with details
       setOpen(false);
+      setRevokeResult(data);
+      setShowRevokeResult(true);
       try {
         mutate('/api/user/users');
         mutate('/api/user/trainers');
@@ -474,6 +483,59 @@ export default function EditUserModal({
                 ? t('common.loading')
                 : t('userPage.revokeConfirmButton') ??
                   'Admin entziehen'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Revoke Result Dialog: shows list/count of affected trainees */}
+      <Dialog
+        open={showRevokeResult}
+        onOpenChange={setShowRevokeResult}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {revokeResult?.message ??
+                (t('userPage.revokeResultTitle') || 'Revoke result')}
+            </DialogTitle>
+            <DialogDescription>
+              {revokeResult &&
+              revokeResult.affectedTraineesCount !== undefined ? (
+                <>
+                  {t('userPage.revokeResultDescription') ||
+                    'Affected trainees:'}
+                  <div className="mt-2">
+                    <strong>
+                      {revokeResult.affectedTraineesCount}
+                    </strong>{' '}
+                    {t('userPage.affectedTraineesLabel') ||
+                      'trainee(s) affected'}
+                  </div>
+                </>
+              ) : (
+                t('userPage.revokeNoAffected') ||
+                'No affected trainees.'
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          {revokeResult?.affectedTraineeUsernames &&
+            revokeResult.affectedTraineeUsernames.length > 0 && (
+              <div className="mt-4 max-h-60 overflow-auto">
+                <ul className="list-disc list-inside">
+                  {revokeResult.affectedTraineeUsernames.map((u) => (
+                    <li key={u} className="text-sm">
+                      {u}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+          <DialogFooter>
+            <Button onClick={() => setShowRevokeResult(false)}>
+              {t('common.ok') ?? 'OK'}
             </Button>
           </DialogFooter>
         </DialogContent>

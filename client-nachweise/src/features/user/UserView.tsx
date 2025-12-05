@@ -15,6 +15,15 @@ import api from '@/lib/api';
 import CreateUserModal from '@/features/user/CreateUserModal';
 import useTrainers from '@/hooks/useTrainers';
 import EditUserModal from '@/features/user/EditUserModal';
+import { useToast } from '@/hooks/useToast';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import {
   ChevronLeft,
   ChevronRight,
@@ -22,6 +31,7 @@ import {
   ChevronDown,
   Trash,
 } from 'lucide-react';
+import DeleteConfirmModal from '@/components/core/DeleteConfirmModal';
 import {
   Table,
   TableBody,
@@ -71,6 +81,7 @@ export default function UserView() {
   const { t } = useTranslation();
 
   const { mutate } = useSWRConfig();
+  const { showToast } = useToast();
 
   const [status, setStatus] = useState<string>('ALLE');
   const [page, setPage] = useState<number>(0);
@@ -82,6 +93,12 @@ export default function UserView() {
   const [lightboxImage, setLightboxImage] = useState<string | null>(
     null
   );
+  const [showDeleteResult, setShowDeleteResult] = useState(false);
+  const [deleteResult, setDeleteResult] = useState<{
+    message?: string;
+    affectedTraineesCount?: number;
+    affectedTraineeUsernames?: string[];
+  } | null>(null);
 
   // Map UI filter values to backend role names
   const roleParam = (() => {
@@ -421,7 +438,9 @@ export default function UserView() {
                   </TableCell>
                   <TableCell>
                     <span className="text-sm">
-                      {trainersMap[java.team] ?? java.team ?? '-'}
+                      {java.team && trainersMap[java.team]
+                        ? trainersMap[java.team]
+                        : '-'}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -433,9 +452,59 @@ export default function UserView() {
                           mutate(swrKey as any);
                         }}
                       />
-                      <Button className="bg-destructive hover:bg-destructive/80 dark:bg-chart-5 dark:hover:bg-chart-5/80 cursor-pointer transition-all">
-                        <Trash />
-                      </Button>
+                      <>
+                        <DeleteConfirmModal
+                          requiredConfirmation={`sudo rm -rf && echo "${java.username}"`}
+                          onConfirm={async () => {
+                            try {
+                              const resp = await api.delete(
+                                `/api/user/${encodeURIComponent(
+                                  java.username
+                                )}`
+                              );
+                              const data = resp.data as {
+                                message?: string;
+                                affectedTraineesCount?: number;
+                                affectedTraineeUsernames?: string[];
+                              };
+                              // show toast
+                              showToast(
+                                data?.message ||
+                                  t('userPage.deleteSuccess') ||
+                                  'User deleted',
+                                'success'
+                              );
+                              // show result dialog with details if any
+                              setDeleteResult(data || null);
+                              setShowDeleteResult(true);
+                              // refresh list
+                              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                              mutate(swrKey as any);
+                            } catch (e) {
+                              console.error(
+                                'Failed to delete user',
+                                e
+                              );
+                              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                              const errMsg =
+                                ((e as any)?.response?.data &&
+                                  (e as any).response.data.message) ||
+                                (e as any).message ||
+                                String(e);
+                              showToast(
+                                errMsg ||
+                                  t('userPage.deleteFailed') ||
+                                  'Failed to delete user',
+                                'error'
+                              );
+                            }
+                          }}
+                        >
+                          <Button className="bg-destructive hover:bg-destructive/80 dark:bg-chart-5 dark:hover:bg-chart-5/80 cursor-pointer transition-all">
+                            <Trash />
+                          </Button>
+                        </DeleteConfirmModal>
+                      </>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -469,6 +538,62 @@ export default function UserView() {
             slides={[{ src: lightboxImage }]}
           />
         ) : null}
+
+        {/* Delete Result Dialog */}
+        <Dialog
+          open={showDeleteResult}
+          onOpenChange={setShowDeleteResult}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {deleteResult?.message ??
+                  (t('userPage.deleteResultTitle') ||
+                    'Delete result')}
+              </DialogTitle>
+              <DialogDescription>
+                {deleteResult &&
+                deleteResult.affectedTraineesCount !== undefined ? (
+                  <>
+                    {t('userPage.deleteResultDescription') ||
+                      'Affected trainees:'}
+                    <div className="mt-2">
+                      <strong>
+                        {deleteResult.affectedTraineesCount}
+                      </strong>{' '}
+                      {t('userPage.affectedTraineesLabel') ||
+                        'trainee(s) affected'}
+                    </div>
+                  </>
+                ) : (
+                  t('userPage.deleteNoAffected') ||
+                  'No affected trainees.'
+                )}
+              </DialogDescription>
+            </DialogHeader>
+
+            {deleteResult?.affectedTraineeUsernames &&
+              deleteResult.affectedTraineeUsernames.length > 0 && (
+                <div className="mt-4 max-h-60 overflow-auto">
+                  <ul className="list-disc list-inside">
+                    {deleteResult.affectedTraineeUsernames.map(
+                      (u) => (
+                        <li key={u} className="text-sm">
+                          {u}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </div>
+              )}
+
+            <DialogFooter>
+              <Button onClick={() => setShowDeleteResult(false)}>
+                {t('common.ok') ?? 'OK'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminOnly>
   );

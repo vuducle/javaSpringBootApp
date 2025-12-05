@@ -228,7 +228,16 @@
   },
   "common": {
     "cancel": "Cancel",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "ok": "OK"
+  },
+  "deleteModal": {
+    "title": "Permanently delete?",
+    "description": "Warning: this will remove all associated data permanently.",
+    "instruction": "To confirm, type the following command exactly:",
+    "placeholder": "Type the command here",
+    "confirmButton": "Delete",
+    "inputMismatch": "Confirmation does not match"
   },
   "notFound": {
     "title": "404 — Page not found 😵‍💫",
@@ -327,7 +336,21 @@
     "revokeConfirmDescription": "This user will lose their admin role. All assigned trainees will be automatically unassigned (team set to empty).",
     "revokeConfirmButton": "Revoke Admin",
     "loadProfileError": "Failed to load profile",
-    "editErrorMissing": "Please fill required fields"
+    "editErrorMissing": "Please fill required fields",
+    "deleteSuccess": "User deleted successfully.",
+    "deleteFailed": "Failed to delete user.",
+    "deleteError": "Failed to delete user.",
+    "deleteConfirmTitle": "Delete user?",
+    "deleteConfirmDescription": "Are you sure you want to delete this user? This action cannot be undone.",
+    "deleteCancel": "Cancel",
+    "deleteConfirmButton": "Delete",
+    "deleteResultTitle": "User deleted",
+    "deleteResultDescription": "Affected trainees:",
+    "deleteNoAffected": "No trainees affected.",
+    "affectedTraineesLabel": "trainee(s) affected",
+    "revokeResultTitle": "Admin role revoked",
+    "revokeResultDescription": "Affected trainees:",
+    "revokeNoAffected": "No trainees affected."
   },
   "userSearch": {
     "placeholder": "Name or username"

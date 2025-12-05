@@ -229,7 +229,16 @@
   },
   "common": {
     "cancel": "Abbrechen",
-    "loading": "Lädt..."
+    "loading": "Lädt...",
+    "ok": "OK"
+  },
+  "deleteModal": {
+    "title": "Endgültig löschen?",
+    "description": "Achtung: Diese Aktion entfernt alle zugehörigen Daten unwiderruflich.",
+    "instruction": "Zur Bestätigung tippe den folgenden Befehl exakt ein:",
+    "placeholder": "Gib den Befehl hier ein",
+    "confirmButton": "Löschen",
+    "inputMismatch": "Eingabe stimmt nicht überein"
   },
   "notFound": {
     "title": "404 — Seite nicht gefunden 😵‍💫",
@@ -328,7 +337,21 @@
     "revokeConfirmDescription": "Diesem Benutzer wird die Admin-Rolle entzogen. Alle zugewiesenen Azubis werden automatisch entfernt (Team auf leer gesetzt).",
     "revokeConfirmButton": "Admin entziehen",
     "loadProfileError": "Fehler beim Laden des Profils",
-    "editErrorMissing": "Bitte fülle alle erforderlichen Felder aus"
+    "editErrorMissing": "Bitte fülle alle erforderlichen Felder aus",
+    "deleteSuccess": "Benutzer erfolgreich gelöscht.",
+    "deleteFailed": "Fehler beim Löschen des Benutzers.",
+    "deleteError": "Fehler beim Löschen des Benutzers.",
+    "deleteConfirmTitle": "Benutzer löschen?",
+    "deleteConfirmDescription": "Möchten Sie diesen Benutzer wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteCancel": "Abbrechen",
+    "deleteConfirmButton": "Löschen",
+    "deleteResultTitle": "Benutzer gelöscht",
+    "deleteResultDescription": "Betroffene Azubis:",
+    "deleteNoAffected": "Keine Azubis betroffen.",
+    "affectedTraineesLabel": "Azubi(s) betroffen",
+    "revokeResultTitle": "Admin-Rolle entzogen",
+    "revokeResultDescription": "Betroffene Azubis:",
+    "revokeNoAffected": "Keine Azubis betroffen."
   },
   "userSearch": {
     "placeholder": "Name oder Benutzername"
