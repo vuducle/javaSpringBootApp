@@ -1,6 +1,7 @@
 package org.example.javamusicapp.service.auth;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.javamusicapp.controller.userController.dto.RevokeAdminResponse;
 import org.example.javamusicapp.controller.userController.dto.UserUpdateRequest;
 import org.example.javamusicapp.model.User;
 import org.example.javamusicapp.repository.specification.UserSpecification;
@@ -245,6 +246,48 @@ public class UserService implements UserDetailsService {
                 log.info("keepAsNoRole=true: keine automatische Zuweisung von ROLE_USER für {}", targetUsername);
             }
         }
+    }
+
+    /**
+     * Revoke ROLE_ADMIN from a user and handle dependent trainees.
+     * 
+     * @param targetUsername target user whose admin role will be revoked
+     * @param performedBy    who performed the action (for audit)
+     * @param keepAsNoRole   if true, do not auto-assign ROLE_USER after revoke
+     * @return RevokeAdminResponse with count and list of affected trainees
+     */
+    @Transactional
+    public RevokeAdminResponse revokeAdminRoleFromUserWithDependents(String targetUsername, String performedBy, boolean keepAsNoRole) {
+        User target = userRepository.findByUsername(targetUsername)
+                .orElseThrow(() -> new IllegalArgumentException("Zielbenutzer nicht gefunden: " + targetUsername));
+
+        // Find all trainees assigned to this trainer (team field contains user ID as string)
+        String targetId = target.getId().toString();
+        List<User> dependentTrainees = userRepository.findAllByTeam(targetId);
+
+        // Unassign all dependent trainees (set team to null)
+        if (!dependentTrainees.isEmpty()) {
+            dependentTrainees.forEach(trainee -> {
+                trainee.setTeam(null);
+                log.info("Unassigned trainee {} from trainer {}", trainee.getUsername(), targetUsername);
+            });
+            userRepository.saveAll(dependentTrainees);
+        }
+
+        // Now revoke admin role using existing logic
+        revokeAdminRoleFromUser(targetUsername, performedBy, keepAsNoRole);
+
+        // Build response
+        List<String> affectedUsernames = dependentTrainees.stream()
+                .map(User::getUsername)
+                .toList();
+        
+        String message = dependentTrainees.isEmpty() 
+            ? "ROLE_ADMIN erfolgreich entzogen von " + targetUsername
+            : String.format("ROLE_ADMIN erfolgreich entzogen von %s. %d Azubi(s) wurden automatisch entfernt.", 
+                targetUsername, dependentTrainees.size());
+
+        return new RevokeAdminResponse(message, dependentTrainees.size(), affectedUsernames);
     }
 
     public List<User> listAdmins() {

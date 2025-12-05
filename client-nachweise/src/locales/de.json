@@ -324,6 +324,9 @@
     "grantAdminSuccess": "Admin-Rolle erfolgreich zugewiesen ✅",
     "revokeAdminSuccess": "Admin-Rolle erfolgreich entzogen ✅",
     "revokeAdminFailed": "Admin-Rolle konnte nicht entzogen werden",
+    "revokeConfirmTitle": "⚠️ Admin-Rolle entziehen?",
+    "revokeConfirmDescription": "Diesem Benutzer wird die Admin-Rolle entzogen. Alle zugewiesenen Azubis werden automatisch entfernt (Team auf leer gesetzt).",
+    "revokeConfirmButton": "Admin entziehen",
     "loadProfileError": "Fehler beim Laden des Profils",
     "editErrorMissing": "Bitte fülle alle erforderlichen Felder aus"
   },

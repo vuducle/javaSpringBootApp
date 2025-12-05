@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.javamusicapp.controller.userController.dto.ChangePasswordRequest;
+import org.example.javamusicapp.controller.userController.dto.RevokeAdminResponse;
 import org.example.javamusicapp.controller.userController.dto.UserResponse;
 import org.example.javamusicapp.controller.userController.dto.UserUpdateRequest;
 import org.example.javamusicapp.model.User;
@@ -253,7 +254,7 @@ public class UserController {
     @Operation(summary = "Admin-Rolle entziehen", description = "Entzieht einem Benutzer die ROLE_ADMIN. Nur für bestehende Admins oder Ausbilder.")
     @DeleteMapping("/{username}/revoke-admin")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isAusbilder(authentication)")
-    public ResponseEntity<String> revokeAdmin(@PathVariable("username") String username,
+    public ResponseEntity<RevokeAdminResponse> revokeAdmin(@PathVariable("username") String username,
             Authentication authentication,
             @RequestParam(value = "keepAsNoRole", defaultValue = "false") boolean keepAsNoRole) {
         try {
@@ -268,7 +269,10 @@ public class UserController {
                 if (callerIsAdmin || (callerIsAusbilder && !callerIsAdmin)) {
                     log.warn("Benutzer {} versucht, sich selbst die Admin-Rolle zu entziehen (verboten)", caller);
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Entziehen nicht erlaubt: Sie können sich nicht selbst die Admin-Rolle entziehen.");
+                            .body(new RevokeAdminResponse(
+                                "Entziehen nicht erlaubt: Sie können sich nicht selbst die Admin-Rolle entziehen.",
+                                0,
+                                new ArrayList<>()));
                 }
                 // otherwise allow (shouldn't normally happen because only admins/ausbilder can
                 // call),
@@ -277,18 +281,21 @@ public class UserController {
             }
 
             String caller = (authentication != null) ? authentication.getName() : "system";
-            userService.revokeAdminRoleFromUser(username, caller, keepAsNoRole);
-            return ResponseEntity.ok("ROLE_ADMIN erfolgreich entzogen von " + username);
+            RevokeAdminResponse response = userService.revokeAdminRoleFromUserWithDependents(username, caller, keepAsNoRole);
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             log.warn("Revoke admin fehlgeschlagen: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new RevokeAdminResponse(e.getMessage(), 0, new ArrayList<>()));
         } catch (IllegalStateException e) {
             // z.B. letzter Admin
             log.warn("Revoke admin abgebrochen: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new RevokeAdminResponse(e.getMessage(), 0, new ArrayList<>()));
         } catch (Exception e) {
             log.error("Fehler beim Entziehen von ROLE_ADMIN: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Fehler beim Entfernen der Rolle");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new RevokeAdminResponse("Fehler beim Entfernen der Rolle", 0, new ArrayList<>()));
         }
     }
 

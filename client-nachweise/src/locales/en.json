@@ -323,6 +323,9 @@
     "grantAdminSuccess": "Admin role granted ✅",
     "revokeAdminSuccess": "Admin role revoked ✅",
     "revokeAdminFailed": "Failed to revoke admin role",
+    "revokeConfirmTitle": "⚠️ Revoke Admin Role?",
+    "revokeConfirmDescription": "This user will lose their admin role. All assigned trainees will be automatically unassigned (team set to empty).",
+    "revokeConfirmButton": "Revoke Admin",
     "loadProfileError": "Failed to load profile",
     "editErrorMissing": "Please fill required fields"
   },

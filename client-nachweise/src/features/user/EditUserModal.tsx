@@ -86,6 +86,7 @@ export default function EditUserModal({
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [showRevokeConfirm, setShowRevokeConfirm] = useState(false);
   const [form, setForm] = useState({
     name: user.name ?? '',
     email: user.email ?? '',
@@ -136,6 +137,20 @@ export default function EditUserModal({
       return;
     }
 
+    // Check if we're about to revoke admin — show confirmation first
+    if (
+      form.role !== 'ROLE_ADMIN' &&
+      initialRole === 'ROLE_ADMIN'
+    ) {
+      setShowRevokeConfirm(true);
+      return;
+    }
+
+    // Otherwise proceed normally
+    await saveProfile();
+  }
+
+  async function saveProfile() {
     setSaving(true);
     try {
       await api.put(
@@ -144,7 +159,7 @@ export default function EditUserModal({
         )}/profile`,
         form
       );
-      // handle role changes: grant or revoke admin if needed
+      // handle role changes: grant admin if needed
       if (
         form.role === 'ROLE_ADMIN' &&
         initialRole !== 'ROLE_ADMIN'
@@ -163,27 +178,6 @@ export default function EditUserModal({
           showToast(
             t('userPage.grantAdminFailed') ||
               'Failed to assign admin role',
-            'warning'
-          );
-        }
-      } else if (
-        form.role !== 'ROLE_ADMIN' &&
-        initialRole === 'ROLE_ADMIN'
-      ) {
-        try {
-          await api.delete(
-            `/api/user/${encodeURIComponent(
-              user.username
-            )}/revoke-admin`
-          );
-          showToast(
-            t('userPage.revokeAdminSuccess') || 'Admin role revoked',
-            'success'
-          );
-        } catch {
-          showToast(
-            t('userPage.revokeAdminFailed') ||
-              'Failed to revoke admin role',
             'warning'
           );
         }
@@ -206,6 +200,55 @@ export default function EditUserModal({
         'Failed to update';
       setFormError(
         typeof msg === 'string' ? msg : JSON.stringify(msg)
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleRevokeConfirmed() {
+    setShowRevokeConfirm(false);
+    setSaving(true);
+    try {
+      // First save profile
+      await api.put(
+        `/api/user/users/${encodeURIComponent(
+          user.username
+        )}/profile`,
+        form
+      );
+
+      // Then revoke admin
+      const revokeResponse = await api.delete(
+        `/api/user/${encodeURIComponent(
+          user.username
+        )}/revoke-admin`
+      );
+
+      // Show success with info about affected trainees
+      const data = revokeResponse.data as {
+        message?: string;
+        affectedTraineesCount?: number;
+        affectedTraineeUsernames?: string[];
+      };
+      
+      const message = data.message || t('userPage.revokeAdminSuccess') || 'Admin role revoked';
+      showToast(message, 'success');
+
+      setOpen(false);
+      try {
+        mutate('/api/user/users');
+        mutate('/api/user/trainers');
+      } catch {}
+      onUpdated?.();
+    } catch (err) {
+      const msg =
+        extractErrorMessage(err) ||
+        t('userPage.revokeAdminFailed') ||
+        'Failed to revoke admin role';
+      showToast(
+        typeof msg === 'string' ? msg : JSON.stringify(msg),
+        'error'
       );
     } finally {
       setSaving(false);
@@ -398,6 +441,35 @@ export default function EditUserModal({
           </DialogFooter>
         </form>
       </DialogContent>
+
+      {/* Revoke Admin Confirmation Dialog */}
+      <Dialog open={showRevokeConfirm} onOpenChange={setShowRevokeConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t('userPage.revokeConfirmTitle') ?? '⚠️ Admin-Rolle entziehen?'}
+            </DialogTitle>
+            <DialogDescription>
+              {t('userPage.revokeConfirmDescription') ??
+                'Diesem Benutzer wird die Admin-Rolle entzogen. Alle zugewiesenen Azubis werden automatisch entfernt (Team auf leer gesetzt).'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="ghost" onClick={() => setShowRevokeConfirm(false)}>
+                {t('common.cancel') ?? 'Abbrechen'}
+              </Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              onClick={handleRevokeConfirmed}
+              disabled={saving}
+            >
+              {saving ? t('common.loading') : (t('userPage.revokeConfirmButton') ?? 'Admin entziehen')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

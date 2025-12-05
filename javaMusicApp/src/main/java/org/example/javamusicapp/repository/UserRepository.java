@@ -24,4 +24,7 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
 
     java.util.List<User> findAllByRoles_Name(ERole roleName);
 
+    // Find all users whose team field matches the given team ID
+    java.util.List<User> findAllByTeam(String team);
+
 }
