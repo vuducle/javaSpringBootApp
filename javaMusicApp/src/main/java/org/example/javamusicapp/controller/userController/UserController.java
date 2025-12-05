@@ -122,8 +122,6 @@ public class UserController {
         return ResponseEntity.ok(resp);
     }
 
-
-
     /**
      * Lädt ein Profilbild für den aktuell angemeldeten User hoch.
      * 
@@ -324,7 +322,8 @@ public class UserController {
      * Ruft alle Benutzer ab mit optionalen Filtern, Sortierung und Pagination.
      * Nur für Administratoren zugänglich.
      *
-     * @param search          Optionaler Suchbegriff für Benutzername, Vorname oder Nachname.
+     * @param search          Optionaler Suchbegriff für Benutzername, Vorname oder
+     *                        Nachname.
      * @param team            Optionaler Filter für das Team.
      * @param ausbildungsjahr Optionaler Filter für das Ausbildungsjahr.
      * @param rolle           Optionaler Filter für die Rolle.
@@ -340,9 +339,19 @@ public class UserController {
             @RequestParam(required = false) Integer ausbildungsjahr,
             @RequestParam(required = false) String rolle,
             Pageable pageable) {
-        Page<User> users = userService.findAllWithFilters(search, team, ausbildungsjahr, rolle, pageable);
-        Page<UserResponse> userResponsePage = users.map(UserResponse::new);
-        return ResponseEntity.ok(userResponsePage);
+        // Validate and sanitize Pageable to prevent invalid sort properties
+        try {
+            Page<User> users = userService.findAllWithFilters(search, team, ausbildungsjahr, rolle, pageable);
+            Page<UserResponse> userResponsePage = users.map(UserResponse::new);
+            return ResponseEntity.ok(userResponsePage);
+        } catch (org.springframework.data.mapping.PropertyReferenceException e) {
+            log.warn("Invalid sort property requested: {}", e.getMessage());
+            // Retry with unsorted pageable
+            Pageable unsortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+            Page<User> users = userService.findAllWithFilters(search, team, ausbildungsjahr, rolle, unsortedPageable);
+            Page<UserResponse> userResponsePage = users.map(UserResponse::new);
+            return ResponseEntity.ok(userResponsePage);
+        }
     }
 
     /*

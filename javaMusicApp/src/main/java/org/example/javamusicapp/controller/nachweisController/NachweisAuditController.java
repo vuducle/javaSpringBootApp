@@ -31,15 +31,20 @@ import java.util.UUID;
 
 /**
  * 📜 **Was geht hier ab?**
- * Dieser Controller ist der "Was ist passiert?"-Detektiv für die Ausbildungsnachweise.
- * Er liefert die komplette History zu einem Nachweis. Admins, Ausbilder und der Azubi selbst
+ * Dieser Controller ist der "Was ist passiert?"-Detektiv für die
+ * Ausbildungsnachweise.
+ * Er liefert die komplette History zu einem Nachweis. Admins, Ausbilder und der
+ * Azubi selbst
  * können hier ganz genau nachschauen, was mit einem Nachweis passiert ist.
  *
  * Die Endpunkte zeigen:
- * - / :** Eine Liste aller Änderungen an allen Nachweisen (nur für Admins/Ausbilder).
- * - /{nachweisId}**: Die komplette History für EINEN bestimmten Nachweis. Also wer hat ihn
- *   erstellt, wann wurde er eingereicht, wer hat ihn genehmigt oder abgelehnt und welche
- *   Daten haben sich dabei geändert (vorher/nachher Vergleich).
+ * - / :** Eine Liste aller Änderungen an allen Nachweisen (nur für
+ * Admins/Ausbilder).
+ * - /{nachweisId}**: Die komplette History für EINEN bestimmten Nachweis. Also
+ * wer hat ihn
+ * erstellt, wann wurde er eingereicht, wer hat ihn genehmigt oder abgelehnt und
+ * welche
+ * Daten haben sich dabei geändert (vorher/nachher Vergleich).
  *
  * Ultra wichtig für die Nachvollziehbarkeit und wenn's mal Diskussionen gibt.
  */
@@ -55,6 +60,15 @@ public class NachweisAuditController {
     private final NachweisSecurityService nachweisSecurityService;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Gibt die Audit-Einträge für einen bestimmten Nachweis zurück (paginiert).
+     * 
+     * @param authentication
+     * @param nachweisId
+     * @param page
+     * @param size
+     * @return
+     */
     @Operation(summary = "Nachweis-Audit anzeigen", description = "Gibt die Audit-Events für einen bestimmten Nachweis zurück (paginiert).")
     @GetMapping("/{nachweisId}")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isAusbilder(authentication) or @nachweisSecurityService.isOwner(authentication, #nachweisId)")
@@ -91,6 +105,14 @@ public class NachweisAuditController {
         return ResponseEntity.ok(resp);
     }
 
+    /**
+     * Gibt alle Nachweis-Audit-Einträge zurück (paginiert).
+     * 
+     * @param authentication
+     * @param page
+     * @param size
+     * @return
+     */
     @Operation(summary = "Alle Nachweis-Audit-Einträge", description = "Gibt alle Audit-Events paginiert zurück. Nur für Admins/Ausbilder.")
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isAusbilder(authentication)")

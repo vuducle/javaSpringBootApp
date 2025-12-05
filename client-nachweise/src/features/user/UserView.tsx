@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/useToast';
 import useSWR, { useSWRConfig } from 'swr';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import {
   ChevronLeft,
@@ -30,6 +30,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Avatar,
   AvatarFallback,
@@ -72,6 +73,8 @@ export default function UserView() {
   const [size, setSize] = useState<number>(10);
   const [sortBy, setSortBy] = useState<string | undefined>(undefined);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedQuery, setDebouncedQuery] = useState<string>('');
 
   // Map UI filter values to backend role names
   const roleParam = (() => {
@@ -89,10 +92,12 @@ export default function UserView() {
         size,
         rolle: roleParam,
         sort: sortBy && `${sortBy},${sortDir}`,
+        search: debouncedQuery || undefined,
       },
       status,
       sortBy,
       sortDir,
+      debouncedQuery,
     ],
     ([url, params]) => fetcher(url, params),
     {
@@ -103,6 +108,15 @@ export default function UserView() {
     }
   );
 
+  // debounce searchQuery -> debouncedQuery
+  useEffect(() => {
+    const id = setTimeout(
+      () => setDebouncedQuery(searchQuery.trim()),
+      400
+    );
+    return () => clearTimeout(id);
+  }, [searchQuery]);
+
   return (
     <AdminOnly>
       <div className="container mx-auto p-4 py-5 md:py-10 lg:py-20">
@@ -110,7 +124,7 @@ export default function UserView() {
           {t('userPage.title')}
         </h1>
         <div className="flex flex-col md:flex-row justify-between flex-wrap mb-4">
-          <div className="flex items-center space-x-2">
+          <div className="flex lg:items-center flex-col lg:flex-row space-x-2">
             <Select
               value={status}
               onValueChange={(val: string) => {
@@ -192,10 +206,22 @@ export default function UserView() {
             >
               {sortDir === 'asc' ? <ChevronUp /> : <ChevronDown />}
             </Button>
+            <div className="w-64">
+              <Input
+                placeholder={
+                  t('userSearch.placeholder') ?? 'Name or username...'
+                }
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(
+                    (e.target as HTMLInputElement).value
+                  );
+                  setPage(0);
+                }}
+              />
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            {/*TODO: Hier kommt ein Suchfeld nach Namen oder Benutzername */}
-          </div>
+          <div className="flex items-center space-x-2"></div>
           <div className="flex items-center space-x-2"></div>
           <div className="flex items-center space-x-2">
             {/* Pagination controls */}

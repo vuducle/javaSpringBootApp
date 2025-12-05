@@ -294,6 +294,9 @@
     "nummer": "Phone number",
     "year": "Year"
   },
+  "userSearch": {
+    "placeholder": "Name or username"
+  },
   "roles": {
     "admin": "Trainer",
     "user": "Apprentice"

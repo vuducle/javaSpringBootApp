@@ -295,6 +295,9 @@
     "nummer": "Telefonnummer",
     "year": "Ausbildungsjahr"
   },
+  "userSearch": {
+    "placeholder": "Name oder Benutzername"
+  },
   "sort": {
     "asc": "Aufsteigend",
     "desc": "Absteigend"

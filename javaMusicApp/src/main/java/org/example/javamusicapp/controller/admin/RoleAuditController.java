@@ -29,15 +29,18 @@ import org.springframework.data.domain.PageRequest;
 
 /**
  * 🕵️ **Was geht hier ab?**
- * Dieser Controller ist ein reines Admin-Tool. Er stellt Endpunkte bereit, mit denen Admins und Ausbilder
+ * Dieser Controller ist ein reines Admin-Tool. Er stellt Endpunkte bereit, mit
+ * denen Admins und Ausbilder
  * die History von Rollen-Änderungen checken können.
  *
  * Man kann also sehen:
  * - Wer hat wem welche Rolle gegeben oder weggenommen?
  * - Wann ist das passiert?
  *
- * Das ist quasi das Logbuch für alle sicherheitsrelevanten Änderungen an User-Rollen.
- * Absolut notwendig, um den Überblick zu behalten und zu wissen, "wer was darf".
+ * Das ist quasi das Logbuch für alle sicherheitsrelevanten Änderungen an
+ * User-Rollen.
+ * Absolut notwendig, um den Überblick zu behalten und zu wissen, "wer was
+ * darf".
  * Der Zugriff ist natürlich auf Admins und Ausbilder beschränkt.
  */
 @Slf4j
@@ -52,13 +55,15 @@ public class RoleAuditController {
     private final NachweisSecurityService nachweisSecurityService;
     private final UserService userService;
 
+    /**
+     * 📜 **Was geht hier ab?**
+     */
     @Operation(summary = "Rollen-Audit", description = "Listet Einträge zu Rollen-Zuweisungen und -Entfernungen")
     @GetMapping("/rollen-audit")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isAusbilder(authentication)")
     public ResponseEntity<RoleAuditPageWrapper> listRoleAudits(Authentication authentication,
-               @RequestParam(value = "page", defaultValue = "0") int page,
-                @RequestParam(value = "size", defaultValue = "50") int size)
-    {
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "50") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<RoleAudit> audits = roleAuditService.list(pageable);
 
@@ -72,7 +77,8 @@ public class RoleAuditController {
                 .details(a.getDetails())
                 .build()).collect(Collectors.toList());
 
-        AuditPageResponse<RoleAuditDto> resp = new AuditPageResponse<>(items, audits.getNumber(), audits.getSize(), audits.getTotalPages(), audits.getTotalElements());
+        AuditPageResponse<RoleAuditDto> resp = new AuditPageResponse<>(items, audits.getNumber(), audits.getSize(),
+                audits.getTotalPages(), audits.getTotalElements());
 
         // add metadata: visible groups and lists
         List<String> sichtbareGruppen = new ArrayList<>();

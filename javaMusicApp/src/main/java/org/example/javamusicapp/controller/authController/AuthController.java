@@ -185,6 +185,10 @@ public class AuthController {
         }
     }
 
+    /**
+     * Dieser Endpunkt ist zuständig für das Ausloggen
+     * 
+     */
     @PostMapping("/logout")
     @Operation(summary = "Logout", description = "Logs out the user: clears HttpOnly cookie and invalidates refresh token if provided")
     public ResponseEntity<?> logout(@RequestBody(required = false) Map<String, String> body) {
