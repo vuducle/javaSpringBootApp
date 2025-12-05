@@ -284,10 +284,10 @@
     "time": "Time"
   },
   "userPage": {
-    "title": "\uD83D\uDC64 Create User",
-    "all": "\uD83D\uDC64 Alle",
-    "azubis": "\uD83D\uDCDD Trainee",
-    "ausbilder": "\uD83D\uDEE0\uFE0F Trainer",
+    "title": "👥 Create User",
+    "all": "👥 All",
+    "azubis": "🧑‍🎓 Trainees",
+    "ausbilder": "🧑‍🏫 Trainers",
     "sortBy": "Sort by",
     "createDescription": "Create a new user",
     "createButton": "Create user",
@@ -314,14 +314,24 @@
     "user": "Username",
     "role": "Role",
     "nummer": "Phone number",
-    "year": "Year"
+    "year": "Year",
+    "editTitle": "✏️ Edit User",
+    "editDescription": "Edit the user's profile.",
+    "saveButton": "Save",
+    "editSuccess": "Profile updated ✅",
+    "editError": "Failed to update profile ❌",
+    "grantAdminSuccess": "Admin role granted ✅",
+    "revokeAdminSuccess": "Admin role revoked ✅",
+    "revokeAdminFailed": "Failed to revoke admin role",
+    "loadProfileError": "Failed to load profile",
+    "editErrorMissing": "Please fill required fields"
   },
   "userSearch": {
     "placeholder": "Name or username"
   },
   "roles": {
-    "admin": "Trainer",
-    "user": "Apprentice"
+    "admin": "🧑‍🏫 Trainer",
+    "user": "🧑‍🎓 Apprentice"
   },
   "sort": {
     "asc": "Ascending",

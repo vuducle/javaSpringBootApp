@@ -285,7 +285,7 @@
     "time": "Zeit"
   },
   "userPage": {
-    "title": "\uD83D\uDC64 Benutzer erstellen",
+    "title": "👥 Benutzer erstellen",
     "all": "\uD83D\uDC64 Alle",
     "azubis": "\uD83D\uDCDD Azubis",
     "ausbilder": "\uD83D\uDEE0\uFE0F Ausbilder/innen",
@@ -315,7 +315,17 @@
     "user": "Benutzername",
     "role": "Rolle",
     "nummer": "Telefonnummer",
-    "year": "Ausbildungsjahr"
+    "year": "Ausbildungsjahr",
+    "editTitle": "✏️ Benutzer bearbeiten",
+    "editDescription": "Bearbeite das Profil des Benutzers.",
+    "saveButton": "Speichern",
+    "editSuccess": "Profil erfolgreich aktualisiert ✅",
+    "editError": "Fehler beim Aktualisieren des Profils ❌",
+    "grantAdminSuccess": "Admin-Rolle erfolgreich zugewiesen ✅",
+    "revokeAdminSuccess": "Admin-Rolle erfolgreich entzogen ✅",
+    "revokeAdminFailed": "Admin-Rolle konnte nicht entzogen werden",
+    "loadProfileError": "Fehler beim Laden des Profils",
+    "editErrorMissing": "Bitte fülle alle erforderlichen Felder aus"
   },
   "userSearch": {
     "placeholder": "Name oder Benutzername"
@@ -325,7 +335,7 @@
     "desc": "Absteigend"
   },
   "roles": {
-    "admin": "Ausbilder/in",
-    "user": "Azubi"
+    "admin": "🧑‍🏫 Ausbilder/in",
+    "user": "🧑‍🎓 Azubi"
   }
 }

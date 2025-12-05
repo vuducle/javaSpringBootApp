@@ -14,12 +14,12 @@ import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import CreateUserModal from '@/features/user/CreateUserModal';
 import useTrainers from '@/hooks/useTrainers';
+import EditUserModal from '@/features/user/EditUserModal';
 import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
   ChevronDown,
-  Pen,
   Trash,
 } from 'lucide-react';
 import {
@@ -37,6 +37,8 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@/components/ui/avatar';
+import Lightbox from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
 import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
 
 interface Benutzer {
@@ -77,6 +79,9 @@ export default function UserView() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [debouncedQuery, setDebouncedQuery] = useState<string>('');
+  const [lightboxImage, setLightboxImage] = useState<string | null>(
+    null
+  );
 
   // Map UI filter values to backend role names
   const roleParam = (() => {
@@ -334,18 +339,37 @@ export default function UserView() {
                   </TableCell>
                   <TableCell>
                     {java ? (
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="h-12 w-12 ring-1 ring-violet-100">
-                          {java.profileImageUrl ? (
-                            <AvatarImage
-                              src={`${
-                                process.env.NEXT_PUBLIC_API_URL ||
-                                'http://localhost:8088'
-                              }${java.profileImageUrl}`}
-                              className="object-cover"
-                              alt={java.name}
-                            />
-                          ) : (
+                      <div className="flex items-center space-x-3 mr-2">
+                        {java.profileImageUrl ? (
+                          <button
+                            type="button"
+                            aria-label={
+                              t('userPage.previewImage') ??
+                              'Preview image'
+                            }
+                            onClick={() =>
+                              setLightboxImage(
+                                `${
+                                  process.env.NEXT_PUBLIC_API_URL ||
+                                  'http://localhost:8088'
+                                }${java.profileImageUrl}`
+                              )
+                            }
+                            className="p-0 m-0"
+                          >
+                            <Avatar className="h-12 w-12 ring-1 ring-violet-100 mr-2">
+                              <AvatarImage
+                                src={`${
+                                  process.env.NEXT_PUBLIC_API_URL ||
+                                  'http://localhost:8088'
+                                }${java.profileImageUrl}`}
+                                className="object-cover mr-2"
+                                alt={java.name}
+                              />
+                            </Avatar>
+                          </button>
+                        ) : (
+                          <Avatar className="h-12 w-12 ring-1 ring-violet-100">
                             <AvatarFallback className="text-sm">
                               {java.name
                                 .split(' ')
@@ -354,8 +378,8 @@ export default function UserView() {
                                 .slice(0, 2)
                                 .toUpperCase()}
                             </AvatarFallback>
-                          )}
-                        </Avatar>
+                          </Avatar>
+                        )}
                         <div>
                           <div className="font-semibold text-sm">
                             {java.name}
@@ -402,9 +426,13 @@ export default function UserView() {
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-between">
-                      <Button className="bg-chart-4 hover:bg-chart-4/80 dark:bg-chart-4 dark:hover:bg-chart-4/80 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                        <Pen />
-                      </Button>
+                      <EditUserModal
+                        user={java}
+                        onUpdated={() => {
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          mutate(swrKey as any);
+                        }}
+                      />
                       <Button className="bg-destructive hover:bg-destructive/80 dark:bg-chart-5 dark:hover:bg-chart-5/80 cursor-pointer transition-all">
                         <Trash />
                       </Button>
@@ -434,6 +462,13 @@ export default function UserView() {
             )}
           </TableBody>
         </Table>
+        {lightboxImage ? (
+          <Lightbox
+            open={!!lightboxImage}
+            close={() => setLightboxImage(null)}
+            slides={[{ src: lightboxImage }]}
+          />
+        ) : null}
       </div>
     </AdminOnly>
   );
