@@ -8,17 +8,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useToast } from '@/hooks/useToast';
+
 import useSWR, { useSWRConfig } from 'swr';
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
+import CreateUserModal from '@/features/user/CreateUserModal';
+import useTrainers from '@/hooks/useTrainers';
 import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
   ChevronDown,
   Pen,
-  Plus,
   Trash,
 } from 'lucide-react';
 import {
@@ -66,8 +67,9 @@ const fetcher = async (
 
 export default function UserView() {
   const { t } = useTranslation();
-  const { showToast } = useToast();
+
   const { mutate } = useSWRConfig();
+
   const [status, setStatus] = useState<string>('ALLE');
   const [page, setPage] = useState<number>(0);
   const [size, setSize] = useState<number>(10);
@@ -84,22 +86,28 @@ export default function UserView() {
     return undefined;
   })();
 
+  // construct SWR key so we can mutate it after creating a user
+  const swrKey = [
+    '/api/user/users',
+    {
+      page,
+      size,
+      rolle: roleParam,
+      sort: sortBy && `${sortBy},${sortDir}`,
+      search: debouncedQuery || undefined,
+    },
+    status,
+    sortBy,
+    sortDir,
+    debouncedQuery,
+  ];
+
   const { data, error, isLoading } = useSWR(
-    [
-      '/api/user/users',
-      {
-        page,
-        size,
-        rolle: roleParam,
-        sort: sortBy && `${sortBy},${sortDir}`,
-        search: debouncedQuery || undefined,
-      },
-      status,
-      sortBy,
-      sortDir,
-      debouncedQuery,
-    ],
-    ([url, params]) => fetcher(url, params),
+    swrKey,
+    (args: unknown) => {
+      const [url, params] = args as [string, Record<string, unknown>];
+      return fetcher(url, params);
+    },
     {
       dedupingInterval: 2000,
       revalidateOnFocus: false,
@@ -107,6 +115,9 @@ export default function UserView() {
       keepPreviousData: true,
     }
   );
+
+  // use shared trainers hook
+  const { trainersMap } = useTrainers();
 
   // debounce searchQuery -> debouncedQuery
   useEffect(() => {
@@ -147,6 +158,7 @@ export default function UserView() {
                 </SelectItem>
               </SelectContent>
             </Select>
+
             <label className="text-sm">
               {t('nachweis.pageSize')}:
             </label>
@@ -168,6 +180,7 @@ export default function UserView() {
                 <SelectItem value="50">50</SelectItem>
               </SelectContent>
             </Select>
+
             <label className="text-sm">
               {t('userPage.sortBy') ?? 'Sort By'}
             </label>
@@ -206,6 +219,7 @@ export default function UserView() {
             >
               {sortDir === 'asc' ? <ChevronUp /> : <ChevronDown />}
             </Button>
+
             <div className="w-64">
               <Input
                 placeholder={
@@ -221,10 +235,15 @@ export default function UserView() {
               />
             </div>
           </div>
-          <div className="flex items-center space-x-2"></div>
-          <div className="flex items-center space-x-2"></div>
+
           <div className="flex items-center space-x-2">
-            {/* Pagination controls */}
+            <CreateUserModal
+              onCreated={() => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                mutate(swrKey as any);
+              }}
+            />
+
             <div className="flex items-center">
               <Button
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
@@ -377,7 +396,9 @@ export default function UserView() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm">{java.team}</span>
+                    <span className="text-sm">
+                      {trainersMap[java.team] ?? java.team ?? '-'}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-between">
