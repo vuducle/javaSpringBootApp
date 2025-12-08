@@ -8,6 +8,7 @@ import { useTranslation } from '@/context/LanguageContext';
 import { useAppSelector } from '@/store';
 import { selectUser } from '@/store/slices/userSlice';
 import useTrainers from '@/hooks/useTrainers';
+import useAzubis from '@/hooks/useAzubis';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -78,10 +79,12 @@ export function AdminNachweiseView() {
   const { t } = useTranslation();
   const user = useAppSelector(selectUser);
   const { trainers } = useTrainers();
+  const { azubis } = useAzubis();
   const [status, setStatus] = useState<string>('ALL');
   const [ausbilderId, setAusbilderId] = useState<string>(
     () => user?.id || 'ALL'
   );
+  const [azubiId, setAzubiId] = useState<string>('ALL');
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [sortBy, setSortBy] = useState<string>('datumStart');
@@ -89,18 +92,31 @@ export function AdminNachweiseView() {
 
   // SWR with dedupe, caching, and automatic revalidation
   const { data, error, isLoading } = useSWR(
-    [
-      '/api/nachweise/admin/all',
-      {
-        status: status === 'ALL' ? undefined : status,
-        ausbilderId: ausbilderId === 'ALL' ? undefined : ausbilderId,
-        page,
-        size,
-        sortBy,
-        sortDir,
-      },
-    ],
-    ([url, params]) => fetcher(url, params),
+    azubiId && azubiId !== 'ALL'
+      ? [
+          `/api/nachweise/admin/user/${azubiId}`,
+          {
+            status: status === 'ALL' ? undefined : status,
+            page,
+            size,
+            sortBy,
+            sortDir,
+          },
+        ]
+      : [
+          '/api/nachweise/admin/all',
+          {
+            status: status === 'ALL' ? undefined : status,
+            ausbilderId:
+              ausbilderId === 'ALL' ? undefined : ausbilderId,
+            page,
+            size,
+            sortBy,
+            sortDir,
+          },
+        ],
+    (args: [string, Record<string, unknown>]) =>
+      fetcher(args[0], args[1]),
     {
       dedupingInterval: 2000,
       revalidateOnFocus: false,
@@ -257,6 +273,31 @@ export function AdminNachweiseView() {
                 </Button>
               </div>
             </div>
+            <Select
+              onValueChange={(v) => {
+                setAzubiId(v);
+                setPage(0);
+              }}
+              value={azubiId}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder={t('nachweis.azubi')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">
+                  {t('userPage.all')}
+                </SelectItem>
+                {Array.isArray(azubis) &&
+                  azubis.map((azubi) => (
+                    <SelectItem
+                      key={azubi.id || azubi.username}
+                      value={azubi.id || azubi.username || ''}
+                    >
+                      {azubi.name || azubi.username}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex items-center space-x-2">
             <Button
@@ -324,7 +365,7 @@ export function AdminNachweiseView() {
                 <TableCell colSpan={8} className="text-center py-6">
                   <StatusPlaceholder
                     error
-                    errorImage="https://http.cat/status/400"
+                    errorImage="https://http.cat/status/404.jpg"
                     errorText={
                       t('nachweis.loadingError') ??
                       t('nachweis.errorMessage')
