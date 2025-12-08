@@ -16,17 +16,22 @@ interface BenutzerResponse {
 }
 
 const fetchAzubis = async () => {
-  const response = await api.get<BenutzerResponse>('/api/user/users', {
-    params: { 
-      rolle: 'ROLE_USER',
-      size: 1000 // Get all users at once for the dropdown
-    },
-  });
+  const response = await api.get<BenutzerResponse>(
+    '/api/user/users',
+    {
+      params: {
+        rolle: 'ROLE_USER',
+        size: 1000, // Get all users at once for the dropdown
+      },
+    }
+  );
   const result = response.data?.content;
   // Ensure we always return an array and filter for users with ROLE_USER
   if (Array.isArray(result)) {
-    return result.filter(user => 
-      user.roles?.includes('ROLE_USER') || user.roles?.includes('USER')
+    return result.filter(
+      (user) =>
+        user.roles?.includes('ROLE_USER') ||
+        user.roles?.includes('USER')
     );
   }
   return [];
