@@ -40,14 +40,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+import ConfirmDeleteDialog from '@/components/core/ConfirmDeleteDialog';
 import { useSWRConfig } from 'swr';
 
 interface Nachweis {
@@ -101,9 +94,7 @@ export function AdminNachweiseView() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const { mutate } = useSWRConfig();
 
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  // per-row delete handled via ConfirmDeleteDialog component
 
   // SWR with dedupe, caching, and automatic revalidation
   const { data, error, isLoading } = useSWR(
@@ -156,62 +147,7 @@ export function AdminNachweiseView() {
     }
   };
 
-  // delete helpers (copied/adjusted from AllNachweiseView)
-  const openDeleteModal = (id: string) => {
-    setSelectedId(id);
-    setDeleteModalOpen(true);
-  };
-
-  const closeDeleteModal = () => {
-    setSelectedId(null);
-    setDeleteModalOpen(false);
-  };
-
-  const confirmDelete = async (id?: string) => {
-    const deleteId = id ?? selectedId;
-    if (!deleteId) return;
-    setIsDeleting(true);
-    try {
-      await api.delete(`/api/nachweise/${deleteId}`);
-      showToast(t('nachweis.deleteSuccess'), 'success');
-      // revalidate current admin key
-      const key =
-        azubiId && azubiId !== 'ALL'
-          ? [
-              `/api/nachweise/admin/user/${azubiId}`,
-              {
-                status: status === 'ALL' ? undefined : status,
-                page,
-                size,
-                sortBy,
-                sortDir,
-              },
-            ]
-          : [
-              '/api/nachweise/admin/all',
-              {
-                status: status === 'ALL' ? undefined : status,
-                ausbilderId:
-                  ausbilderId === 'ALL' ? undefined : ausbilderId,
-                page,
-                size,
-                sortBy,
-                sortDir,
-              },
-            ];
-
-      mutate(key);
-      closeDeleteModal();
-    } catch (err) {
-      console.error(err);
-      showToast(
-        t('nachweis.deleteError') || t('nachweis.errorMessage'),
-        'error'
-      );
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+  // per-row delete will be handled inline using ConfirmDeleteDialog
 
   return (
     <>
@@ -557,12 +493,55 @@ export function AdminNachweiseView() {
                           <Eye />
                         </Link>
                       </Button>
-                      <Button
-                        onClick={() => openDeleteModal(nachweis.id)}
-                        className="bg-destructive hover:bg-destructive/80 dark:bg-chart-5 dark:hover:bg-chart-5/80 cursor-pointer transition-all"
+                      <ConfirmDeleteDialog
+                        onConfirm={async () => {
+                          const deleteId = nachweis.id;
+                          await api.delete(
+                            `/api/nachweise/${deleteId}`
+                          );
+                          showToast(
+                            t('nachweis.deleteSuccess'),
+                            'success'
+                          );
+                          const key =
+                            azubiId && azubiId !== 'ALL'
+                              ? [
+                                  `/api/nachweise/admin/user/${azubiId}`,
+                                  {
+                                    status:
+                                      status === 'ALL'
+                                        ? undefined
+                                        : status,
+                                    page,
+                                    size,
+                                    sortBy,
+                                    sortDir,
+                                  },
+                                ]
+                              : [
+                                  '/api/nachweise/admin/all',
+                                  {
+                                    status:
+                                      status === 'ALL'
+                                        ? undefined
+                                        : status,
+                                    ausbilderId:
+                                      ausbilderId === 'ALL'
+                                        ? undefined
+                                        : ausbilderId,
+                                    page,
+                                    size,
+                                    sortBy,
+                                    sortDir,
+                                  },
+                                ];
+                          mutate(key);
+                        }}
                       >
-                        <Trash />
-                      </Button>
+                        <Button className="bg-destructive hover:bg-destructive/80 dark:bg-chart-5 dark:hover:bg-chart-5/80 cursor-pointer transition-all">
+                          <Trash />
+                        </Button>
+                      </ConfirmDeleteDialog>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -590,47 +569,6 @@ export function AdminNachweiseView() {
           </TableBody>
         </Table>
       </div>
-      <Dialog
-        open={deleteModalOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            closeDeleteModal();
-          } else {
-            setDeleteModalOpen(true);
-          }
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {t('nachweis.deleteConfirmTitle')}
-            </DialogTitle>
-            <DialogDescription>
-              {t('nachweis.deleteConfirmDescription')}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                onClick={() => setDeleteModalOpen(false)}
-                disabled={isDeleting}
-              >
-                {t('nachweis.deleteCancel')}
-              </Button>
-              <Button
-                className="bg-destructive"
-                onClick={() => confirmDelete()}
-                disabled={isDeleting}
-              >
-                {isDeleting
-                  ? t('nachweis.deleting')
-                  : t('nachweis.deleteConfirmButton')}
-              </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

@@ -50,6 +50,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
+import ConfirmDeleteDialog from '@/components/core/ConfirmDeleteDialog';
 
 interface Nachweis {
   id: string;
@@ -94,71 +95,14 @@ export function AllNachweiseView() {
   const [size, setSize] = useState(10);
   const [sortBy, setSortBy] = useState<string>('datumStart');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  // per-row delete handled by ConfirmDeleteDialog
   const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false);
   const [deleteAllConfirmText, setDeleteAllConfirmText] =
     useState('');
   const [isDeletingAll, setIsDeletingAll] = useState(false);
   // local loading state is not needed because SWR provides isLoading
 
-  // Open delete confirmation
-  const openDeleteModal = useCallback((id: string) => {
-    setSelectedId(id);
-    setDeleteModalOpen(true);
-  }, []);
-
-  // Close delete modal and reset selection
-  const closeDeleteModal = useCallback(() => {
-    setSelectedId(null);
-    setDeleteModalOpen(false);
-  }, []);
-
-  // Confirm delete (can be called with explicit id or use selectedId)
-  const confirmDelete = useCallback(
-    async (id?: string) => {
-      const deleteId = id ?? selectedId;
-      if (!deleteId) return;
-      setIsDeleting(true);
-      try {
-        await api.delete(`/api/nachweise/${deleteId}`);
-        showToast(t('nachweis.deleteSuccess'), 'success');
-        // revalidate the list (preserve current sorting)
-        mutate([
-          '/api/nachweise/my-nachweise',
-          {
-            status: status === 'ALL' ? undefined : status,
-            page,
-            size,
-            sortBy,
-            sortDir,
-          },
-        ]);
-        closeDeleteModal();
-      } catch (err) {
-        console.error(err);
-        showToast(
-          t('nachweis.deleteError') || t('nachweis.errorMessage'),
-          'error'
-        );
-      } finally {
-        setIsDeleting(false);
-      }
-    },
-    [
-      selectedId,
-      status,
-      page,
-      size,
-      sortBy,
-      sortDir,
-      mutate,
-      showToast,
-      t,
-      closeDeleteModal,
-    ]
-  );
+  // per-row delete will be performed with ConfirmDeleteDialog per row
 
   const openDeleteAllModal = useCallback(() => {
     setDeleteAllConfirmText('');
@@ -565,12 +509,34 @@ export function AllNachweiseView() {
                           <Pen />
                         )}
                       </Button>
-                      <Button
-                        onClick={() => openDeleteModal(nachweis.id)}
-                        className="bg-destructive hover:bg-destructive/80 dark:bg-chart-5 dark:hover:bg-chart-5/80 cursor-pointer transition-all"
+                      <ConfirmDeleteDialog
+                        onConfirm={async () => {
+                          const deleteId = nachweis.id;
+                          await api.delete(
+                            `/api/nachweise/${deleteId}`
+                          );
+                          showToast(
+                            t('nachweis.deleteSuccess'),
+                            'success'
+                          );
+                          // revalidate list
+                          mutate([
+                            '/api/nachweise/my-nachweise',
+                            {
+                              status:
+                                status === 'ALL' ? undefined : status,
+                              page,
+                              size,
+                              sortBy,
+                              sortDir,
+                            },
+                          ]);
+                        }}
                       >
-                        <Trash />
-                      </Button>
+                        <Button className="bg-destructive hover:bg-destructive/80 dark:bg-chart-5 dark:hover:bg-chart-5/80 cursor-pointer transition-all">
+                          <Trash />
+                        </Button>
+                      </ConfirmDeleteDialog>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -611,47 +577,7 @@ export function AllNachweiseView() {
           </TableBody>
         </Table>
       </div>
-      <Dialog
-        open={deleteModalOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            closeDeleteModal();
-          } else {
-            setDeleteModalOpen(true);
-          }
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {t('nachweis.deleteConfirmTitle')}
-            </DialogTitle>
-            <DialogDescription>
-              {t('nachweis.deleteConfirmDescription')}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                onClick={() => setDeleteModalOpen(false)}
-                disabled={isDeleting}
-              >
-                {t('nachweis.deleteCancel')}
-              </Button>
-              <Button
-                className="bg-destructive"
-                onClick={() => confirmDelete()}
-                disabled={isDeleting}
-              >
-                {isDeleting
-                  ? t('nachweis.deleting')
-                  : t('nachweis.deleteConfirmButton')}
-              </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
       {/* Delete all Nachweise */}
       <Dialog
         open={deleteAllModalOpen}
