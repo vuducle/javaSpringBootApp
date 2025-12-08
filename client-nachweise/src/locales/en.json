@@ -145,6 +145,8 @@
     "noNachweiseDescription": "You haven't created any training records yet.",
     "loadingError": "Error loading records",
     "allNachweise": "All Records",
+    "adminBannerTitle": "Admin View",
+    "adminBannerDescription": "Administrative controls are available.",
     "filterStatus": "Filter by status",
     "page": "Page",
     "of": "of",

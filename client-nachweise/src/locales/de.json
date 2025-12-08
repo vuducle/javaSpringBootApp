@@ -146,6 +146,8 @@
     "noNachweiseDescription": "Du hast noch keine Ausbildungsnachweise erstellt.",
     "loadingError": "Fehler beim Laden der Nachweise",
     "allNachweise": "Alle Nachweise",
+    "adminBannerTitle": "Admin-Ansicht",
+    "adminBannerDescription": "Administrative Steuerungen sind verfügbar.",
     "filterStatus": "Status filtern",
     "page": "Seite",
     "of": "von",
