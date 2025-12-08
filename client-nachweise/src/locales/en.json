@@ -190,7 +190,20 @@
       "notFound": "PDF not found.",
       "notFoundToast": "PDF not found",
       "loadError": "Error loading PDF",
-      "serverNoPdf": "Server did not return a PDF."
+      "serverNoPdf": "Server did not return a PDF.",
+      "status": "Status",
+      "comment": "Comment",
+      "commentPlaceholder": "Optional comment from trainer",
+      "save": "Save",
+      "saving": "Saving…",
+      "statusSaved": "Status saved successfully.",
+      "statusSaveError": "Error saving status.",
+      "youAreTrainer": "You see this as a trainer",
+      "trainerComment": "Trainer comment",
+      "noComment": "No comment available.",
+      "unknown": "Unknown",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
     }
   },
   "profile": {

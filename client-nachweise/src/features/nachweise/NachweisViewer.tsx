@@ -6,6 +6,19 @@ import { Button } from '@/components/ui/button';
 import { Download, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/context/LanguageContext';
+import { useAppSelector } from '@/store';
+import { selectUser } from '@/store/slices/userSlice';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SelectGroup,
+  SelectLabel,
+} from '@/components/ui/select';
+import { Save } from 'lucide-react';
 
 interface Props {
   id: string;
@@ -17,7 +30,16 @@ export default function NachweisViewer({ id }: Props) {
   const [fileName, setFileName] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [nachweisStatus, setNachweisStatus] = useState<string | null>(
+    null
+  );
+  const [nachweisComment, setNachweisComment] = useState<string>('');
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const { t } = useTranslation();
+  const user = useAppSelector(selectUser);
+  const isAusbilder =
+    Array.isArray(user.roles) && user.roles.includes('ROLE_ADMIN');
 
   useEffect(() => {
     if (!id) return;
@@ -106,6 +128,26 @@ export default function NachweisViewer({ id }: Props) {
 
     fetchPdf();
 
+    // fetch nachweis details (status/comment)
+    const fetchDetails = async () => {
+      setDetailsLoading(true);
+      try {
+        const res = await api.get(`/api/nachweise/${id}`);
+        const data = res.data;
+        setNachweisStatus(data.status ?? null);
+        setNachweisComment(data.comment ?? data.remark ?? '');
+      } catch (err: any) {
+        // ignore details errors silently, but log
+        console.error(
+          'Could not fetch nachweis details',
+          err?.response || err
+        );
+      } finally {
+        setDetailsLoading(false);
+      }
+    };
+
+    fetchDetails();
     return () => {
       if (url) URL.revokeObjectURL(url);
     };
@@ -143,6 +185,156 @@ export default function NachweisViewer({ id }: Props) {
             </Button>
           )}
         </div>
+      </div>
+
+      {/* Status / Kommentar Bereich */}
+      <div className="space-y-2">
+        {detailsLoading ? (
+          <div>{t('nachweis.viewer.loading')}</div>
+        ) : (
+          <div className="p-4 border rounded">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div
+                  className="px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2"
+                  data-testid="nachweis-status-badge"
+                >
+                  <span className="text-lg">
+                    {nachweisStatus === 'ANGENOMMEN'
+                      ? '💚'
+                      : nachweisStatus === 'ABGELEHNT'
+                      ? '❌'
+                      : nachweisStatus === 'IN_BEARBEITUNG'
+                      ? '⏳'
+                      : '❔'}
+                  </span>
+                  <span className="uppercase tracking-wide text-xs">
+                    {nachweisStatus
+                      ? t(`nachweis.status${nachweisStatus}`)
+                      : t('nachweis.viewer.unknown')}
+                  </span>
+                </div>
+
+                <div className="text-sm text-muted-foreground">
+                  {t('nachweis.viewer.title')}
+                </div>
+              </div>
+
+              {isAusbilder && (
+                <div className="text-sm text-muted-foreground">
+                  {t('nachweis.viewer.youAreTrainer')}
+                </div>
+              )}
+            </div>
+
+            {isAusbilder ? (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!id) return;
+                  setSaving(true);
+                  try {
+                    await api.put(`/api/nachweise/${id}/status`, {
+                      nachweisId: id,
+                      status: nachweisStatus,
+                      comment: nachweisComment || undefined,
+                    });
+                    showToast(
+                      t('nachweis.viewer.statusSaved'),
+                      'success'
+                    );
+                  } catch (err: any) {
+                    console.error(err);
+                    showToast(
+                      err?.response?.data?.message ||
+                        t('nachweis.viewer.statusSaveError'),
+                      'error'
+                    );
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end">
+                  <div>
+                    <Select
+                      defaultValue={nachweisStatus ?? ''}
+                      onValueChange={(v) => setNachweisStatus(v)}
+                    >
+                      <SelectTrigger
+                        aria-label="status"
+                        className="w-48"
+                      >
+                        <SelectValue
+                          placeholder={
+                            t('nachweis.viewer.status') as string
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>
+                            {t('nachweis.viewer.status')}
+                          </SelectLabel>
+                          <SelectItem value="ANGENOMMEN">
+                            💚 {t('nachweis.viewer.accepted')}
+                          </SelectItem>
+                          <SelectItem value="ABGELEHNT">
+                            ❌ {t('nachweis.viewer.rejected')}
+                          </SelectItem>
+                          <SelectItem value="IN_BEARBEITUNG">
+                            ⏳ {t('nachweis.statusIN_BEARBEITUNG')}
+                          </SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <Label htmlFor="comment">
+                      {t('nachweis.viewer.comment')}
+                    </Label>
+                    <textarea
+                      id="comment"
+                      className="w-full rounded-xl p-3 bg-linear-to-r from-white to-slate-50 border border-transparent focus:border-primary focus:ring-2 focus:ring-primary/20 placeholder:italic placeholder:text-slate-400"
+                      rows={4}
+                      value={nachweisComment}
+                      onChange={(e) =>
+                        setNachweisComment(e.target.value)
+                      }
+                      placeholder={
+                        t(
+                          'nachweis.viewer.commentPlaceholder'
+                        ) as string
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-3 flex gap-2">
+                  <Button
+                    type="submit"
+                    disabled={saving}
+                    className="bg-linear-to-r from-pink-500 to-violet-500 text-white"
+                  >
+                    <Save className="size-4" />
+                    {saving
+                      ? t('nachweis.viewer.saving')
+                      : t('nachweis.viewer.save')}
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              // for apprentices / other users, show read-only comment if present
+              <div>
+                <Label>{t('nachweis.viewer.trainerComment')}</Label>
+                <div className="mt-1 p-2 bg-gray-50 rounded">
+                  {nachweisComment || t('nachweis.viewer.noComment')}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {blobUrl ? (

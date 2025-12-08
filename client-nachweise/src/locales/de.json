@@ -191,7 +191,20 @@
       "notFound": "PDF nicht gefunden.",
       "notFoundToast": "PDF nicht gefunden",
       "loadError": "Fehler beim Laden des PDFs",
-      "serverNoPdf": "Server hat kein PDF zurückgegeben."
+      "serverNoPdf": "Server hat kein PDF zurückgegeben.",
+      "status": "Status",
+      "comment": "Kommentar",
+      "commentPlaceholder": "Optionaler Kommentar vom Ausbilder",
+      "save": "Speichern",
+      "saving": "Speichere…",
+      "statusSaved": "Status erfolgreich gespeichert.",
+      "statusSaveError": "Fehler beim Speichern des Status.",
+      "youAreTrainer": "Du siehst dies als Ausbilder/in",
+      "trainerComment": "Kommentar des Ausbilders/der Ausbilderin",
+      "noComment": "Kein Kommentar vorhanden.",
+      "unknown": "Unbekannt",
+      "accepted": "Angenommen",
+      "rejected": "Abgelehnt"
     }
   },
   "profile": {
