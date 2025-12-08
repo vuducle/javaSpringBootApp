@@ -5,6 +5,9 @@ import useSWR from 'swr';
 import api from '@/lib/api';
 import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/context/LanguageContext';
+import { useAppSelector } from '@/store';
+import { selectUser } from '@/store/slices/userSlice';
+import useTrainers from '@/hooks/useTrainers';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -73,7 +76,12 @@ const fetcher = async (
 export function AdminNachweiseView() {
   const { showToast } = useToast();
   const { t } = useTranslation();
+  const user = useAppSelector(selectUser);
+  const { trainers } = useTrainers();
   const [status, setStatus] = useState<string>('ALL');
+  const [ausbilderId, setAusbilderId] = useState<string>(
+    () => user?.id || 'ALL'
+  );
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [sortBy, setSortBy] = useState<string>('datumStart');
@@ -85,6 +93,7 @@ export function AdminNachweiseView() {
       '/api/nachweise/admin/all',
       {
         status: status === 'ALL' ? undefined : status,
+        ausbilderId: ausbilderId === 'ALL' ? undefined : ausbilderId,
         page,
         size,
         sortBy,
@@ -155,6 +164,30 @@ export function AdminNachweiseView() {
                 </SelectItem>
               </SelectContent>
             </Select>
+            <Select
+              onValueChange={(v) => {
+                setAusbilderId(v);
+                setPage(0);
+              }}
+              value={ausbilderId}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder={t('profile.trainer')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">
+                  {t('userPage.all')}
+                </SelectItem>
+                {trainers.map((trainer) => (
+                  <SelectItem
+                    key={trainer.id || trainer.username}
+                    value={trainer.id || trainer.username || ''}
+                  >
+                    {trainer.name || trainer.username}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <div className="flex items-center space-x-2">
               <label className="text-sm">
                 {t('nachweis.pageSize')}:
@@ -187,7 +220,7 @@ export function AdminNachweiseView() {
                   }}
                   value={sortBy}
                 >
-                  <SelectTrigger className="w-[160px]">
+                  <SelectTrigger className="w-40">
                     <SelectValue
                       placeholder={t('nachweis.sortBy') ?? 'Sort by'}
                     />
@@ -417,12 +450,21 @@ export function AdminNachweiseView() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-6">
-                  <StatusPlaceholder
-                    info
-                    infoImage="https://http.cat/status/204"
-                    infoText={t('nachweis.noNachweiseFound')}
-                  />
+                <TableCell
+                  colSpan={8}
+                  className="text-center py-6 text-muted-foreground"
+                >
+                  <div className="flex flex-col justify-center items-center">
+                    <p className="text-lg">
+                      {t('nachweis.noNachweiseFound')}
+                    </p>
+                    <iframe
+                      src="https://giphy.com/embed/3owzWm3tA6BqSKGQ1y"
+                      width="320"
+                      className="giphy-embed mt-2"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
