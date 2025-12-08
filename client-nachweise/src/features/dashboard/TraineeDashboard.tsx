@@ -20,7 +20,7 @@ export default function TraineeDashboard() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-4rem)] bg-gray-100 dark:bg-zinc-900 p-4 container m-auto">
+    <div className="flex flex-col min-h-[calc(100vh-4rem)] mx-auto p-4 container m-auto">
       <header className="flex w-full items-center justify-between p-4 bg-white dark:bg-zinc-800 shadow-md rounded-lg">
         <h1 className="text-3xl font-bold text-primary">
           {t('dashboard.traineeWelcome').replace(

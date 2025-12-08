@@ -305,7 +305,17 @@
     "title": "Last Activities",
     "user": "User",
     "action": "Action",
-    "time": "Time"
+    "time": "Time",
+    "nachweisTab": "Nachweis Audit",
+    "rollenTab": "Roles Audit",
+    "byIdTab": "Audit by ID",
+    "noEntries": "No entries found.",
+    "perPage": "Per page",
+    "prev": "Prev",
+    "next": "Next",
+    "searchPlaceholder": "Nachweis ID",
+    "searchButton": "Search",
+    "showing": "Showing {start}-{end} of {total}"
   },
   "userPage": {
     "title": "👥 Create User",

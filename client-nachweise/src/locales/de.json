@@ -306,7 +306,17 @@
     "title": "Letzte Aktivitäten",
     "user": "Benutzer",
     "action": "Aktion",
-    "time": "Zeit"
+    "time": "Zeit",
+    "nachweisTab": "Nachweis-Audit",
+    "rollenTab": "Rollen-Audit",
+    "byIdTab": "Nachweis nach ID",
+    "noEntries": "Keine Einträge gefunden.",
+    "perPage": "Einträge pro Seite",
+    "prev": "Zurück",
+    "next": "Weiter",
+    "searchPlaceholder": "Nachweis ID",
+    "searchButton": "Suchen",
+    "showing": "Zeige {start}-{end} von {total}"
   },
   "userPage": {
     "title": "👥 Benutzer erstellen",

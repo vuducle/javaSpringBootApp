@@ -39,7 +39,8 @@ export default function NachweisViewer({ id }: Props) {
   const { t } = useTranslation();
   const user = useAppSelector(selectUser);
   const isAusbilder =
-    Array.isArray(user.roles) && user.roles.includes('ROLE_ADMIN');
+    Array.isArray(user.roles) &&
+    user.roles.includes('ROLE_AUSBILDER');
 
   useEffect(() => {
     if (!id) return;
@@ -52,9 +53,11 @@ export default function NachweisViewer({ id }: Props) {
           responseType: 'blob',
         });
 
-        const blob = new Blob([res.data], {
-          type: 'application/pdf',
-        });
+        const responseData = res.data;
+        const blob =
+          responseData instanceof Blob
+            ? responseData
+            : new Blob([responseData], { type: 'application/pdf' });
 
         // Validate content-type and blob size
         const contentType =
@@ -76,7 +79,7 @@ export default function NachweisViewer({ id }: Props) {
           return;
         }
 
-        if ((blob as any).size === 0) {
+        if (blob.size === 0) {
           setError('PDF ist leer.');
           showToast('PDF ist leer.', 'error');
           return;
@@ -104,7 +107,11 @@ export default function NachweisViewer({ id }: Props) {
             }
           }
         }
-      } catch (err: any) {
+      } catch (e) {
+        const err = e as {
+          response?: { status?: number; data?: unknown };
+          message?: string;
+        };
         const status = err?.response?.status;
         if (status === 403) {
           setError(
@@ -136,8 +143,9 @@ export default function NachweisViewer({ id }: Props) {
         const data = res.data;
         setNachweisStatus(data.status ?? null);
         setNachweisComment(data.comment ?? data.remark ?? '');
-      } catch (err: any) {
+      } catch (e) {
         // ignore details errors silently, but log
+        const err = e as { response?: unknown };
         console.error(
           'Could not fetch nachweis details',
           err?.response || err
@@ -151,7 +159,7 @@ export default function NachweisViewer({ id }: Props) {
     return () => {
       if (url) URL.revokeObjectURL(url);
     };
-  }, [id]);
+  }, [id, showToast]);
 
   if (loading) return <div>{t('nachweis.viewer.loading')}</div>;
   if (error) return <div className="text-red-500">{error}</div>;
@@ -243,7 +251,11 @@ export default function NachweisViewer({ id }: Props) {
                       t('nachweis.viewer.statusSaved'),
                       'success'
                     );
-                  } catch (err: any) {
+                  } catch (e) {
+                    const err = e as {
+                      response?: { data?: { message?: string } };
+                      message?: string;
+                    };
                     console.error(err);
                     showToast(
                       err?.response?.data?.message ||

@@ -71,10 +71,18 @@ export function Navbar({ user }: { user: User }) {
       label: 'Nachweise anschauen',
       icon: Book,
     },
+    {
+      href: '/audit-logs',
+      label: 'Audit-Logs',
+      icon: Briefcase,
+      adminOnly: true,
+    },
     { href: '/profil', label: 'Profil', icon: UserIcon },
   ];
 
-  const isAdmin = user.roles.includes('ROLE_ADMIN');
+  const isAdmin =
+    user.roles.includes('ROLE_ADMIN') ||
+    user.roles.includes('ROLE_AUSBILDER');
   const isUser = user.roles.includes('ROLE_USER');
   const RoleIcon = isAdmin ? Briefcase : GraduationCap;
 
