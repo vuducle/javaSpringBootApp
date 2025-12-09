@@ -3,6 +3,7 @@
 import { useTranslation } from '@/context/LanguageContext';
 import { useAppSelector } from '@/store';
 import { selectUser } from '@/store/slices/userSlice';
+import FeaturesModal from '@/components/core/FeaturesModal';
 import ProfileCard from './components/ProfileCard';
 import ProTipCard from './components/ProTipCard';
 import TrainerStatsCard from './components/TrainerStatsCard';
@@ -22,6 +23,7 @@ export default function TrainerDashboard() {
             user.name ?? ''
           )}
         </h1>
+        <FeaturesModal />
       </header>
       <main className="flex grow w-full flex-col gap-4 mt-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

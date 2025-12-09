@@ -388,5 +388,34 @@
   "roles": {
     "admin": "🧑‍🏫 Ausbilder/in",
     "user": "🧑‍🎓 Azubi"
+  },
+  "features": {
+    "title": "App-Funktionen",
+    "description": "Übersicht über verfügbare Funktionen und APIs.",
+    "button": "Was die App kann",
+    "auth": {
+      "title": "Authentifizierung",
+      "desc": "Login / Registrierung mit Zugriffstoken und Refresh-Token."
+    },
+    "profile": {
+      "title": "Benutzerprofil",
+      "desc": "Passwort ändern, Profilbild hochladen/löschen, Profil ansehen."
+    },
+    "nachweis": {
+      "title": "Nachweise",
+      "desc": "Nachweise erstellen, PDF herunterladen, Ausbilder können Status prüfen und kommentieren."
+    },
+    "audit": {
+      "title": "Audit-Logs",
+      "desc": "Nachweis- und Rollen-Audit Trails ansehen (nur Admin/Ausbilder)."
+    },
+    "admin": {
+      "title": "Admin-Tools",
+      "desc": "Verwalte Nachweise, Benutzer und administrative Endpunkte."
+    },
+    "todos": {
+      "title": "Todos",
+      "desc": "Kleine Todo-API für Demo- und Testzwecke."
+    }
   }
 }

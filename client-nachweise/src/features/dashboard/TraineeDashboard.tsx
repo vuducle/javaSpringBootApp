@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, Eye } from 'lucide-react';
 import Image from 'next/image';
 import CatGIF from './components/CatGIF';
+import FeaturesModal from '@/components/core/FeaturesModal';
 
 export default function TraineeDashboard() {
   const user = useAppSelector(selectUser);
@@ -35,6 +36,7 @@ export default function TraineeDashboard() {
             <StatsCard />
             <div className="bg-white/60 dark:bg-zinc-800/50 backdrop-blur-md border border-white/20 dark:border-zinc-700/40 shadow-lg rounded-2xl p-6 mt-4">
               <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                <FeaturesModal />
                 <Button
                   onClick={() => router.push('/erstellen')}
                   className="w-full sm:w-auto"

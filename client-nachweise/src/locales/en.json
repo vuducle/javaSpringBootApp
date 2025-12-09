@@ -384,6 +384,35 @@
     "admin": "🧑‍🏫 Trainer",
     "user": "🧑‍🎓 Apprentice"
   },
+  "features": {
+    "title": "App features",
+    "description": "Overview of available features and APIs.",
+    "button": "What this app can do",
+    "auth": {
+      "title": "Authentication",
+      "desc": "Login / Register with access and refresh tokens."
+    },
+    "profile": {
+      "title": "User profile",
+      "desc": "Change password, upload/delete profile image, view profile."
+    },
+    "nachweis": {
+      "title": "Training Records (Nachweise)",
+      "desc": "Create records, download PDF, trainers can review and comment."
+    },
+    "audit": {
+      "title": "Audit Logs",
+      "desc": "View Nachweis and role audit trails (admin / trainer only)."
+    },
+    "admin": {
+      "title": "Admin tools",
+      "desc": "Manage records, users and administrative endpoints."
+    },
+    "todos": {
+      "title": "Todos",
+      "desc": "Small Todo API for demo and testing purposes."
+    }
+  },
   "sort": {
     "asc": "Ascending",
     "desc": "Descending"
