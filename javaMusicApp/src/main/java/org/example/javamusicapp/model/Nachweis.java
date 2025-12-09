@@ -53,6 +53,7 @@ public class Nachweis {
 
         private String signaturAzubi;
         private String signaturAusbilder;
+        private String bemerkung;
 
         @JsonManagedReference
         @OneToMany(mappedBy = "nachweis", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -73,6 +74,7 @@ public class Nachweis {
                 this.datumAzubi = other.datumAzubi;
                 this.signaturAzubi = other.signaturAzubi;
                 this.signaturAusbilder = other.signaturAusbilder;
+                this.bemerkung = other.bemerkung;
                 this.activities = new ArrayList<>(); // Neue Liste für Aktivitäten
                 for (Activity activity : other.activities) {
                         Activity newActivity = new Activity(activity); // Annahme: Activity hat auch einen

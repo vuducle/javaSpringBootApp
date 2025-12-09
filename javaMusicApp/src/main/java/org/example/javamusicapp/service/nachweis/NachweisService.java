@@ -96,6 +96,11 @@ public class NachweisService {
         nachweis.setAusbilder(ausbilder);
         nachweis.setStatus(EStatus.IN_BEARBEITUNG);
 
+        nachweis.setSignaturAusbilder(request.getSignaturAusbilder());
+        nachweis.setSignaturAzubi(request.getSignaturAzubi());
+        nachweis.setBemerkung(request.getBemerkung());
+        nachweis.setDatumAzubi(request.getDatumAzubi());
+
         if (request.getActivities() == null || request.getActivities().isEmpty()) {
             // Create default activities
             nachweis.addActivity(createActivity(Weekday.MONDAY, 1, "Schule", new BigDecimal("8.0"), "Theorie"));

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Download, ExternalLink } from 'lucide-react';
@@ -26,6 +26,10 @@ interface Props {
 
 export default function NachweisViewer({ id }: Props) {
   const { showToast } = useToast();
+  const showToastRef = useRef(showToast);
+  useEffect(() => {
+    showToastRef.current = showToast;
+  }, [showToast]);
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -45,12 +49,16 @@ export default function NachweisViewer({ id }: Props) {
   useEffect(() => {
     if (!id) return;
     let url: string | null = null;
+    const pdfController = new AbortController();
+    const detailsController = new AbortController();
+
     const fetchPdf = async () => {
       setLoading(true);
       setError(null);
       try {
         const res = await api.get(`/api/nachweise/${id}/pdf`, {
           responseType: 'blob',
+          signal: pdfController.signal,
         });
 
         const responseData = res.data;
@@ -67,7 +75,6 @@ export default function NachweisViewer({ id }: Props) {
           contentType &&
           !contentType.toLowerCase().includes('pdf')
         ) {
-          // response isn't a PDF (could be HTML login page), show error
           const text = await blob.text();
           console.error(
             'Expected PDF but got:',
@@ -75,20 +82,22 @@ export default function NachweisViewer({ id }: Props) {
             text.substring(0, 300)
           );
           setError('Server hat kein PDF zurückgegeben.');
-          showToast('Server hat kein PDF zurückgegeben.', 'error');
+          showToastRef.current?.(
+            'Server hat kein PDF zurückgegeben.',
+            'error'
+          );
           return;
         }
 
         if (blob.size === 0) {
           setError('PDF ist leer.');
-          showToast('PDF ist leer.', 'error');
+          showToastRef.current?.('PDF ist leer.', 'error');
           return;
         }
 
         url = URL.createObjectURL(blob);
         setBlobUrl(url);
 
-        // Try to extract filename from Content-Disposition header
         const contentDisposition =
           res.headers?.['content-disposition'] ||
           res.headers?.['Content-Disposition'];
@@ -98,7 +107,6 @@ export default function NachweisViewer({ id }: Props) {
               contentDisposition
             );
           if (fileNameMatch && fileNameMatch[1]) {
-            // decode RFC5987 encoding if present
             try {
               const decoded = decodeURIComponent(fileNameMatch[1]);
               setFileName(decoded.replace(/"/g, ''));
@@ -108,6 +116,14 @@ export default function NachweisViewer({ id }: Props) {
           }
         }
       } catch (e) {
+        const errAny = e as any;
+        if (
+          errAny?.name === 'CanceledError' ||
+          errAny?.code === 'ERR_CANCELED' ||
+          errAny?.message === 'canceled'
+        ) {
+          return;
+        }
         const err = e as {
           response?: { status?: number; data?: unknown };
           message?: string;
@@ -117,13 +133,13 @@ export default function NachweisViewer({ id }: Props) {
           setError(
             'Zugriff verweigert. Du bist nicht berechtigt, dieses PDF anzusehen.'
           );
-          showToast('Zugriff verweigert', 'error');
+          showToastRef.current?.('Zugriff verweigert', 'error');
         } else if (status === 404) {
           setError('PDF nicht gefunden.');
-          showToast('PDF nicht gefunden', 'error');
+          showToastRef.current?.('PDF nicht gefunden', 'error');
         } else {
           setError(err?.message || 'Fehler beim Laden des PDFs');
-          showToast(
+          showToastRef.current?.(
             err?.message || 'Fehler beim Laden des PDFs',
             'error'
           );
@@ -133,18 +149,24 @@ export default function NachweisViewer({ id }: Props) {
       }
     };
 
-    fetchPdf();
-
-    // fetch nachweis details (status/comment)
     const fetchDetails = async () => {
       setDetailsLoading(true);
       try {
-        const res = await api.get(`/api/nachweise/${id}`);
+        const res = await api.get(`/api/nachweise/${id}`, {
+          signal: detailsController.signal,
+        });
         const data = res.data;
         setNachweisStatus(data.status ?? null);
         setNachweisComment(data.comment ?? data.remark ?? '');
       } catch (e) {
-        // ignore details errors silently, but log
+        const errAny = e as any;
+        if (
+          errAny?.name === 'CanceledError' ||
+          errAny?.code === 'ERR_CANCELED' ||
+          errAny?.message === 'canceled'
+        ) {
+          return;
+        }
         const err = e as { response?: unknown };
         console.error(
           'Could not fetch nachweis details',
@@ -156,10 +178,18 @@ export default function NachweisViewer({ id }: Props) {
     };
 
     fetchDetails();
+    fetchPdf();
+
     return () => {
+      pdfController.abort();
+      detailsController.abort();
       if (url) URL.revokeObjectURL(url);
     };
-  }, [id, showToast]);
+    // only re-run when `id` changes. `showToast` is used via ref to avoid
+    // triggering excessive reloads when provider creates a new function
+    // instance on each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   if (loading) return <div>{t('nachweis.viewer.loading')}</div>;
   if (error) return <div className="text-red-500">{error}</div>;

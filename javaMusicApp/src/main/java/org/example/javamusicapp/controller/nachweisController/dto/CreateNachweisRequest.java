@@ -39,4 +39,15 @@ public class CreateNachweisRequest {
     @Size(max = 50, message = "Ausbildungsjahr darf maximal 50 Zeichen lang sein")
     @Schema(description = "Das Ausbildungsjahr (z.B. '1. Ausbildungsjahr', '2. Ausbildungsjahr')", example = "2. Ausbildungsjahr")
     private String ausbildungsjahr;
+
+    @Schema(description = "Bemerkung.", example = "optional")
+    private String bemerkung;
+
+    @Schema(description = "Datum", example = "2024-05-03")
+    private LocalDate datumAzubi;
+    @Schema(description = "Signatur Azubi", example = "Vu Quy Le")
+    private String signaturAzubi;
+    @Schema(description = "Signatur Ausbilder/in.", example = "Karan Boss")
+    private String signaturAusbilder;
+
 }

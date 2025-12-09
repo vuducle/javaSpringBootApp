@@ -198,10 +198,10 @@ const pdfGenerationSchema = z.object({
   su_Time_3: z.string().optional(),
   su_Total: z.string().optional(),
   gesamtstunden: z.string().optional(),
-  remark: z.string().optional(),
-  date_Azubi: z.string().optional(),
-  sig_Azubi: z.string().optional(),
-  sig_Ausbilder: z.string().optional(),
+  bemerkung: z.string().optional(),
+  datumAzubi: z.string().optional(),
+  signaturAzubi: z.string().optional(),
+  signaturAusbilder: z.string().optional(),
 });
 
 type PdfGenerationFormValues = z.infer<typeof pdfGenerationSchema>;
@@ -629,11 +629,12 @@ export function CreateNachweisForm() {
         ausbildungsjahr: data.ausbildungsjahr,
         ausbilderId: data.ausbilderId,
         activities: activities.length > 0 ? activities : undefined,
-        Date_Azubi: data.date_Azubi || null,
-        Sig_Azubi: data.sig_Azubi || null,
-        Sig_Ausbilder: data.sig_Ausbilder || null,
-        Remark: data.remark || null,
+        datumAzubi: data.datumAzubi || null,
+        signaturAzubi: data.signaturAzubi || null,
+        signaturAusbilder: data.signaturAusbilder || null,
+        bemerkung: data.bemerkung || null,
       });
+      console.log(response);
       showToast(t('nachweis.successMessage'), 'success');
 
       // Preview PDF without downloading
@@ -1155,10 +1156,10 @@ export function CreateNachweisForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="remark">
+                  <Label htmlFor="bemerkung">
                     {t('nachweis.remark')}
                   </Label>
-                  <Input id="remark" {...register('remark')} />
+                  <Input id="bemerkung" {...register('bemerkung')} />
                 </div>
               </div>
 
@@ -1218,30 +1219,33 @@ export function CreateNachweisForm() {
                     funktionieren nicht! Aber die Generierung
                     funktioniert.
                   </p>
-                  <Label htmlFor="date_Azubi">
+                  <Label htmlFor="datumAzubi">
                     {t('nachweis.dateAzubi')}
                   </Label>
                   <Input
-                    id="date_Azubi"
+                    id="datumAzubi"
                     type="date"
-                    {...register('date_Azubi')}
+                    {...register('datumAzubi')}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="sig_Azubi">
+                  <Label htmlFor="signaturAzubi">
                     {t('nachweis.sigAzubi')}
                   </Label>
-                  <Input id="sig_Azubi" {...register('sig_Azubi')} />
+                  <Input
+                    id="signaturAzubi"
+                    {...register('signaturAzubi')}
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="sig_Ausbilder">
+                  <Label htmlFor="signaturAusbilder">
                     {t('nachweis.sigAusbilder')}
                   </Label>
                   <Input
-                    id="sig_Ausbilder"
-                    {...register('sig_Ausbilder')}
+                    id="signaturAusbilder"
+                    {...register('signaturAusbilder')}
                   />
                 </div>
               </div>
