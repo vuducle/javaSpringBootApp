@@ -43,6 +43,7 @@ import {
   Trash,
   Book,
   Plus,
+  Download,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
@@ -100,6 +101,7 @@ export function AllNachweiseView() {
   const [deleteAllConfirmText, setDeleteAllConfirmText] =
     useState('');
   const [isDeletingAll, setIsDeletingAll] = useState(false);
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   // local loading state is not needed because SWR provides isLoading
 
   // per-row delete will be performed with ConfirmDeleteDialog per row
@@ -155,6 +157,45 @@ export function AllNachweiseView() {
     t,
     closeDeleteAllModal,
   ]);
+
+  const downloadAllNachweise = useCallback(async () => {
+    setIsDownloadingAll(true);
+    try {
+      const resp = await api.get(
+        '/api/nachweise/my-nachweise/all/zip',
+        {
+          responseType: 'blob',
+        }
+      );
+
+      const contentType =
+        resp.headers['content-type'] || 'application/zip';
+      const blob = new Blob([resp.data], { type: contentType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const filename = `nachweise_all_${new Date()
+        .toISOString()
+        .slice(0, 10)}.zip`;
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast(
+        t('nachweis.downloadSuccess') || 'Download started',
+        'success'
+      );
+    } catch (err) {
+      console.error(err);
+      showToast(
+        t('nachweis.downloadError') || 'Fehler beim Download',
+        'error'
+      );
+    } finally {
+      setIsDownloadingAll(false);
+    }
+  }, [showToast, t]);
 
   // SWR with dedupe, caching, and automatic revalidation
   const { data, error, isLoading } = useSWR(
@@ -307,6 +348,17 @@ export function AllNachweiseView() {
             >
               <Book />
               {t('nachweis.deleteAll')}
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => downloadAllNachweise()}
+              disabled={isLoading || isDownloadingAll}
+              className="ml-2 bg-primary/90 hover:bg-primary/80 transition-all"
+            >
+              <Download />
+              {isDownloadingAll
+                ? t('nachweis.downloading')
+                : t('nachweis.downloadAll')}
             </Button>
             <Button
               onClick={() => setPage(page - 1)}

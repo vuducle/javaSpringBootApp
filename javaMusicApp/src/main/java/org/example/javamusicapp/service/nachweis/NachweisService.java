@@ -23,13 +23,16 @@ import org.example.javamusicapp.repository.specification.NachweisSpecification;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * 👑 **Was geht hier ab?**
@@ -654,6 +657,37 @@ public class NachweisService {
         return maxNummer + 1;
     }
 
+    public byte[] erstelleZipArchivFuerBenutzer(String username) throws IOException {
+        User azubi = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Benutzer nicht gefunden: " + username));
+        List<Nachweis> nachweise = nachweisRepository.findAllByAzubiId(azubi.getId());
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+            for (Nachweis nachweis : nachweise) {
+                try {
+                    String userVollerName = nachweis.getAzubi().getName().toLowerCase().replaceAll(" ", "_");
+                    Path userDirectory = rootLocation.resolve(userVollerName + "_" + nachweis.getAzubi().getId().toString());
+                    Path pdfPath = userDirectory.resolve(nachweis.getId().toString() + ".pdf");
+
+                    if (Files.exists(pdfPath) && Files.isReadable(pdfPath)) {
+                        byte[] pdfBytes = Files.readAllBytes(pdfPath);
+                        String fileName = String.format("Nachweis_%d_%s.pdf", nachweis.getNummer(), userVollerName);
+                        ZipEntry zipEntry = new ZipEntry(fileName);
+                        zos.putNextEntry(zipEntry);
+                        zos.write(pdfBytes);
+                        zos.closeEntry();
+                    } else {
+                        log.warn("PDF für Nachweis {} nicht gefunden oder nicht lesbar unter: {}", nachweis.getId(), pdfPath);
+                    }
+                } catch (IOException e) {
+                    log.error("Fehler beim Hinzufügen des Nachweises {} zum Zip-Archiv: {}", nachweis.getId(), e.getMessage());
+                    // Continue with the next file
+                }
+            }
+        }
+        return baos.toByteArray();
+    }
 }
 
                 

@@ -277,6 +277,31 @@ public class NachweisController {
     }
 
     /**
+     * Lädt alle Nachweise des angemeldeten Azubis als ZIP-Archiv herunter.
+     * Sammelt alle vorhandenen Nachweis-PDFs des aktuellen Benutzers und packt sie
+     * in ein einziges ZIP-Archiv zum Herunterladen.
+     */
+    @GetMapping("/my-nachweise/all/zip")
+    @Operation(summary = "Lädt alle Nachweise des angemeldeten Azubis als ZIP-Archiv herunter.", description = "Sammelt alle vorhandenen Nachweis-PDFs des aktuellen Benutzers und packt sie in ein einziges ZIP-Archiv zum Herunterladen.")
+    @ApiResponse(responseCode = "200", description = "ZIP-Archiv erfolgreich erstellt und zurückgegeben.")
+    @ApiResponse(responseCode = "403", description = "Verboten - Nur der angemeldete Benutzer kann diese Aktion durchführen.")
+    @ApiResponse(responseCode = "500", description = "Interner Serverfehler beim Erstellen des ZIP-Archivs.")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<byte[]> downloadAllMyNachweiseAsZip(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            byte[] zipData = nachweisService.erstelleZipArchivFuerBenutzer(userDetails.getUsername());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            String filename = "nachweise_" + userDetails.getUsername() + ".zip";
+            headers.setContentDispositionFormData("attachment", filename);
+            return new ResponseEntity<>(zipData, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            // Log the exception details
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
      * Ruft alle Nachweise für einen bestimmten Benutzer ab (Admin-Zugriff), mit
      * optionaler Filterung, Pagination und Sortierung.
      * Gibt eine Liste aller Nachweise für den angegebenen Benutzer zurück. Kann

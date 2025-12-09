@@ -178,6 +178,10 @@
     "nachweiseAnschauen": "View records",
     "sortBy": "Sort by",
     "kommentar": "Comment",
+    "downloadAll": "Download all records",
+    "downloading": "Preparing ZIP…",
+    "downloadSuccess": "Download started.",
+    "downloadError": "Error downloading records.",
     "viewer": {
       "title": "Training Record",
       "download": "Download",

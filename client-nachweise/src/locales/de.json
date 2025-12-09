@@ -179,6 +179,10 @@
     "nachweiseAnschauen": "Nachweise anschauen",
     "sortBy": "Sortieren nach",
     "kommentar": "Kommentar",
+    "downloadAll": "Alle Nachweise herunterladen",
+    "downloading": "Erstelle ZIP…",
+    "downloadSuccess": "Download gestartet.",
+    "downloadError": "Fehler beim Herunterladen der Nachweise.",
     "viewer": {
       "title": "Ausbildungsnachweis",
       "download": "Herunterladen",
