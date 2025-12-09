@@ -1,14 +1,21 @@
+'use client';
 
-"use client";
-
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import Cookies from 'js-cookie';
 import de from '@/locales/de.json';
 import en from '@/locales/en.json';
 
-const translations = { de, en };
+const translations: Record<'de' | 'en', Record<string, any>> = {
+  de,
+  en,
+};
 
-type Translations = typeof de | typeof en;
+type Translations = Record<string, any>;
 
 const LanguageContext = createContext<{
   t: (key: string) => string;
@@ -20,7 +27,11 @@ const LanguageContext = createContext<{
   locale: 'de',
 });
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
+export function LanguageProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [locale, setLocale] = useState<'de' | 'en'>(() => {
     if (typeof window === 'undefined') {
       return 'de'; // Server-side rendering, default to 'de'
@@ -29,7 +40,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (cookieLocale && translations[cookieLocale]) {
       return cookieLocale;
     } else {
-      const browserLocale = navigator.language.split('-')[0] as 'de' | 'en';
+      const browserLocale = navigator.language.split('-')[0] as
+        | 'de'
+        | 'en';
       return translations[browserLocale] ? browserLocale : 'de';
     }
   });
@@ -41,11 +54,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const t = (key: string) => {
     const keys = key.split('.');
-    let result: string | Translations | undefined = translations[locale];
+    let result: any = translations[locale];
     for (const k of keys) {
-        if (typeof result === 'object' && result !== null) {
-            result = (result as Translations)[k as keyof Translations];
-        }
+      if (result && typeof result === 'object') {
+        result = result[k];
+      } else {
+        result = undefined;
+        break;
+      }
     }
     return typeof result === 'string' ? result : key;
   };
@@ -56,7 +72,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <LanguageContext.Provider value={{ t, setLocale: handleSetLocale, locale }}>
+    <LanguageContext.Provider
+      value={{ t, setLocale: handleSetLocale, locale }}
+    >
       {children}
     </LanguageContext.Provider>
   );

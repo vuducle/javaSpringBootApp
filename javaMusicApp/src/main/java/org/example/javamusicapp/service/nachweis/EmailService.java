@@ -126,4 +126,46 @@ public class EmailService {
 
         sendEmail(to, subject, body);
     }
+
+    @Async
+    public void sendWelcomeEmailWithCredentials(String to, String name, String email, String password) {
+        String subject = "Willkommen bei der App!";
+        String body = "<html>"
+                + "<head>"
+                + "<meta charset='utf-8'/>"
+                + "<style>"
+                + "body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; color: #0f172a; line-height:1.5;}"
+                + ".container { max-width:640px; margin:0 auto; padding:20px; border-radius:12px; background:#fff; box-shadow:0 6px 20px rgba(16,24,40,0.06);}"
+                + ".header { background: linear-gradient(90deg,#1DB954 0%,#16a34a 100%); color:#fff; padding:18px; text-align:center; border-radius:10px 10px 0 0;}"
+                + ".content { padding:20px; color:#0f172a;}"
+                + ".credentials { background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin: 15px 0; }"
+                + ".warning { color: #856404; background-color: #fff3cd; border-color: #ffeeba; padding: 10px; border-radius: 8px; }"
+                + ".footer { padding:12px;text-align:center;color:#94a3b8;font-size:12px; }"
+                + "</style>"
+                + "</head>"
+                + "<body>"
+                + "<div class='container'>"
+                + "<div class='header'>"
+                + "<h2 style='margin:0;font-size:18px;'>Willkommen an Bord!</h2>"
+                + "</div>"
+                + "<div class='content'>"
+                + "<p>Hallo " + name + ",</p>"
+                + "<p>ein Konto wurde für dich in unserer App erstellt. Hier sind deine Zugangsdaten:</p>"
+                + "<div class='credentials'>"
+                + "<p><strong>E-Mail:</strong> " + email + "</p>"
+                + "<p><strong>Temporäres Passwort:</strong> " + password + "</p>"
+                + "</div>"
+                + "<div class='warning'>"
+                + "<p><strong>Wichtiger Hinweis:</strong> Bitte ändere dein Passwort sofort nach dem ersten Login, um dein Konto zu sichern.</p>"
+                + "</div>"
+                + "<p>Beste Grüße,<br/>Dein Admin-Team</p>"
+                + "</div>"
+                + "<div class='footer'>"
+                + "Automatisch generierte Nachricht — bitte nicht direkt antworten."
+                + "</div>"
+                + "</div>"
+                + "</body>"
+                + "</html>";
+        sendEmail(to, subject, body);
+    }
 }

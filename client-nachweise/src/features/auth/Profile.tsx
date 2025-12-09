@@ -43,7 +43,8 @@ import {
 } from 'lucide-react';
 import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
 
-type ProfileTranslationKeys = `profile.${| 'passwordTooShort'
+type ProfileTranslationKeys = `profile.${
+  | 'passwordTooShort'
   | 'passwordComplexity'
   | 'passwordsDontMatch'
   | 'oldPasswordRequired'
@@ -53,7 +54,7 @@ const profileSchema = z
   .object({
     name: z.string().min(1, 'Name is required'),
     email: z.string().email('Invalid email address'),
-    ausbildungsjahr: z.union([z.string(), z.number()]).pipe(z.string()),
+    ausbildungsjahr: z.string().min(1, 'Ausbildungsjahr is required'),
     telefonnummer: z.string().optional(),
     team: z.string().optional(),
     profileImageUrl: z.string().optional(),
@@ -198,31 +199,70 @@ export function Profile() {
 
   const onSubmit = async (data: ProfileFormValues) => {
     try {
-      const { oldPassword, password, ...profileData } = data;
+      const {
+        oldPassword,
+        password,
+        ausbildungsjahr,
+        telefonnummer,
+        team,
+      } = data;
+      let hasChanges = false;
 
-      if (oldPassword && oldPassword.length > 0 && password && password.length > 0) {
-        await api.put('/api/user/change-password', { oldPassword, newPassword: password });
+      // Handle password change
+      if (
+        oldPassword &&
+        oldPassword.length > 0 &&
+        password &&
+        password.length > 0
+      ) {
+        await api.put('/api/user/change-password', {
+          oldPassword,
+          newPassword: password,
+        });
+        hasChanges = true;
+        showToast(
+          t('profile.passwordChangeSuccess') ||
+            'Passwort erfolgreich geändert',
+          'success'
+        );
       }
 
-      const changedData: Partial<ProfileFormValues> = {};
-      for (const key in profileData) {
-        if (
-          profileData[key as keyof typeof profileData] !==
-          user![key as keyof typeof user]
-        ) {
-          changedData[key as keyof typeof changedData] =
-            profileData[key as keyof typeof profileData];
-        }
+      // Prepare profile update payload (only fields accepted by backend)
+      const profileUpdatePayload = {
+        ausbildungsjahr,
+        telefonnummer,
+        team,
+      };
+
+      // Check if profile fields have changed
+      const profileChanged =
+        ausbildungsjahr !== user?.ausbildungsjahr ||
+        telefonnummer !== user?.telefonnummer ||
+        team !== user?.team;
+
+      if (profileChanged) {
+        const response = await api.put(
+          '/api/user/profile',
+          profileUpdatePayload
+        );
+        const updatedUserData = {
+          ...response.data,
+          ausbildungsjahr: response.data.ausbildungsjahr?.toString(),
+        };
+        setUser(updatedUserData);
+        reset(updatedUserData);
+        hasChanges = true;
+        showToast(t('profile.updateSuccess'), 'success');
       }
 
-      if (Object.keys(changedData).length > 0) {
-        const response = await api.put('/api/user/profile', profileData);
-        setUser(response.data);
+      if (!hasChanges) {
+        showToast(
+          t('profile.noChanges') || 'Keine Änderungen vorgenommen',
+          'info'
+        );
       }
-
-      showToast(t('profile.updateSuccess'), 'success');
-      reset({ ...data, ...changedData });
     } catch (error: unknown) {
+      console.error('Profile update error:', error);
       if (error instanceof Error) {
         showToast(error.message, 'error');
       } else {
@@ -258,7 +298,12 @@ export function Profile() {
           },
         }
       );
-      setUser(response.data);
+      const updatedUserData = {
+        ...response.data,
+        ausbildungsjahr: response.data.ausbildungsjahr?.toString(),
+      };
+      setUser(updatedUserData);
+      reset(updatedUserData);
       showToast(t('profile.uploadSuccess'), 'success');
       setSelectedFile(null);
     } catch (error: unknown) {
@@ -273,7 +318,12 @@ export function Profile() {
   const handleImageDelete = async () => {
     try {
       const response = await api.delete('/api/user/profile-image');
-      setUser(response.data);
+      const updatedUserData = {
+        ...response.data,
+        ausbildungsjahr: response.data.ausbildungsjahr?.toString(),
+      };
+      setUser(updatedUserData);
+      reset(updatedUserData);
       showToast(t('profile.deleteSuccess'), 'success');
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -328,9 +378,10 @@ export function Profile() {
           <div className="flex flex-col items-center space-y-2">
             <Label
               htmlFor="profile-image"
-              className="text-gray-300 cursor-pointer"
+              className="text-gray-700 cursor-pointer"
             >
-              {t('profile.profileImage')}
+              <span>{t('profile.profileImage')}</span>
+              <span>FEATURE: Bild ist pflicht!</span>
             </Label>
             <Input
               id="profile-image"
@@ -486,7 +537,7 @@ export function Profile() {
                   onValueChange={(value) =>
                     setValue('team', value, { shouldDirty: true })
                   }
-                  defaultValue={user.team}
+                  value={selectedTeam}
                 >
                   <SelectTrigger className="bg-white/5 border-white/20 focus:ring-white/50 h-auto pl-10">
                     {selectedTrainer ? (
@@ -513,7 +564,9 @@ export function Profile() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div className="space-y-2">
-              <Label htmlFor="oldPassword">{t('profile.oldPassword')}</Label>
+              <Label htmlFor="oldPassword">
+                {t('profile.oldPassword')}
+              </Label>
               <div className="relative">
                 <Save
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4"
@@ -528,14 +581,19 @@ export function Profile() {
               </div>
               {errors.oldPassword && (
                 <p className="text-sm text-red-400">
-                  {t(errors.oldPassword.message as ProfileTranslationKeys)}
+                  {t(
+                    errors.oldPassword
+                      .message as ProfileTranslationKeys
+                  )}
                 </p>
               )}
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div className="space-y-2">
-              <Label htmlFor="password">{t('profile.newPassword')}</Label>
+              <Label htmlFor="password">
+                {t('profile.newPassword')}
+              </Label>
               <div className="relative">
                 <Save
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4"
@@ -550,12 +608,16 @@ export function Profile() {
               </div>
               {errors.password && (
                 <p className="text-sm text-red-400">
-                  {t(errors.password.message as ProfileTranslationKeys)}
+                  {t(
+                    errors.password.message as ProfileTranslationKeys
+                  )}
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">{t('profile.confirmPassword')}</Label>
+              <Label htmlFor="confirmPassword">
+                {t('profile.confirmPassword')}
+              </Label>
               <div className="relative">
                 <Save
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4"
@@ -570,7 +632,10 @@ export function Profile() {
               </div>
               {errors.confirmPassword && (
                 <p className="text-sm text-red-400">
-                  {t(errors.confirmPassword.message as ProfileTranslationKeys)}
+                  {t(
+                    errors.confirmPassword
+                      .message as ProfileTranslationKeys
+                  )}
                 </p>
               )}
             </div>

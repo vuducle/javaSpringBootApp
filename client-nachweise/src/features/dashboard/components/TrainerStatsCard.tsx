@@ -2,11 +2,18 @@
 
 import { useTranslation } from '@/context/LanguageContext';
 import { useEffect, useState } from 'react';
-import  api  from '@/lib/api';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
+import api from '@/lib/api';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  PieLabelRenderProps,
+} from 'recharts';
 import { useAppSelector } from '@/store';
 import { selectUser } from '@/store/slices/userSlice';
-import StatusPlaceholder from "@/components/ui/StatusPlaceholder";
+import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
 
 interface Nachweis {
   id: string;
@@ -22,20 +29,38 @@ const COLORS = {
   ABGELEHNT: '#F44336',
 };
 
-type TranslationKeys = `nachweis.status${'ANGENOMMEN' | 'IN_BEARBEITUNG' | 'ABGELEHNT'}`;
+type TranslationKeys = `nachweis.status${
+  | 'ANGENOMMEN'
+  | 'IN_BEARBEITUNG'
+  | 'ABGELEHNT'}`;
 
 const RADIAN = Math.PI / 180;
-const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }: { cx: number, cy: number, midAngle: number, innerRadius: number, outerRadius: number, value: number }) => {
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+const renderCustomizedLabel = (props: PieLabelRenderProps) => {
+  const { cx, cy, midAngle, innerRadius, outerRadius, value } = props;
+  const cxNum =
+    typeof cx === 'number' ? cx : parseFloat(String(cx ?? '0')) || 0;
+  const cyNum =
+    typeof cy === 'number' ? cy : parseFloat(String(cy ?? '0')) || 0;
+  const mAngle = typeof midAngle === 'number' ? midAngle : 0;
+  const iR = typeof innerRadius === 'number' ? innerRadius : 0;
+  const oR = typeof outerRadius === 'number' ? outerRadius : 0;
 
-    return (
-      <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-        {`${value}`}
-      </text>
-    );
-  };
+  const radius = iR + (oR - iR) * 0.5;
+  const x = cxNum + radius * Math.cos(-mAngle * RADIAN);
+  const y = cyNum + radius * Math.sin(-mAngle * RADIAN);
+
+  return (
+    <text
+      x={x}
+      y={y}
+      fill="white"
+      textAnchor={x > cxNum ? 'start' : 'end'}
+      dominantBaseline="central"
+    >
+      {String(value ?? '')}
+    </text>
+  );
+};
 
 export default function TrainerStatsCard() {
   const { t } = useTranslation();
@@ -68,14 +93,14 @@ export default function TrainerStatsCard() {
     }
   }, [user.id]);
 
-    if (loading) {
-        return (
-            <StatusPlaceholder
-                loading
-                loadingText={t('common.loading') ?? 'Lädt...'}
-            />
-        );
-    }
+  if (loading) {
+    return (
+      <StatusPlaceholder
+        loading
+        loadingText={t('common.loading') ?? 'Lädt...'}
+      />
+    );
+  }
 
   const stats = data.reduce(
     (acc, nachweis) => {
@@ -90,9 +115,11 @@ export default function TrainerStatsCard() {
     value,
   }));
 
-    return (
+  return (
     <div className="bg-white dark:bg-zinc-800 shadow-lg rounded-lg p-6">
-      <h2 className="text-2xl font-bold mb-4">{t('nachweis.listTitle')} ({totalElements})</h2>
+      <h2 className="text-2xl font-bold mb-4">
+        {t('nachweis.listTitle')} ({totalElements})
+      </h2>
       <div style={{ width: '100%', height: 300 }}>
         <ResponsiveContainer>
           <PieChart>
@@ -107,10 +134,21 @@ export default function TrainerStatsCard() {
               dataKey="value"
             >
               {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[Object.keys(stats)[index] as keyof typeof COLORS]} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={
+                    COLORS[
+                      Object.keys(stats)[index] as keyof typeof COLORS
+                    ]
+                  }
+                />
               ))}
             </Pie>
-            <Legend formatter={(value, entry) => `${value} (${entry.payload.value})`} />
+            <Legend
+              formatter={(value, entry) =>
+                `${value} (${entry?.payload?.value ?? ''})`
+              }
+            />
           </PieChart>
         </ResponsiveContainer>
       </div>

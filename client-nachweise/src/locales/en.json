@@ -239,7 +239,9 @@
     "passwordTooShort": "Password must be at least 8 characters long.",
     "passwordComplexity": "Password must contain at least one uppercase letter, one number, and one special character.",
     "passwordsDontMatch": "Passwords do not match.",
-    "newPasswordRequired": "New password is required"
+    "newPasswordRequired": "New password is required",
+    "noChanges": "No changes made",
+    "passwordChangeSuccess": "Password changed successfully"
   },
   "firefoxWarning": {
     "title": "Browser Notice",

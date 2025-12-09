@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 import java.util.Optional;
+import java.security.SecureRandom;
 
 /**
  * 🔑 **Was geht hier ab?**
@@ -112,7 +113,7 @@ public class AuthController {
      * Dieser Entpunkt ist zuständig für die Registrierung
      */
     @PostMapping("/register")
-    @Operation(summary = "Registriert einen neuen Benutzer", description = "Speichert den Benutzer mit gehashtem Passwort in PostgreSQL. Gibt 201 Created zurück.")
+    @Operation(summary = "Registriert einen neuen Benutzer", description = "Speichert den Benutzer mit einem zufällig generierten Passwort und sendet die Zugangsdaten per E-Mail.")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             return new ResponseEntity<>("Benutzername ist bereits vergeben!", HttpStatus.BAD_REQUEST);
@@ -120,6 +121,9 @@ public class AuthController {
         if (userRepository.existsByEmail(request.getEmail())) {
             return new ResponseEntity<>("E-Mail wird bereits verwendet!", HttpStatus.BAD_REQUEST);
         }
+
+        String temporaryPassword = generateRandomPassword();
+
         User user = new User();
         user.setUsername(request.getUsername());
         user.setName(request.getName());
@@ -128,11 +132,28 @@ public class AuthController {
         user.setTelefonnummer(request.getTelefonnummer());
         user.setTeam(request.getTeam());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+
         Role userRole = roleRepository.findByName(ERole.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Fehler: Rolle nicht gefunden."));
         user.getRoles().add(userRole);
         userRepository.save(user);
-        return new ResponseEntity<>("Benutzer erfolgreich registriert!", HttpStatus.CREATED);
+
+        emailService.sendWelcomeEmailWithCredentials(user.getEmail(), user.getName(), user.getEmail(), request.getPassword());
+
+        return new ResponseEntity<>("Benutzer erfolgreich registriert! Überprüfen Sie Ihre E-Mails für die Zugangsdaten.", HttpStatus.CREATED);
+    }
+    
+    private String generateRandomPassword() {
+        final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < 12; i++) {
+            int randomIndex = random.nextInt(chars.length());
+            sb.append(chars.charAt(randomIndex));
+        }
+
+        return sb.toString();
     }
 
     /*

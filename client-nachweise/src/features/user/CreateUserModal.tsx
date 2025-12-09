@@ -311,7 +311,7 @@ export default function CreateUserModal({
               {trainers.map((tr) => (
                 <SelectItem
                   key={tr.id ?? tr.username}
-                  value={tr.id ?? tr.username ?? ''}
+                  value={tr.name ?? ''}
                 >
                   <div className="flex items-center space-x-2">
                     {tr.profileImageUrl ? (
