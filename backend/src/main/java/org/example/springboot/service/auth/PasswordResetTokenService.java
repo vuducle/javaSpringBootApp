@@ -1,0 +1,71 @@
+package org.example.springboot.service.auth;
+
+import org.example.springboot.handler.TokenRefreshException;
+import org.example.springboot.model.PasswordResetToken;
+import org.example.springboot.model.User;
+import org.example.springboot.repository.PasswordResetTokenRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
+
+/**
+ * 🔑 **Was geht hier ab?**
+ * Dieser Service ist der Master of "Passwort vergessen". Er kümmert sich um den ganzen
+ * Lifecycle von Password-Reset-Tokens.
+ *
+ * Das Game ist simpel:
+ * - **createPasswordResetToken()**: Wenn ein User sein Passwort vercheckt hat, wird diese
+ *   Methode gerufen. Sie erstellt einen unique, random Token, der nur für diesen einen
+ *   User gilt und nach einer bestimmten Zeit (z.B. 1 Stunde) abläuft. Alte Tokens für
+ *   den User werden dabei direkt gekillt.
+ * - **verifyExpiration()**: Checkt, ob ein Token noch fresh ist oder schon abgelaufen.
+ *   Abgelaufene Tokens werden direkt aus der DB gelöscht.
+ * - **findByToken() / deleteToken()**: Sucht oder löscht einen Token. Logisch, oder?
+ *
+ * Sorgt dafür, dass der Passwort-Reset-Prozess sicher und smooth abläuft.
+ */
+@Service
+public class PasswordResetTokenService {
+
+    private final Long passwordResetTokenExpirationMs = 3600000L; // 1 hour
+
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+
+    @Autowired
+    public PasswordResetTokenService(PasswordResetTokenRepository passwordResetTokenRepository) {
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+    }
+
+    public Optional<PasswordResetToken> findByToken(String token) {
+        return passwordResetTokenRepository.findByToken(token);
+    }
+
+    public PasswordResetToken createPasswordResetToken(User user) {
+        // Invalidate previous tokens for the same user
+        passwordResetTokenRepository.findByUser(user).ifPresent(passwordResetTokenRepository::delete);
+
+        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        passwordResetToken.setUser(user);
+        passwordResetToken.setExpiryDate(Instant.now().plusMillis(passwordResetTokenExpirationMs));
+        passwordResetToken.setToken(UUID.randomUUID().toString());
+
+        return passwordResetTokenRepository.save(passwordResetToken);
+    }
+
+    public PasswordResetToken verifyExpiration(PasswordResetToken token) {
+        if (token.getExpiryDate().isBefore(Instant.now())) {
+            passwordResetTokenRepository.delete(token);
+            throw new TokenRefreshException(token.getToken(), "Password reset token was expired. Please make a new request.");
+        }
+        return token;
+    }
+
+    @Transactional
+    public void deleteToken(String token) {
+        passwordResetTokenRepository.findByToken(token).ifPresent(passwordResetTokenRepository::delete);
+    }
+}

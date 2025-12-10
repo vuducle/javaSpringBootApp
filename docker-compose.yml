@@ -1,55 +1,151 @@
 services:
+  # PostgreSQL Database
   db:
-    image: postgres:15
+    image: postgres:15-alpine
     restart: unless-stopped
+    container_name: lyrics-db
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-mydb}
-      POSTGRES_USER: ${POSTGRES_USER:-myuser}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-nachweise_db}
+      POSTGRES_USER: ${POSTGRES_USER:-nachweise_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
     volumes:
       - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - lyrics-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nachweise_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  app:
+  # Java Backend (Spring Boot)
+  backend:
     build:
       context: ./javaMusicApp
       dockerfile: Dockerfile
-    image: lyrics-translator:latest
+    image: backend-nachweise:latest
     restart: unless-stopped
+    container_name: backend-nachweise
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
+      # Spring profiles and database
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-production}
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://db:5432/mydb}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-myuser}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://db:5432/nachweise_db}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-nachweise_user}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-changeme}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+
+      # Server configuration
       SERVER_PORT: ${SERVER_PORT:-8088}
-      JAVA_OPTS: ${JAVA_OPTS}
-      JWT_SECRET: ${JWT_SECRET}
+      SERVER_SERVLET_CONTEXT_PATH: /
+
+      # JWT and Security
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production-min-32-chars}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+
+      # Mail configuration (optional, for password reset)
+      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST:-smtp.hostinger.com}
+      SPRING_MAIL_PORT: ${SPRING_MAIL_PORT:-587}
       SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
       SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
-      APP_FRONTEND_URL: ${APP_FRONTEND_URL}
-    expose:
-      - "${SERVER_PORT:-8088}"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: ${SPRING_MAIL_SMTP_AUTH:-true}
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: ${SPRING_MAIL_STARTTLS_ENABLE:-true}
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: ${SPRING_MAIL_STARTTLS_REQUIRED:-true}
+
+      # Frontend URL for CORS
+      APP_FRONTEND_URL: ${APP_FRONTEND_URL:-http://localhost:3000}
+      APP_FRONTEND_ORIGINS: ${APP_FRONTEND_ORIGINS:-http://localhost:3000}
+
+      # JVM options
+      JAVA_OPTS: ${JAVA_OPTS:--Xmx512m -Xms256m}
+
+      # Logging
+      LOGGING_LEVEL_ROOT: ${LOGGING_LEVEL_ROOT:-INFO}
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK: ${LOGGING_LEVEL_SPRINGFRAMEWORK:-INFO}
+
+    ports:
+      - "${BACKEND_PORT:-8088}:8088"
+    volumes:
+      - ./javaMusicApp/uploads:/app/uploads
+      - ./javaMusicApp/generated_pdfs:/app/generated_pdfs
+    networks:
+      - lyrics-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8088/actuator/health"]
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 40s
 
-  # caddy:
-  #   image: caddy:2
-  #   restart: unless-stopped
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   volumes:
-  #     - ./Caddyfile:/etc/caddy/Caddyfile:ro
-  #     - caddy_data:/data
-  #     - caddy_config:/config
-  #   depends_on:
-  #     - app
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./client-nachweise
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8088}
+    image: lyrics-frontend:latest
+    restart: unless-stopped
+    container_name: lyrics-frontend
+    depends_on:
+      - backend
+    environment:
+      # Frontend environment variables
+      NODE_ENV: ${NODE_ENV:-production}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8088}
+
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    networks:
+      - lyrics-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
+  # Caddy Reverse Proxy (Production Setup)
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    container_name: lyrics-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - lyrics-network
+    environment:
+      CADDY_AGREE: "true"
 
 volumes:
   db_data:
-  # caddy_data:
-  # caddy_config:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
+
+networks:
+  lyrics-network:
+    driver: bridge

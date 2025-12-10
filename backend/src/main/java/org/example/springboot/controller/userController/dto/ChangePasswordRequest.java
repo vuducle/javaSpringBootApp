@@ -1,0 +1,15 @@
+package org.example.springboot.controller.userController.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+import org.example.springboot.validation.PasswordStrength;
+
+@Data
+public class ChangePasswordRequest {
+    @NotBlank(message = "Altes Passwort ist erforderlich")
+    private String oldPassword;
+
+    @NotBlank(message = "Neues Passwort ist erforderlich")
+    @PasswordStrength
+    private String newPassword;
+}
