@@ -38,10 +38,8 @@ services:
 
   # Java Backend (Spring Boot)
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    image: backend-nachweise:latest
+    image: ghcr.io/${GITHUB_ACTOR:-vuducle}/nachweise-backend:latest
+    pull_policy: always
     restart: unless-stopped
     container_name: backend-nachweise
     depends_on:
@@ -105,12 +103,8 @@ services:
 
   # Next.js Frontend
   frontend:
-    build:
-      context: ./client-nachweise
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8088}
-    image: nachweise-frontend:latest
+    image: ghcr.io/${GITHUB_ACTOR:-vuducle}/nachweise-frontend:latest
+    pull_policy: always
     restart: unless-stopped
     container_name: nachweise-frontend
     depends_on:

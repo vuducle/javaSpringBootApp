@@ -1,130 +1,112 @@
-name: Build and Push Docker Images
+# Builds Docker images to GitHub Container Registry (GHCR) when a git tag is pushed
+# Triggered only on: git tag -a v1.0.0 && git push origin v1.0.0
+# Images appear at: ghcr.io/vuducle/nachweise-backend:1.0.0
+
+name: Build and Push to GHCR
 
 on:
-    push:
-        branches:
-            - main
-            - develop
-        tags:
-            - "v*"
-    pull_request:
-        branches:
-            - main
-            - develop
+  push:
+    tags:
+      - "*" # Triggered on any git tag
 
 env:
-    REGISTRY: ghcr.io
-    BACKEND_IMAGE_NAME: ${{ github.actor }}/nachweise-backend
-    FRONTEND_IMAGE_NAME: ${{ github.actor }}/nachweise-frontend
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ${{ github.actor }}/nachweise-backend
+  FRONTEND_IMAGE: ${{ github.actor }}/nachweise-frontend
 
 jobs:
-    build-backend:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            packages: write
-            id-token: write
+  build-backend:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-            - name: Log in to Container Registry
-              if: github.event_name != 'pull_request'
-              uses: docker/login-action@v3
-              with:
-                  registry: ${{ env.REGISTRY }}
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GHCR_TOKEN }}
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
-            - name: Extract metadata (tags, labels)
-              id: meta-backend
-              uses: docker/metadata-action@v5
-              with:
-                  images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
-                  tags: |
-                      type=ref,event=branch
-                      type=semver,pattern={{version}}
-                      type=semver,pattern={{major}}.{{minor}}
-                      type=sha,prefix={{branch}}-
-                      type=raw,value=latest,enable={{is_default_branch}}
+      - name: Extract tag version
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
 
-            - name: Build and push Backend Docker image
-              uses: docker/build-push-action@v5
-              with:
-                  context: ./backend
-                  push: ${{ github.event_name != 'pull_request' }}
-                  tags: ${{ steps.meta-backend.outputs.tags }}
-                  labels: ${{ steps.meta-backend.outputs.labels }}
-                  cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:buildcache
-                  cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:buildcache,mode=max
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-    build-frontend:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            packages: write
-            id-token: write
+  build-frontend:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-            - name: Log in to Container Registry
-              if: github.event_name != 'pull_request'
-              uses: docker/login-action@v3
-              with:
-                  registry: ${{ env.REGISTRY }}
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GHCR_TOKEN }}
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
-            - name: Extract metadata (tags, labels)
-              id: meta-frontend
-              uses: docker/metadata-action@v5
-              with:
-                  images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
-                  tags: |
-                      type=ref,event=branch
-                      type=semver,pattern={{version}}
-                      type=semver,pattern={{major}}.{{minor}}
-                      type=sha,prefix={{branch}}-
-                      type=raw,value=latest,enable={{is_default_branch}}
+      - name: Extract tag version
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
 
-            - name: Build and push Frontend Docker image
-              uses: docker/build-push-action@v5
-              with:
-                  context: ./client-nachweise
-                  push: ${{ github.event_name != 'pull_request' }}
-                  tags: ${{ steps.meta-frontend.outputs.tags }}
-                  labels: ${{ steps.meta-frontend.outputs.labels }}
-                  cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:buildcache
-                  cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:buildcache,mode=max
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./client-nachweise
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-    deploy:
-        needs: [build-backend, build-frontend]
-        runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  deploy:
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-
-            - name: Deploy to VPS
-              uses: appleboy/ssh-action@master
-              with:
-                  host: ${{ secrets.VPS_HOST }}
-                  username: ${{ secrets.VPS_USER }}
-                  key: ${{ secrets.VPS_SSH_KEY }}
-                  port: ${{ secrets.VPS_PORT || 22 }}
-                  script: |
-                      cd ${{ secrets.VPS_DEPLOY_PATH }}
-                      git pull origin main
-                      docker-compose pull
-                      docker-compose up -d
-                      docker-compose exec -T backend sh -c "java -jar /app/app.jar" &
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            cd ${{ secrets.VPS_DEPLOY_PATH }}
+            git pull origin main
+            docker-compose pull
+            docker-compose up -d
