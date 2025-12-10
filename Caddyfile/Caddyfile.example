@@ -1,0 +1,147 @@
+# Caddyfile Configuration for Nachweise Application
+# This is a reverse proxy and SSL/TLS termination setup for production deployment
+# 
+# Usage:
+#   1. Copy this file to Caddyfile (without .example extension)
+#   2. Update domain names and email address
+#   3. Adjust backend URLs if needed
+#   4. Docker will automatically reload Caddy with new configuration
+
+# ============================================================================
+# LOCAL DEVELOPMENT SETUP (http only, no SSL)
+# ============================================================================
+# Uncomment this block for local development without SSL certificate
+
+# localhost:80 {
+#   # Frontend (Next.js)
+#   route /api/* {
+#     reverse_proxy frontend:3000
+#   }
+#   
+#   # Backend (Spring Boot)
+#   route /api/* {
+#     reverse_proxy backend:8088
+#   }
+#   
+#   # All other requests to frontend
+#   reverse_proxy frontend:3000
+# }
+
+
+# ============================================================================
+# PRODUCTION SETUP (HTTPS with automatic SSL via Let's Encrypt)
+# ============================================================================
+# Replace 'example.com' with your actual domain name
+# Replace 'admin@example.com' with a valid email address
+
+# Main domain - HTTPS with automatic SSL certificate
+example.com {
+  # Automatic HTTPS - Caddy will automatically get and renew SSL certificates
+  # Email is required for Let's Encrypt certificate registration
+  tls admin@example.com
+  
+  # Security headers
+  header {
+    # HSTS - Enforce HTTPS for 1 year
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    
+    # Prevent MIME type sniffing
+    X-Content-Type-Options "nosniff"
+    
+    # Enable XSS protection
+    X-XSS-Protection "1; mode=block"
+    
+    # Prevent clickjacking
+    X-Frame-Options "SAMEORIGIN"
+    
+    # Referrer Policy
+    Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Permissions Policy (formerly Feature Policy)
+    Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    
+    # Remove Server header for security
+    -Server
+    -X-Powered-By
+  }
+  
+  # Gzip compression for better performance
+  encode gzip zstd
+  
+  # Frontend routes - serve Next.js frontend by default
+  # This should handle all non-API routes
+  route /* {
+    # Pass through to Next.js frontend
+    reverse_proxy frontend:3000 {
+      # Preserve original request information
+      header_up X-Forwarded-For {http.request.remote}
+      header_up X-Forwarded-Proto {http.request.scheme}
+      header_up X-Forwarded-Host {http.request.host}
+      header_up X-Real-IP {http.request.remote}
+      
+      # Keep WebSocket connections alive
+      header_up Connection "upgrade"
+      header_up Upgrade "websocket"
+    }
+  }
+}
+
+# API subdomain - Optional separate endpoint for API (recommended for production)
+# Uncomment to use api.example.com for backend API
+# api.example.com {
+#   tls admin@example.com
+#   
+#   # Security headers for API
+#   header {
+#     Strict-Transport-Security "max-age=31536000; includeSubDomains"
+#     X-Content-Type-Options "nosniff"
+#   }
+#   
+#   # Gzip compression
+#   encode gzip zstd
+#   
+#   # CORS handling - Optional, if backend doesn't handle it
+#   # Note: Spring Boot backend already handles CORS via APP_FRONTEND_ORIGINS
+#   
+#   # Rate limiting - Optional, for DDoS protection
+#   # (requires caddy rate-limit plugin)
+#   
+#   # Pass all requests to Spring Boot backend
+#   reverse_proxy backend:8088 {
+#     header_up X-Forwarded-For {http.request.remote}
+#     header_up X-Forwarded-Proto {http.request.scheme}
+#     header_up X-Forwarded-Host {http.request.host}
+#     header_up X-Real-IP {http.request.remote}
+#   }
+# }
+
+# HTTP to HTTPS redirect (automatic in Caddy 2)
+# All HTTP requests are automatically redirected to HTTPS
+
+
+# ============================================================================
+# ADVANCED CONFIGURATION (Optional)
+# ============================================================================
+
+# Logging configuration
+# Uncomment to enable detailed logging
+# {
+#   log {
+#     output file /var/log/caddy/access.log {
+#       roll_size 100mb
+#       roll_keep 5
+#       roll_keep_for 720h
+#     }
+#     format json
+#   }
+# }
+
+# Admin API for runtime configuration
+# {
+#   admin localhost:2019
+# }
+
+# Auto HTTPS policy - set to off for local development
+# {
+#   auto_https off
+# }

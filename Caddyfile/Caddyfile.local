@@ -1,0 +1,41 @@
+# Caddyfile Configuration - LOCAL DEVELOPMENT
+# Use this for local development with docker-compose
+# Serves over HTTP without SSL certificates
+
+# Bind to all interfaces on port 80
+:80 {
+  # Gzip compression
+  encode gzip zstd
+  
+  # Logs to stdout for docker-compose logs
+  log {
+    output stdout
+    format json
+  }
+  
+  # API routes - forward to Spring Boot backend
+  handle /api/* {
+    reverse_proxy backend:8088 {
+      # Preserve original request headers
+      header_up X-Forwarded-For {http.request.remote}
+      header_up X-Forwarded-Proto {http.request.scheme}
+      header_up X-Forwarded-Host {http.request.host}
+      header_up X-Real-IP {http.request.remote}
+    }
+  }
+  
+  # All other routes - forward to Next.js frontend
+  handle /* {
+    reverse_proxy frontend:3000 {
+      # Preserve original request headers
+      header_up X-Forwarded-For {http.request.remote}
+      header_up X-Forwarded-Proto {http.request.scheme}
+      header_up X-Forwarded-Host {http.request.host}
+      header_up X-Real-IP {http.request.remote}
+      
+      # Keep WebSocket connections alive (for Next.js HMR)
+      header_up Connection "upgrade"
+      header_up Upgrade "websocket"
+    }
+  }
+}
