@@ -35,6 +35,9 @@ dependencies {
     implementation 'io.lettuce:lettuce-core'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+    // Flyway for database migrations
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-database-postgresql'
     // removed invalid/unsupported dependency that caused resolution failures
     implementation 'org.jsoup:jsoup:1.16.1'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'

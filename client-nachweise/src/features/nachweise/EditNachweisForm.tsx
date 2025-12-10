@@ -475,6 +475,13 @@ export function EditNachweisForm({
         // Map activities back to form fields
         if (data.activities && Array.isArray(data.activities)) {
           data.activities.forEach((activity: unknown) => {
+            const act = activity as {
+              day?: string;
+              slot?: number;
+              section?: string;
+              description?: string;
+              hours?: number;
+            };
             const dayMap: Record<string, string> = {
               MONDAY: 'mo',
               TUESDAY: 'tu',
@@ -484,19 +491,19 @@ export function EditNachweisForm({
               SATURDAY: 'sa',
               SUNDAY: 'su',
             };
-            const prefix = dayMap[activity.day];
-            if (prefix && activity.slot) {
+            const prefix = dayMap[act.day || ''];
+            if (prefix && act.slot) {
               setValue(
-                `${prefix}_Sec_${activity.slot}` as keyof PdfGenerationFormValues,
-                activity.section || ''
+                `${prefix}_Sec_${act.slot}` as keyof PdfGenerationFormValues,
+                act.section || ''
               );
               setValue(
-                `${prefix}_${activity.slot}` as keyof PdfGenerationFormValues,
-                activity.description || ''
+                `${prefix}_${act.slot}` as keyof PdfGenerationFormValues,
+                act.description || ''
               );
               setValue(
-                `${prefix}_Time_${activity.slot}` as keyof PdfGenerationFormValues,
-                String(activity.hours || '')
+                `${prefix}_Time_${act.slot}` as keyof PdfGenerationFormValues,
+                String(act.hours || '')
               );
             }
           });

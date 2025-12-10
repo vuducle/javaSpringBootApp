@@ -1,4 +1,3 @@
-javaMusicApp/src/main/resources/application.properties
 .env
 # Ignore uploaded files and local storage
 uploads/
@@ -6,3 +5,18 @@ javaMusicApp/uploads/
 # Backend env and secrets
 javaMusicApp/.env
 secrets/
+
+Caddyfile
+# Ignore local IDE files
+.vscode/
+.idea/
+# Ignore node modules and build outputs
+client-nachweise/node_modules/
+client-nachweise/.next/
+# Ignore log files
+*.log
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+# Ignore test coverage directory
+coverage/

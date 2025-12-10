@@ -10,19 +10,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-
 /**
  * 🤙 **Was geht hier ab?**
- * Dieser Bre lädt beim Start der App direkt mal ein paar freshe Default-Daten in die Datenbank.
- * Stellt sicher, dass die App nicht komplett leer ist und man direkt was zum Rumspielen hat.
- * Hier werden z.B. die Standard-User-Rollen (wie `ROLE_USER`, `ROLE_ADMIN`) und ein paar Test-User erstellt,
- * damit das Rechtesystem von Anfang an stabil läuft und man die App direkt testen kann. Ohne die Roles wär die App lost.
+ * Dieser Bre lädt beim Start der App direkt mal ein paar freshe Default-Daten
+ * in die Datenbank.
+ * Stellt sicher, dass die App nicht komplett leer ist und man direkt was zum
+ * Rumspielen hat.
+ * Hier werden z.B. die Standard-User-Rollen (wie `ROLE_USER`, `ROLE_ADMIN`) und
+ * ein paar Test-User erstellt,
+ * damit das Rechtesystem von Anfang an stabil läuft und man die App direkt
+ * testen kann. Ohne die Roles wär die App lost.
  */
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -123,8 +127,7 @@ public class DataLoader implements CommandLineRunner {
     }
 
     private void seedAusbilder() {
-        UUID ausbilderId = UUID.fromString("e27590d3-657d-4feb-bd4e-1ffca3d7a884");
-        if (userRepository.findById(ausbilderId).isEmpty()) {
+        if (userRepository.findByUsername("sebastianreichenbach").isEmpty()) {
             Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
                     .orElseThrow(() -> new RuntimeException("Rolle nicht gefunden: ADMIN"));
 
@@ -132,7 +135,6 @@ public class DataLoader implements CommandLineRunner {
             roles.add(adminRole);
 
             User ausbilder = new User();
-            ausbilder.setId(ausbilderId);
             ausbilder.setUsername("sebastianreichenbach");
             ausbilder.setName("Sebastian Reichenbach");
             ausbilder.setEmail("vuducle97@gmail.com");
@@ -179,6 +181,7 @@ public class DataLoader implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         seedRoles();
         seedAdminUser();
