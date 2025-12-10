@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/context/LanguageContext';
 
-export default function DeleteConfirmModal<T = unknown>(props: {
+export default function DeleteConfirmModal(props: {
   children: React.ReactNode;
   requiredConfirmation: string; // exact string user must type
   onConfirm: () => Promise<void> | void;

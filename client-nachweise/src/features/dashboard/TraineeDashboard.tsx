@@ -7,7 +7,6 @@ import { selectUser } from '@/store/slices/userSlice';
 import ProfileCard from './components/ProfileCard';
 import QuoteCard from './components/QuoteCard';
 import StatsCard from './components/StatsCard';
-import Link from 'next/dist/client/link';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Plus, Eye } from 'lucide-react';

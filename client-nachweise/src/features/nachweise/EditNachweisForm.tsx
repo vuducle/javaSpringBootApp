@@ -610,19 +610,18 @@ export function EditNachweisForm({
 
   // handleDownloadPdf is not currently used but kept for future functionality
 
-  const handleSubmitForm = async (values: PdfGenerationFormValues) => {
-
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `nachweis_${nachweisId}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-
-      showToast('PDF erfolgreich heruntergeladen', 'success');
-    } catch {
-      showToast('Fehler beim Herunterladen des PDFs', 'error');
+  const handleSubmitForm = async (
+    values: PdfGenerationFormValues
+  ) => {
+    try {
+      // Form submission logic here
+      setIsLoading(false);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showToast(error.message, 'error');
+      } else {
+        showToast(t('nachweis.errorMessage'), 'error');
+      }
     }
   };
 
