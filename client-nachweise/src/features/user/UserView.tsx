@@ -486,7 +486,9 @@ export default function UserView() {
                                 e
                               );
                               const errData = e as {
-                                response?: { data?: { message?: string } };
+                                response?: {
+                                  data?: { message?: string };
+                                };
                                 message?: string;
                               };
                               const errMsg =

@@ -56,7 +56,8 @@ export default function DeleteConfirmModal<T = unknown>(props: {
       setOpen(false);
       setInput('');
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       setError(errorMessage);
     } finally {
       setSaving(false);
