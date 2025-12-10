@@ -3,7 +3,7 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronDownIcon } from 'lucide-react';
 
-interface NativeSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {}
+type NativeSelectProps = React.SelectHTMLAttributes<HTMLSelectElement>;
 
 const NativeSelect = React.forwardRef<HTMLSelectElement, NativeSelectProps>(
     ({ className, children, ...props }, ref) => {

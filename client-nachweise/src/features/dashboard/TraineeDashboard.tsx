@@ -11,7 +11,6 @@ import Link from 'next/dist/client/link';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Plus, Eye } from 'lucide-react';
-import Image from 'next/image';
 import CatGIF from './components/CatGIF';
 import FeaturesModal from '@/components/core/FeaturesModal';
 

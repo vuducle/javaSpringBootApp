@@ -14,9 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/context/LanguageContext';
 
-export default function DeleteConfirmModal<
-  T extends { username?: string }
->(props: {
+export default function DeleteConfirmModal<T = unknown>(props: {
   children: React.ReactNode;
   requiredConfirmation: string; // exact string user must type
   onConfirm: () => Promise<void> | void;
@@ -57,8 +55,9 @@ export default function DeleteConfirmModal<
       await onConfirm();
       setOpen(false);
       setInput('');
-    } catch (e: any) {
-      setError((e && e.message) || String(e));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setError(errorMessage);
     } finally {
       setSaving(false);
     }

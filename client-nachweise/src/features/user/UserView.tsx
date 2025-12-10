@@ -485,11 +485,13 @@ export default function UserView() {
                                 'Failed to delete user',
                                 e
                               );
-                              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                              const errData = e as {
+                                response?: { data?: { message?: string } };
+                                message?: string;
+                              };
                               const errMsg =
-                                ((e as any)?.response?.data &&
-                                  (e as any).response.data.message) ||
-                                (e as any).message ||
+                                errData?.response?.data?.message ||
+                                errData?.message ||
                                 String(e);
                               showToast(
                                 errMsg ||

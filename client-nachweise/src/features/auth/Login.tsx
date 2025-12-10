@@ -23,10 +23,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Key, Lock, Mail } from 'lucide-react';
 
-function Envelope() {
-  return null;
-}
-
 export default function LoginForm() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');

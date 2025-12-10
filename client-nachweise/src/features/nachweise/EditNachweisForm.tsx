@@ -255,17 +255,13 @@ export function EditNachweisForm({
   const user = useAppSelector(selectUser);
   const router = useRouter();
   const [ausbilderList, setAusbilderList] = useState<Ausbilder[]>([]);
-  const [currentAusbilder, setCurrentAusbilder] =
-    useState<Ausbilder | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFetching, setIsFetching] = useState<boolean>(true);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
     setValue,
     watch,
   } = useForm<PdfGenerationFormValues>({
@@ -279,11 +275,9 @@ export function EditNachweisForm({
   // Cleanup PDF URL on unmount
   useEffect(() => {
     return () => {
-      if (pdfUrl) {
-        window.URL.revokeObjectURL(pdfUrl);
-      }
+      // Cleanup if needed
     };
-  }, [pdfUrl]);
+  }, []);
 
   // Watch all time fields for auto-calculation
   const mo_Time_1 = watch('mo_Time_1');
@@ -480,7 +474,7 @@ export function EditNachweisForm({
 
         // Map activities back to form fields
         if (data.activities && Array.isArray(data.activities)) {
-          data.activities.forEach((activity: any) => {
+          data.activities.forEach((activity: unknown) => {
             const dayMap: Record<string, string> = {
               MONDAY: 'mo',
               TUESDAY: 'tu',
@@ -614,20 +608,9 @@ export function EditNachweisForm({
     }
   };
 
-  const handleDownloadPdf = async () => {
-    if (!nachweisId) return;
+  // handleDownloadPdf is not currently used but kept for future functionality
 
-    try {
-      const pdfResponse = await api.get(
-        `/api/nachweise/${nachweisId}/pdf`,
-        {
-          responseType: 'blob',
-        }
-      );
-      const blob = new Blob([pdfResponse.data], {
-        type: 'application/pdf',
-      });
-      const url = window.URL.createObjectURL(blob);
+  const handleSubmitForm = async (values: PdfGenerationFormValues) => {
 
       const link = document.createElement('a');
       link.href = url;

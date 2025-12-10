@@ -38,11 +38,13 @@ export default function StatusPlaceholder({
       <div
         className={`flex flex-col items-center justify-center p-6 ${className}`}
       >
-        <img
-          src={errorImage}
-          alt="error"
-          className="w-48 max-w-full rounded-lg shadow-md object-contain"
-        />
+        <picture>
+          <img
+            src={errorImage}
+            alt="error"
+            className="w-48 max-w-full rounded-lg shadow-md object-contain"
+          />
+        </picture>
         <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-300 text-center">
           {message}
         </p>

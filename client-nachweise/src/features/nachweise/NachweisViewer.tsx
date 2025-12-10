@@ -116,18 +116,20 @@ export default function NachweisViewer({ id }: Props) {
           }
         }
       } catch (e) {
-        const errAny = e as any;
+        const errAny = e as unknown;
+        const err = errAny as {
+          name?: string;
+          code?: string;
+          message?: string;
+          response?: { status?: number; data?: unknown };
+        };
         if (
-          errAny?.name === 'CanceledError' ||
-          errAny?.code === 'ERR_CANCELED' ||
-          errAny?.message === 'canceled'
+          err?.name === 'CanceledError' ||
+          err?.code === 'ERR_CANCELED' ||
+          err?.message === 'canceled'
         ) {
           return;
         }
-        const err = e as {
-          response?: { status?: number; data?: unknown };
-          message?: string;
-        };
         const status = err?.response?.status;
         if (status === 403) {
           setError(
@@ -159,15 +161,20 @@ export default function NachweisViewer({ id }: Props) {
         setNachweisStatus(data.status ?? null);
         setNachweisComment(data.comment ?? data.remark ?? '');
       } catch (e) {
-        const errAny = e as any;
+        const errAny = e as unknown;
+        const err = errAny as {
+          name?: string;
+          code?: string;
+          message?: string;
+          response?: unknown;
+        };
         if (
-          errAny?.name === 'CanceledError' ||
-          errAny?.code === 'ERR_CANCELED' ||
-          errAny?.message === 'canceled'
+          err?.name === 'CanceledError' ||
+          err?.code === 'ERR_CANCELED' ||
+          err?.message === 'canceled'
         ) {
           return;
         }
-        const err = e as { response?: unknown };
         console.error(
           'Could not fetch nachweis details',
           err?.response || err
@@ -188,7 +195,6 @@ export default function NachweisViewer({ id }: Props) {
     // only re-run when `id` changes. `showToast` is used via ref to avoid
     // triggering excessive reloads when provider creates a new function
     // instance on each render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (loading) return <div>{t('nachweis.viewer.loading')}</div>;

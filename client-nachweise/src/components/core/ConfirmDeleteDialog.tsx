@@ -43,9 +43,10 @@ export default function ConfirmDeleteDialog(props: {
     try {
       await onConfirm();
       setOpen(false);
-    } catch (e: any) {
-      console.error(e);
-      setError((e && e.message) || String(e));
+    } catch (error) {
+      console.error(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setError(errorMessage);
       showToast(
         t('nachweis.deleteError') || t('nachweis.errorMessage'),
         'error'

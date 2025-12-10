@@ -10,12 +10,10 @@ import Cookies from 'js-cookie';
 import de from '@/locales/de.json';
 import en from '@/locales/en.json';
 
-const translations: Record<'de' | 'en', Record<string, any>> = {
+const translations: Record<'de' | 'en', Record<string, unknown>> = {
   de,
   en,
 };
-
-type Translations = Record<string, any>;
 
 const LanguageContext = createContext<{
   t: (key: string) => string;
@@ -54,10 +52,10 @@ export function LanguageProvider({
 
   const t = (key: string) => {
     const keys = key.split('.');
-    let result: any = translations[locale];
+    let result: unknown = translations[locale];
     for (const k of keys) {
       if (result && typeof result === 'object') {
-        result = result[k];
+        result = (result as Record<string, unknown>)[k];
       } else {
         result = undefined;
         break;

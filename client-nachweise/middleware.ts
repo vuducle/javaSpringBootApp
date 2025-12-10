@@ -15,7 +15,7 @@ function safeDecodeJwtPayload(token: string) {
     // atob exists in the edge runtime
     const json = atob(payload);
     return JSON.parse(json);
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 }
@@ -46,7 +46,7 @@ export async function middleware(req: NextRequest) {
       const loginUrl = new URL('/login', req.url);
       return NextResponse.redirect(loginUrl);
     }
-  } catch (e) {
+  } catch (_e) {
     // network/other error: we'll fallback to decoding the token.
   }
 

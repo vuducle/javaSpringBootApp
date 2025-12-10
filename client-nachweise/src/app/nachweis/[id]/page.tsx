@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import NachweisViewer from '@/features/nachweise/NachweisViewer';
 
 interface Props {
-  params: any;
+  params: Promise<{ id: string }>;
 }
 
 export const metadata: Metadata = {

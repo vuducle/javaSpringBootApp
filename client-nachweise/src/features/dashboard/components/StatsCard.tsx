@@ -24,11 +24,6 @@ const STATUS_META: Record<string, { color: string; emoji: string }> =
     ABGELEHNT: { color: '#fb7185', emoji: '❌' }, // rose
   };
 
-type TranslationKeys = `nachweis.status${
-  | 'Angenommen'
-  | 'InBearbeitung'
-  | 'Abgelehnt'}`;
-
 export default function StatsCard() {
   const { t } = useTranslation();
   const [data, setData] = useState<Nachweis[]>([]);
