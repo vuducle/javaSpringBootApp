@@ -22,7 +22,7 @@ public class ToDoResponse {
     @Schema(description = "Description")
     private String description;
 
-    @Schema(description = "Status of the todo", example = "NEW")
+    @Schema(description = "Status of the todo", example = "UNCHECKED")
     private ETodo status;
 
     @Schema(description = "Owner user id")

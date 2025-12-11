@@ -17,6 +17,6 @@ public class CreateToDoRequest {
     @Schema(description = "Detailed description", example = "Milk, eggs, bread")
     private String description;
 
-    @Schema(description = "Status of the todo", example = "NEW")
+    @Schema(description = "Status of the todo", example = "UNCHECKED")
     private ETodo status;
 }
