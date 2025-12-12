@@ -1,0 +1,25 @@
+<div class="form-container">
+  <mat-card>
+    <mat-card-title>Neues Konto erstellen</mat-card-title>
+    <mat-card-content>
+      <form>
+        <mat-form-field appearance="fill">
+          <mat-label>Name</mat-label>
+          <input matInput required>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>E-Mail</mat-label>
+          <input matInput placeholder="ihre@email.de" required>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Passwort</mat-label>
+          <input matInput type="password" required>
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit">Registrieren</button>
+      </form>
+    </mat-card-content>
+    <mat-card-actions>
+      <a routerLink="/login">Bereits ein Konto? Jetzt anmelden.</a>
+    </mat-card-actions>
+  </mat-card>
+</div>
