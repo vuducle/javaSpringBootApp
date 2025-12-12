@@ -9,8 +9,6 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [MatCardModule, MatButtonModule, RouterLink, MatIconModule],
   templateUrl: './landing-page.html',
-  styleUrls: ['./landing-page.scss']
+  styleUrls: ['./landing-page.scss'],
 })
-export class LandingPageComponent {
-
-}
+export class LandingPageComponent {}
