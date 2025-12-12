@@ -5,7 +5,7 @@
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="fill">
           <mat-label>E-Mail</mat-label>
-          <input matInput placeholder="ihre@email.de" formControlName="email" />
+          <input matInput placeholder="angularistbese@email.de" formControlName="email" />
           <mat-error *ngIf="form.get('email')?.hasError('required')"
             >E-Mail ist erforderlich</mat-error
           >
