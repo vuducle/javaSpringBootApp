@@ -7,7 +7,7 @@ export interface User {
   refreshToken: string;
   email: string;
   name?: string;
-  isLoggedIn: boolean;
+  istEingeloggt: boolean;
   roles: string[];
 }
 
@@ -17,7 +17,7 @@ const initialState: User = {
   refreshToken: '',
   email: '',
   name: '',
-  isLoggedIn: false,
+  istEingeloggt: false,
   roles: [],
 };
 
@@ -31,7 +31,7 @@ export const userSlice = createSlice({
       state.refreshToken = action.payload.refreshToken;
       state.name = action.payload.name ?? '';
       state.email = action.payload.email;
-      state.isLoggedIn = action.payload.isLoggedIn;
+      state.istEingeloggt = action.payload.istEingeloggt;
       state.roles = action.payload.roles;
     },
     clearUser: (state) => {
@@ -40,7 +40,7 @@ export const userSlice = createSlice({
       state.refreshToken = '';
       state.email = '';
       state.name = '';
-      state.isLoggedIn = false;
+      state.istEingeloggt = false;
     },
     updateAccessToken: (state, action: PayloadAction<string>) => {
       state.token = action.payload;

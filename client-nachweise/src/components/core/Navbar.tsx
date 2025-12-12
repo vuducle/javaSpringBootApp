@@ -24,7 +24,7 @@ import { useRouter, usePathname } from 'next/navigation';
 
 export function Navbar({ user }: { user: User }) {
   const [isOpen, setIsOpen] = useState(false);
-  const isAuthenticated = user.isLoggedIn;
+  const isAuthenticated = user.istEingeloggt;
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();

@@ -47,7 +47,7 @@ export default function LoginForm() {
           id,
           email,
           name,
-          isLoggedIn: true,
+          istEingeloggt: true,
           roles,
         })
       );

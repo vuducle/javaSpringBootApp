@@ -12,19 +12,19 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!user.isLoggedIn) {
+    if (!user.istEingeloggt) {
       router.push('/login');
     }
-  }, [user.isLoggedIn, router]);
+  }, [user.istEingeloggt, router]);
 
-  if (!user.isLoggedIn) {
+  if (!user.istEingeloggt) {
     return null;
   }
 
   const isTrainee = user.roles?.includes('ROLE_USER');
   // const isTrainer = user.roles?.includes('ROLE_ADMIN');
 
-  if (!user.isLoggedIn) {
+  if (!user.istEingeloggt) {
     return null;
   }
 

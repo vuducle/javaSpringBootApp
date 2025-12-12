@@ -4,6 +4,11 @@
     <span>zuTun-Liste</span>
   </a>
   <span class="spacer"></span>
+
+  @if (istEingeloggt) {
+  <button mat-button (click)="logout()">Abmelden</button>
+  } @else {
   <button mat-button routerLink="/login">Anmelden</button>
   <button mat-flat-button color="accent" routerLink="/register">Registrieren</button>
+  }
 </mat-toolbar>

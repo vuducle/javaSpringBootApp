@@ -551,7 +551,7 @@ export function CreateNachweisForm() {
 
     const initialize = async () => {
       const ausbilder = await fetchAusbilder();
-      if (user.isLoggedIn) {
+      if (user.istEingeloggt) {
         await fetchUserProfile(ausbilder);
         await fetchNextNummer();
       }
@@ -559,7 +559,7 @@ export function CreateNachweisForm() {
 
     initialize();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user.isLoggedIn]);
+  }, [user.istEingeloggt]);
 
   const onSubmit = async (data: PdfGenerationFormValues) => {
     console.log('Form submitted with data:', data);

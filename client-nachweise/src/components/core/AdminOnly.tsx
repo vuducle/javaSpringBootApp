@@ -17,7 +17,7 @@ export default function AdminOnly({
   const router = useRouter();
 
   useEffect(() => {
-    if (!user.isLoggedIn) {
+    if (!user.istEingeloggt) {
       // if not logged in, redirect to login
       router.replace('/login');
       return;
@@ -32,7 +32,7 @@ export default function AdminOnly({
   }, [user, router, redirectTo]);
 
   // while client-side checks run, we can avoid rendering children to prevent flicker
-  if (!user.isLoggedIn) return null;
+  if (!user.istEingeloggt) return null;
   if (
     !Array.isArray(user.roles) ||
     !user.roles.includes('ROLE_ADMIN')

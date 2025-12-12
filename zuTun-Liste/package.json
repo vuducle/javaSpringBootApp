@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "generate-env": "node scripts/generate-env.js",
+    "start": "npm run generate-env && ng serve",
+    "build": "npm run generate-env && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:zuTun-Liste": "node dist/zuTun-Liste/server/server.mjs"
@@ -34,6 +35,7 @@
     "@angular/platform-server": "^21.0.0",
     "@angular/router": "^21.0.0",
     "@angular/ssr": "^21.0.3",
+    "axios": "^1.13.2",
     "express": "^5.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
