@@ -27,6 +27,7 @@ export default function TraineeDashboard() {
             user.name ?? ''
           )}
         </h1>
+        <FeaturesModal />
       </header>
       <main className="flex grow w-full flex-col gap-4 mt-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

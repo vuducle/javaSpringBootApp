@@ -6,6 +6,7 @@ const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8088',
   withCredentials: true,
 });
+console.log('API Base URL:', api.defaults.baseURL);
 
 // Request interceptor to add auth token to headers
 api.interceptors.request.use(

@@ -9,6 +9,7 @@ import {
   GraduationCap,
   LogOut,
   Key,
+  Info,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAppDispatch } from '@/store';
@@ -54,6 +55,11 @@ export function Navbar({ user }: { user: User }) {
 
   const navLinks = [
     { href: '/', label: 'Home', icon: Home },
+    {
+      href: '/about',
+      label: 'Über die App',
+      icon: Info,
+    },
     {
       href: '/erstellen',
       label: 'Erstellen',

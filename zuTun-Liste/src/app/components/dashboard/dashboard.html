@@ -1,1 +1,11 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+  <mat-card>
+    <mat-card-title>Willkommen {{ name || 'Benutzer' }} 👋</mat-card-title>
+    <mat-card-content>
+      <p>Schön, dich hier zu sehen. Dies ist dein Dashboard.</p>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="logout()">Logout</button>
+    </mat-card-actions>
+  </mat-card>
+</div>

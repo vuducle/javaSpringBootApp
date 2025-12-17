@@ -54,13 +54,6 @@ export default function FeaturesModal() {
         t('features.admin.desc') ??
         'Administrative endpoints: list all records, delete all, manage users.',
     },
-    {
-      key: 'todos',
-      title: t('features.todos.title') ?? 'Todos',
-      desc:
-        t('features.todos.desc') ??
-        'Simple Todo API available for demo/testing purposes.',
-    },
   ];
 
   return (

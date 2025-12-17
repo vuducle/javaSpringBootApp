@@ -21,11 +21,14 @@ import { useState, FormEvent } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Key, Lock, Mail } from 'lucide-react';
+import { Key, Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function LoginForm() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -33,10 +36,11 @@ export default function LoginForm() {
 
   const handleLogin = async (e?: FormEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
+    setError('');
     try {
       const response = await api.post('/api/auth/login', {
         email,
-        password,
+        password: password.trim(), // Trim whitespace
       });
       const { accessToken, refreshToken, id, name, roles } =
         response.data;
@@ -51,17 +55,19 @@ export default function LoginForm() {
           roles,
         })
       );
+      toast.success('Erfolgreich angemeldet!');
       router.push('/');
     } catch (err) {
+      let errorMessage = t('login.error.unexpected');
       if (axios.isAxiosError(err) && err.response) {
         if (err.response.status === 423) {
-          setError(t('login.error.locked'));
+          errorMessage = t('login.error.locked');
         } else {
-          setError(t('login.error.invalid'));
+          errorMessage = t('login.error.invalid');
         }
-      } else {
-        setError(t('login.error.unexpected'));
       }
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -119,13 +125,27 @@ export default function LoginForm() {
                     <Lock />
                     {t('login.passwordLabel')}
                   </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div className="text-sm">
                   <Link
@@ -140,11 +160,21 @@ export default function LoginForm() {
                   <p className="text-destructive text-sm">{error}</p>
                 )}
               </CardContent>
-              <CardFooter>
+              <CardFooter className="flex flex-col gap-4">
                 <Button className="w-full" type="submit">
                   <Key />
                   {t('login.submitButton')}
                 </Button>
+                <div className="text-sm text-center">
+                  Noch kein Konto?{' '}
+                  <Link
+                    href="/register"
+                    className="font-medium text-primary hover:underline"
+                    passHref
+                  >
+                    Hier registrieren
+                  </Link>
+                </div>
               </CardFooter>
             </form>
           </Card>

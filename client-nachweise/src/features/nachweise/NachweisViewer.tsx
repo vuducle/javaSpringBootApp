@@ -43,8 +43,7 @@ export default function NachweisViewer({ id }: Props) {
   const { t } = useTranslation();
   const user = useAppSelector(selectUser);
   const isAusbilder =
-    Array.isArray(user.roles) &&
-    user.roles.includes('ROLE_AUSBILDER');
+    Array.isArray(user.roles) && user.roles.includes('ROLE_ADMIN');
 
   useEffect(() => {
     if (!id) return;
@@ -363,7 +362,7 @@ export default function NachweisViewer({ id }: Props) {
                   <Button
                     type="submit"
                     disabled={saving}
-                    className="bg-linear-to-r from-pink-500 to-violet-500 text-white"
+                    className="bg-linear-to-r bg-primary text-white"
                   >
                     <Save className="size-4" />
                     {saving
