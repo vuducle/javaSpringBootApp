@@ -17,6 +17,17 @@
     "welcome": "Welcome, {name}!",
     "logout": "Logout"
   },
+  "navbar": {
+    "home": "Home",
+    "about": "About App",
+    "create": "Create",
+    "createUser": "Create User",
+    "viewNachweise": "View Records",
+    "auditLogs": "Audit Logs",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login"
+  },
   "dashboard": {
     "traineeWelcome": "Welcome to the Trainee Dashboard, {name}!",
     "trainerWelcome": "Welcome to the Trainer Dashboard, {name}!",
