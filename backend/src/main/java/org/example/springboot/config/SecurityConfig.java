@@ -64,7 +64,8 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/uploads/profile-images/**"
+            "/uploads/profile-images/**",
+            "/actuator/health/**" // Health checks für Docker
     };
 
     private final JwtAuthEntryPoint unauthorizedHandler;
