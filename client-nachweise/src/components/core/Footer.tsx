@@ -17,7 +17,7 @@ export function Footer() {
     <footer className="w-full bg-card p-4 text-center text-muted-foreground shadow-lg dark:bg-card">
       <div className="container mx-auto flex flex-col items-center justify-between gap-2 sm:flex-row">
         <div className="mx-automt-2 text-sm">
-          <p>&copy; {currentYear} - NachweiseWelt - V.1.0.1</p>
+          <p>&copy; {currentYear} - NachweiseWelt - V.1.1.1</p>
         </div>
         <div className="mt-2 text-sm">
           <p>{t('footer.codedWithLove')}</p>
