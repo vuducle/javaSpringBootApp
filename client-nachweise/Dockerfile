@@ -31,5 +31,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-ENTRYPOINE ["dumb-init", "--"]
+ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "server.js"]
