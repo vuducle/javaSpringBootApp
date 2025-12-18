@@ -41,7 +41,11 @@ interface Benutzer {
   profileImageUrl?: string | null;
   ausbildungsjahr?: number;
   telefonnummer?: string;
-  team?: string;
+  trainer?: {
+    id: string;
+    name: string;
+    email: string;
+  };
   roles?: string[];
 }
 
