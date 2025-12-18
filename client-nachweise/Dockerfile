@@ -15,8 +15,9 @@ RUN if [ -f yarn.lock ]; then yarn install --frozen-lockfile; \
 COPY . .
 
 # Build the application
+# ARG will be passed from docker-compose or build command
 ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api-nachweise.le-vu-duc.com:8088}
 
 RUN npm run build || yarn build
 
