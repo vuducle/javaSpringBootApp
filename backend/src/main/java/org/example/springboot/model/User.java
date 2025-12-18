@@ -49,6 +49,9 @@ public class User implements UserDetails {
     @Column(name = "account_gesperrt_bis")
     private java.time.LocalDateTime accountGesperrtBis;
 
+    @Column(name = "is_email_verified", columnDefinition = "boolean default false")
+    private boolean isEmailVerified = false;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();

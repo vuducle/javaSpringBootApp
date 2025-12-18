@@ -11,6 +11,8 @@ import org.example.springboot.repository.RoleRepository;
 import org.example.springboot.model.Role;
 import org.example.springboot.model.enums.ERole;
 import org.example.springboot.service.nachweis.NachweisService;
+import org.example.springboot.service.nachweis.EmailService;
+import org.example.springboot.model.EmailVerificationToken;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.UUID;
 import javax.imageio.IIOImage;
@@ -83,6 +86,8 @@ public class UserService implements UserDetailsService {
     private final RoleRepository roleRepository;
     private final RoleAuditService roleAuditService;
     private final NachweisService nachweisService;
+    private final EmailService emailService;
+    private final EmailVerificationTokenService verificationTokenService;
     private static final String UPLOAD_DIR = "uploads/profile-images/";
     @Value("${image.max-width:1024}")
     private int maxWidth;
@@ -93,13 +98,19 @@ public class UserService implements UserDetailsService {
     @Value("${image.quality:0.75}")
     private float imageQuality;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository,
-            RoleAuditService roleAuditService, @Lazy NachweisService nachweisService) {
+            RoleAuditService roleAuditService, @Lazy NachweisService nachweisService,
+            EmailService emailService, EmailVerificationTokenService verificationTokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.roleAuditService = roleAuditService;
         this.nachweisService = nachweisService;
+        this.emailService = emailService;
+        this.verificationTokenService = verificationTokenService;
         // Erstelle das Upload-Verzeichnis, falls es nicht existiert
         try {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
@@ -576,5 +587,50 @@ public class UserService implements UserDetailsService {
         log.info("Profilbild-URL entfernt für User: {}", username);
 
         return savedUser;
+    }
+
+    /**
+     * Sendet eine Verifizierungs-E-Mail an den User
+     */
+    @Transactional
+    public void sendVerificationEmail(User user) {
+        EmailVerificationToken token = verificationTokenService.createVerificationToken(user);
+        String verificationLink = frontendUrl + "/verify-email?token=" + token.getToken();
+        emailService.sendEmailVerification(user.getEmail(), user.getName(), verificationLink);
+        log.info("Verification email sent to user: {}", user.getEmail());
+    }
+
+    /**
+     * Verifiziert die E-Mail-Adresse eines Users
+     */
+    @Transactional
+    public void verifyEmail(String token) {
+        Optional<User> userOptional = verificationTokenService.validateToken(token);
+
+        if (userOptional.isEmpty()) {
+            throw new IllegalArgumentException("Ungültiger oder abgelaufener Verifizierungs-Token");
+        }
+
+        User user = userOptional.get();
+        user.setEmailVerified(true);
+        userRepository.save(user);
+
+        verificationTokenService.markTokenAsUsed(token);
+        log.info("Email verified for user: {}", user.getEmail());
+    }
+
+    /**
+     * Sendet erneut eine Verifizierungs-E-Mail
+     */
+    @Transactional
+    public void resendVerificationEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User nicht gefunden"));
+
+        if (user.isEmailVerified()) {
+            throw new IllegalArgumentException("E-Mail-Adresse ist bereits verifiziert");
+        }
+
+        sendVerificationEmail(user);
     }
 }
