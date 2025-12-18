@@ -34,6 +34,15 @@ export default function LoginForm() {
   const router = useRouter();
   const { t } = useTranslation();
 
+  const handleResendVerification = async () => {
+    try {
+      await api.post('/api/auth/resend-verification', { email });
+      toast.success(t('verification.successVerificationEmailSent'));
+    } catch (err) {
+      toast.error(t('verification.error.unexpected'));
+    }
+  };
+
   const handleLogin = async (e?: FormEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
     setError('');
@@ -60,7 +69,24 @@ export default function LoginForm() {
     } catch (err) {
       let errorMessage = t('login.error.unexpected');
       if (axios.isAxiosError(err) && err.response) {
-        if (err.response.status === 423) {
+        if (err.response.status === 403) {
+          errorMessage = t('login.error.unverified');
+          // Show a resend verification button
+          toast.error(
+            <div>
+              <p>{errorMessage}</p>
+              <button
+                onClick={handleResendVerification}
+                className="mt-2 underline text-sm"
+              >
+                {t('login.resendVerification')}
+              </button>
+            </div>,
+            { autoClose: false }
+          );
+          setError(errorMessage);
+          return;
+        } else if (err.response.status === 423) {
           errorMessage = t('login.error.locked');
         } else {
           errorMessage = t('login.error.invalid');

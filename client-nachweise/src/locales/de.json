@@ -9,13 +9,40 @@
     "error": {
       "invalid": "Ungültige E-Mail oder Passwort.",
       "locked": "Dein Konto ist vorübergehend gesperrt aufgrund zu vieler fehlgeschlagener Anmeldeversuche. Bitte warte 15 Minuten.",
-      "unexpected": "Ein unerwarteter Fehler ist aufgetreten."
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
+      "unverified": "Bitte verifiziere deine E-Mail-Adresse, bevor du dich anmeldest. Überprüfe deinen Posteingang für die Verifizierungs-E-Mail."
     },
-    "forgotPassword": "Passwort vergessen?"
+    "forgotPassword": "Passwort vergessen?",
+    "resendVerification": "Verifizierungs-E-Mail erneut senden"
+  },
+  "verification": {
+    "title": "E-Mail-Verifizierung",
+    "description": "Deine E-Mail-Adresse wird verifiziert...",
+    "loading": "Bitte warte, während wir deine E-Mail-Adresse verifizieren...",
+    "success": "Deine E-Mail wurde erfolgreich verifiziert! Du kannst dich jetzt anmelden.",
+    "successVerificationEmailSent": "Eine neue Verifizierungs-E-Mail wurde an deine Adresse gesendet.",
+    "redirecting": "Weiterleitung zur Anmeldeseite...",
+    "error": {
+      "noToken": "Kein Verifizierungs-Token angegeben.",
+      "invalidToken": "Ungültiger oder abgelaufener Verifizierungs-Token. Bitte fordere eine neue Verifizierungs-E-Mail an.",
+      "unexpected": "Ein Fehler ist bei der Verifizierung aufgetreten. Bitte versuche es erneut."
+    },
+    "backToLogin": "Zurück zur Anmeldung"
   },
   "home": {
     "welcome": "Willkommen, {name}!",
     "logout": "Abmelden"
+  },
+  "navbar": {
+    "home": "Home",
+    "about": "Über die App",
+    "create": "Erstellen",
+    "createUser": "User Erstellen",
+    "viewNachweise": "Nachweise anschauen",
+    "auditLogs": "Audit-Logs",
+    "profile": "Profil",
+    "logout": "Logout",
+    "login": "Login"
   },
   "dashboard": {
     "traineeWelcome": "Willkommen im Azubi-Dashboard, {name}!",

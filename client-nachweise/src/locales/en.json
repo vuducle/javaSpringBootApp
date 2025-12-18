@@ -9,13 +9,40 @@
     "error": {
       "invalid": "Invalid email or password.",
       "locked": "Your account is temporarily locked due to too many failed login attempts. Please wait 15 minutes.",
-      "unexpected": "An unexpected error occurred."
+      "unexpected": "An unexpected error occurred.",
+      "unverified": "Please verify your email address before logging in. Check your inbox for the verification email."
     },
-    "forgotPassword": "Forgot Password?"
+    "forgotPassword": "Forgot Password?",
+    "resendVerification": "Resend verification email"
+  },
+  "verification": {
+    "title": "Email Verification",
+    "description": "Verifying your email address...",
+    "loading": "Please wait while we verify your email address...",
+    "success": "Your email has been successfully verified! You can now log in.",
+    "successVerificationEmailSent": "A new verification email has been sent to your email address. Please check your inbox.",
+    "redirecting": "Redirecting to login page...",
+    "error": {
+      "noToken": "No verification token provided.",
+      "invalidToken": "Invalid or expired verification token. Please request a new verification email.",
+      "unexpected": "An error occurred during verification. Please try again."
+    },
+    "backToLogin": "Back to Login"
   },
   "home": {
     "welcome": "Welcome, {name}!",
     "logout": "Logout"
+  },
+  "navbar": {
+    "home": "Home",
+    "about": "About App",
+    "create": "Create",
+    "createUser": "Create User",
+    "viewNachweise": "View Records",
+    "auditLogs": "Audit Logs",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login"
   },
   "dashboard": {
     "traineeWelcome": "Welcome to the Trainee Dashboard, {name}!",

@@ -30,10 +30,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Optional;
@@ -113,7 +110,7 @@ public class AuthController {
      * Dieser Entpunkt ist zuständig für die Registrierung
      */
     @PostMapping("/register")
-    @Operation(summary = "Registriert einen neuen Benutzer", description = "Speichert den Benutzer mit einem zufällig generierten Passwort und sendet die Zugangsdaten per E-Mail.")
+    @Operation(summary = "Registriert einen neuen Benutzer", description = "Speichert den Benutzer und sendet eine E-Mail zur Verifizierung der E-Mail-Adresse.")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             return new ResponseEntity<>("Benutzername ist bereits vergeben!", HttpStatus.BAD_REQUEST);
@@ -121,8 +118,6 @@ public class AuthController {
         if (userRepository.existsByEmail(request.getEmail())) {
             return new ResponseEntity<>("E-Mail wird bereits verwendet!", HttpStatus.BAD_REQUEST);
         }
-
-        String temporaryPassword = generateRandomPassword();
 
         User user = new User();
         user.setUsername(request.getUsername());
@@ -132,17 +127,27 @@ public class AuthController {
         user.setTelefonnummer(request.getTelefonnummer());
         user.setTeam(request.getTeam());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEmailVerified(false); // User muss E-Mail bestätigen
 
         Role userRole = roleRepository.findByName(ERole.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Fehler: Rolle nicht gefunden."));
         user.getRoles().add(userRole);
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        emailService.sendWelcomeEmailWithCredentials(user.getEmail(), user.getName(), user.getEmail(), request.getPassword());
+        // Erstelle Verifizierungs-Token und sende E-Mail
+        try {
+            userService.sendVerificationEmail(savedUser);
+            log.info("Verification email sent to user: {}", savedUser.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to send verification email to: {}", savedUser.getEmail(), e);
+            // User wurde bereits gespeichert, daher geben wir trotzdem Erfolg zurück
+        }
 
-        return new ResponseEntity<>("Benutzer erfolgreich registriert! Überprüfen Sie Ihre E-Mails für die Zugangsdaten.", HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                "Benutzer erfolgreich registriert! Bitte überprüfe deine E-Mails und bestätige deine E-Mail-Adresse, um dich anmelden zu können.",
+                HttpStatus.CREATED);
     }
-    
+
     private String generateRandomPassword() {
         final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
         SecureRandom random = new SecureRandom();
@@ -173,6 +178,14 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
             User userDetails = (User) authentication.getPrincipal();
+
+            // Prüfe, ob E-Mail verifiziert ist
+            if (!userDetails.isEmailVerified()) {
+                log.warn("Login attempt with unverified email: {}", userDetails.getEmail());
+                return new ResponseEntity<>(
+                        "Bitte verifiziere zuerst deine E-Mail-Adresse. Überprüfe deinen Posteingang für den Verifizierungslink.",
+                        HttpStatus.FORBIDDEN);
+            }
 
             String token = jwtUtil.generateToken(userDetails);
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails);
@@ -309,5 +322,44 @@ public class AuthController {
                     return ResponseEntity.ok("Passwort wurde erfolgreich zurückgesetzt.");
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid token"));
+    }
+
+    /**
+     * Verifiziert die E-Mail-Adresse eines Users mit dem Token
+     */
+    @PostMapping("/verify-email")
+    @Operation(summary = "E-Mail verifizieren", description = "Verifiziert die E-Mail-Adresse eines Users mit dem Verifizierungs-Token.")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+        try {
+            userService.verifyEmail(token);
+            log.info("Email verification successful for token: {}", token);
+            return ResponseEntity.ok("E-Mail-Adresse wurde erfolgreich verifiziert. Du kannst dich jetzt anmelden.");
+        } catch (IllegalArgumentException e) {
+            log.error("Email verification failed: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Sendet erneut eine Verifizierungs-E-Mail
+     */
+    @PostMapping("/resend-verification")
+    @Operation(summary = "Verifizierungs-E-Mail erneut senden", description = "Sendet erneut eine E-Mail mit einem Verifizierungslink.")
+    public ResponseEntity<?> resendVerificationEmail(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.badRequest().body("E-Mail-Adresse ist erforderlich.");
+        }
+
+        try {
+            userService.resendVerificationEmail(email);
+            log.info("Verification email resent to: {}", email);
+            return ResponseEntity
+                    .ok("Verifizierungs-E-Mail wurde erneut gesendet. Bitte überprüfe deinen Posteingang.");
+        } catch (IllegalArgumentException e) {
+            log.error("Failed to resend verification email: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
