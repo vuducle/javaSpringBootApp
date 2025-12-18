@@ -16,6 +16,7 @@ import { useAppDispatch } from '@/store';
 import { clearUser, User } from '@/store/slices/userSlice';
 import api from '@/lib/api';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from '@/context/LanguageContext';
 import { Button } from '../ui/button';
 import { ThemeToggleButton } from './ThemeToggleButton';
 import { Logo } from '../ui/Logo';
@@ -29,6 +30,7 @@ export function Navbar({ user }: { user: User }) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   const { showToast } = useToast();
 
@@ -54,36 +56,36 @@ export function Navbar({ user }: { user: User }) {
   };
 
   const navLinks = [
-    { href: '/', label: 'Home', icon: Home },
+    { href: '/', label: 'navbar.home', icon: Home },
     {
       href: '/about',
-      label: 'Über die App',
+      label: 'navbar.about',
       icon: Info,
     },
     {
       href: '/erstellen',
-      label: 'Erstellen',
+      label: 'navbar.create',
       icon: Plus,
       userOnly: true,
     },
     {
       href: '/user-erstellen',
-      label: 'User Erstellen',
+      label: 'navbar.createUser',
       icon: Plus,
       adminOnly: true,
     },
     {
       href: '/nachweise-anschauen',
-      label: 'Nachweise anschauen',
+      label: 'navbar.viewNachweise',
       icon: Book,
     },
     {
       href: '/audit-logs',
-      label: 'Audit-Logs',
+      label: 'navbar.auditLogs',
       icon: Briefcase,
       adminOnly: true,
     },
-    { href: '/profil', label: 'Profil', icon: UserIcon },
+    { href: '/profil', label: 'navbar.profile', icon: UserIcon },
   ];
 
   const isAdmin =
@@ -124,7 +126,7 @@ export function Navbar({ user }: { user: User }) {
                     } px-3 py-2 rounded-md text-sm font-medium flex items-center`}
                   >
                     <link.icon className="mr-2 h-5 w-5" />
-                    {link.label}
+                    {t(link.label)}
                   </Link>
                 );
               })}
@@ -137,7 +139,7 @@ export function Navbar({ user }: { user: User }) {
               <ThemeToggleButton />
               <Button onClick={handleLogout}>
                 <LogOut />
-                Logout
+                {t('navbar.logout')}
               </Button>
             </div>
           </div>
@@ -177,7 +179,7 @@ export function Navbar({ user }: { user: User }) {
                   } px-3 py-2 rounded-md text-base font-medium flex items-center`}
                 >
                   <link.icon className="mr-2 h-5 w-5" />
-                  {link.label}
+                  {t(link.label)}
                 </Link>
               );
             })}
@@ -190,13 +192,13 @@ export function Navbar({ user }: { user: User }) {
               {isAuthenticated ? (
                 <Button onClick={handleLogout} className="w-full">
                   <LogOut />
-                  Logout
+                  {t('navbar.logout')}
                 </Button>
               ) : (
                 <Button asChild className="w-full">
                   <Link href="/login">
                     <Key />
-                    Login
+                    {t('navbar.login')}
                   </Link>
                 </Button>
               )}

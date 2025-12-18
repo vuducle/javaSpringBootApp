@@ -17,6 +17,17 @@
     "welcome": "Willkommen, {name}!",
     "logout": "Abmelden"
   },
+  "navbar": {
+    "home": "Home",
+    "about": "Über die App",
+    "create": "Erstellen",
+    "createUser": "User Erstellen",
+    "viewNachweise": "Nachweise anschauen",
+    "auditLogs": "Audit-Logs",
+    "profile": "Profil",
+    "logout": "Logout",
+    "login": "Login"
+  },
   "dashboard": {
     "traineeWelcome": "Willkommen im Azubi-Dashboard, {name}!",
     "trainerWelcome": "Willkommen im Ausbilder-Dashboard, {name}!",

@@ -118,7 +118,7 @@ export default function TrainerStatsCard() {
   return (
     <div className="bg-white dark:bg-zinc-800 shadow-lg rounded-lg p-6">
       <h2 className="text-2xl font-bold mb-4">
-        {t('nachweis.listTitle')} ({totalElements})
+        {t('nachweis.listTitle')}
       </h2>
       <div style={{ width: '100%', height: 300 }}>
         <ResponsiveContainer>
