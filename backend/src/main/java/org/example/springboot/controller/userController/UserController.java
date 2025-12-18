@@ -179,7 +179,7 @@ public class UserController {
     @Operation(summary = "User-Profil aktualisieren", description = "Aktualisiert das Profil des aktuell angemeldeten Users")
     @PutMapping("/profile")
     public ResponseEntity<UserResponse> updateUserProfile(
-            @RequestBody UserUpdateRequest request,
+            @Valid @RequestBody UserUpdateRequest request,
             Authentication authentication) {
         String username = authentication.getName();
         User updatedUser = userService.updateUserProfile(username, request);
@@ -375,7 +375,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Aktualisiert das Profil eines Benutzers", description = "Aktualisiert die Profilinformationen eines bestimmten Benutzers. Nur für Administratoren zugänglich.")
     public ResponseEntity<UserResponse> updateUserProfileByAdmin(@PathVariable String username,
-            @RequestBody UserUpdateRequest request) {
+            @Valid @RequestBody UserUpdateRequest request) {
         User updatedUser = userService.updateUserProfileByAdmin(username, request);
         return ResponseEntity.ok(new UserResponse(updatedUser));
     }

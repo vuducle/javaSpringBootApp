@@ -45,7 +45,10 @@ services:
 
   # Java Backend (Spring Boot)
   backend:
-    image: ghcr.io/${GITHUB_ACTOR:-vuducle}/nachweise-backend:latest
+    # image: ghcr.io/${GITHUB_ACTOR:-vuducle}/nachweise-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     pull_policy: always
     restart: unless-stopped
     container_name: backend-nachweise
@@ -122,7 +125,7 @@ services:
 
   # Next.js Frontend
   frontend:
-    image: ghcr.io/${GITHUB_ACTOR:-vuducle}/nachweise-frontend:latest
+    # image: ghcr.io/${GITHUB_ACTOR:-vuducle}/nachweise-frontend:latest
     build:
       context: ./client-nachweise
       dockerfile: Dockerfile
@@ -158,71 +161,71 @@ services:
       start_period: 40s
 
   # Caddy Reverse Proxy (Production Setup)
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    container_name: nachweise-caddy
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - frontend
-      - backend
-    networks:
-      - nachweise-network
-    environment:
-      CADDY_AGREE: "true"
+  # caddy:
+  #   image: caddy:2-alpine
+  #   restart: unless-stopped
+  #   container_name: nachweise-caddy
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./Caddyfile/Caddyfile:/etc/caddy/Caddyfile:ro
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+  #   depends_on:
+  #     - frontend
+  #     - backend
+  #   networks:
+  #     - nachweise-network
+  #   environment:
+  #     CADDY_AGREE: "true"
 
   # Portainer - Docker Management UI
-  portainer:
-    image: portainer/portainer-ce:latest
-    restart: unless-stopped
-    container_name: nachweise-portainer
-    ports:
-      - "9000:9000"
-      - "8000:8000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
-    networks:
-      - nachweise-network
-    environment:
-      # Configure Portainer for reverse proxy (SubPath)
-      SCRIPT_NAME: ${PORTAINER_SCRIPT_NAME:-/portainer}
-      # Optional: Set admin password
-      # PORTAINER_ADMIN_PASSWORD: ${PORTAINER_ADMIN_PASSWORD:-}
-      TZ: UTC
-    command:
-      - "--base-url=/portainer"
-      - "--log-level=info"
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--quiet",
-          "--tries=1",
-          "--spider",
-          "http://localhost:9000/portainer",
-        ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 60s
+  # portainer:
+  #   image: portainer/portainer-ce:latest
+  #   restart: unless-stopped
+  #   container_name: nachweise-portainer
+  #   ports:
+  #     - "9000:9000"
+  #     - "8000:8000"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - portainer_data:/data
+  #   networks:
+  #     - nachweise-network
+  #   environment:
+  #     # Configure Portainer for reverse proxy (SubPath)
+  #     SCRIPT_NAME: ${PORTAINER_SCRIPT_NAME:-/portainer}
+  #     # Optional: Set admin password
+  #     # PORTAINER_ADMIN_PASSWORD: ${PORTAINER_ADMIN_PASSWORD:-}
+  #     TZ: UTC
+  #   command:
+  #     - "--base-url=/portainer"
+  #     - "--log-level=info"
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD",
+  #         "wget",
+  #         "--quiet",
+  #         "--tries=1",
+  #         "--spider",
+  #         "http://localhost:9000/portainer",
+  #       ]
+  #     interval: 30s
+  #     timeout: 5s
+  #     retries: 3
+  #     start_period: 60s
 
 volumes:
   nachweise_postgres_data:
     driver: local
-  caddy_data:
-    driver: local
-  caddy_config:
-    driver: local
-  portainer_data:
-    driver: local
+  # caddy_data:
+  #   driver: local
+  # caddy_config:
+  #   driver: local
+  # portainer_data:
+  #   driver: local
 
 networks:
   nachweise-network:
