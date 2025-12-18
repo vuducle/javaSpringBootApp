@@ -6,6 +6,9 @@
     "emailPlaceholder": "momohirai@example.com",
     "passwordLabel": "Passwort",
     "submitButton": "Anmelden",
+    "loading": "Anmeldung läuft...",
+    "noAccount": "Noch kein Konto?",
+    "registerLinkText": "Hier registrieren",
     "error": {
       "invalid": "Ungültige E-Mail oder Passwort.",
       "locked": "Dein Konto ist vorübergehend gesperrt aufgrund zu vieler fehlgeschlagener Anmeldeversuche. Bitte warte 15 Minuten.",
@@ -421,6 +424,32 @@
   "roles": {
     "admin": "🧑‍🏫 Ausbilder/in",
     "user": "🧑‍🎓 Azubi"
+  },
+  "register": {
+    "title": "Konto erstellen",
+    "description": "Registriere dich um die Nachweisverwaltung zu nutzen",
+    "heading": "Registrierung",
+    "subheading": "Gib deine Daten ein um einen Account zu erstellen",
+    "usernameLabel": "Benutzername",
+    "usernamePlaceholder": "z.B. deniskunz",
+    "nameLabel": "Vollständiger Name",
+    "namePlaceholder": "z.B. Denis Kunz",
+    "emailLabel": "E-Mail",
+    "emailPlaceholder": "z.B. deniskunz@example.com",
+    "passwordLabel": "Passwort",
+    "passwordPlaceholder": "Mindestens 8 Zeichen",
+    "ausbildungsjahr": "Ausbildungsjahr",
+    "ausbildungsjahrPlaceholder": "z.B. 1",
+    "submitButton": "Registrieren",
+    "loading": "Wird registriert...",
+    "haveAccount": "Hast du bereits ein Konto?",
+    "loginLinkText": "Hier anmelden",
+    "error": {
+      "fillAllFields": "Bitte alle Felder ausfüllen.",
+      "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
+      "failed": "Registrierung fehlgeschlagen."
+    },
+    "success": "Registrierung erfolgreich! Redirect zur Login-Seite..."
   },
   "features": {
     "title": "App-Funktionen",

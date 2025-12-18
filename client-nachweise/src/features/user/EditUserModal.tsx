@@ -98,7 +98,7 @@ export default function EditUserModal({
     email: user.email ?? '',
     ausbildungsjahr: user.ausbildungsjahr ?? 1,
     telefonnummer: user.telefonnummer ?? '',
-    team: user.team ?? '',
+    trainerId: user.trainer?.id ?? '',
     role: (user.roles && user.roles[0]) ?? 'ROLE_USER',
   });
   // update form when user prop changes (or when opening a different user)
@@ -108,7 +108,7 @@ export default function EditUserModal({
       email: user.email ?? '',
       ausbildungsjahr: user.ausbildungsjahr ?? 1,
       telefonnummer: user.telefonnummer ?? '',
-      team: user.team ?? '',
+      trainerId: user.trainer?.id ?? '',
       role: (user.roles && user.roles[0]) ?? 'ROLE_USER',
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -342,9 +342,9 @@ export default function EditUserModal({
             {t('userPage.teamLabel') ?? 'Team'}
           </label>
           <Select
-            value={form.team}
+            value={form.trainerId}
             onValueChange={(val: string) =>
-              setForm({ ...form, team: val })
+              setForm({ ...form, trainerId: val })
             }
           >
             <SelectTrigger>

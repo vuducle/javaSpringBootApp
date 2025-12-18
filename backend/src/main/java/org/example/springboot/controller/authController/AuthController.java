@@ -125,7 +125,6 @@ public class AuthController {
         user.setEmail(request.getEmail());
         user.setAusbildungsjahr(request.getAusbildungsjahr());
         user.setTelefonnummer(request.getTelefonnummer());
-        user.setTeam(request.getTeam());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEmailVerified(false); // User muss E-Mail bestätigen
 

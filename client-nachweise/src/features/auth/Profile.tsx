@@ -56,7 +56,7 @@ const profileSchema = z
     email: z.string().email('Invalid email address'),
     ausbildungsjahr: z.string().min(1, 'Ausbildungsjahr is required'),
     telefonnummer: z.string().optional(),
-    team: z.string().optional(),
+    trainerId: z.string().optional(),
     profileImageUrl: z.string().optional(),
     username: z.string().optional(),
     oldPassword: z.string().optional(),
@@ -164,7 +164,7 @@ export function Profile() {
     resolver: zodResolver(profileSchema),
   });
 
-  const selectedTeam = watch('team');
+  const selectedTrainerId = watch('trainerId');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -173,6 +173,7 @@ export function Profile() {
         const userData = {
           ...response.data,
           ausbildungsjahr: response.data.ausbildungsjahr?.toString(),
+          trainerId: response.data.trainer?.id || '',
         };
         setUser(userData);
         reset(userData);
@@ -207,7 +208,7 @@ export function Profile() {
         username,
         ausbildungsjahr,
         telefonnummer,
-        team,
+        trainerId,
       } = data;
       let hasChanges = false;
 
@@ -237,7 +238,7 @@ export function Profile() {
         username,
         ausbildungsjahr,
         telefonnummer,
-        team,
+        trainerId,
       };
 
       // Check if profile fields have changed
@@ -247,7 +248,7 @@ export function Profile() {
         username !== user?.username ||
         ausbildungsjahr !== user?.ausbildungsjahr ||
         telefonnummer !== user?.telefonnummer ||
-        team !== user?.team;
+        trainerId !== (user?.trainer?.id || '');
 
       if (profileChanged) {
         const response = await api.put(
@@ -257,6 +258,7 @@ export function Profile() {
         const updatedUserData = {
           ...response.data,
           ausbildungsjahr: response.data.ausbildungsjahr?.toString(),
+          trainerId: response.data.trainer?.id || '',
         };
         setUser(updatedUserData);
         reset(updatedUserData);
@@ -353,7 +355,7 @@ export function Profile() {
   }
 
   const selectedTrainer = trainers.find(
-    (trainer) => trainer.name === selectedTeam
+    (trainer) => trainer.id === selectedTrainerId
   );
 
   return (
@@ -536,7 +538,9 @@ export function Profile() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="team">{t('profile.trainer')}</Label>
+              <Label htmlFor="trainerId">
+                {t('profile.trainer')}
+              </Label>
               <div className="relative">
                 <Users
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4"
@@ -544,9 +548,11 @@ export function Profile() {
                 />
                 <Select
                   onValueChange={(value) =>
-                    setValue('team', value, { shouldDirty: true })
+                    setValue('trainerId', value, {
+                      shouldDirty: true,
+                    })
                   }
-                  value={selectedTeam}
+                  value={selectedTrainerId || ''}
                 >
                   <SelectTrigger className="bg-white/5 border-white/20 focus:ring-white/50 h-auto pl-10">
                     {selectedTrainer ? (
@@ -558,11 +564,11 @@ export function Profile() {
                     )}
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="-">
+                      {t('profile.selectTrainer')}
+                    </SelectItem>
                     {trainers.map((trainer) => (
-                      <SelectItem
-                        key={trainer.id}
-                        value={trainer.name}
-                      >
+                      <SelectItem key={trainer.id} value={trainer.id}>
                         <TrainerSelectItem trainer={trainer} />
                       </SelectItem>
                     ))}

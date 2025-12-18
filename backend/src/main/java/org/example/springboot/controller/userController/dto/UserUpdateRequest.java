@@ -3,6 +3,7 @@ package org.example.springboot.controller.userController.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import java.util.UUID;
 
 @Data
 public class UserUpdateRequest {
@@ -17,5 +18,5 @@ public class UserUpdateRequest {
 
     private Integer ausbildungsjahr;
     private String telefonnummer;
-    private String team;
+    private UUID trainerId;
 }

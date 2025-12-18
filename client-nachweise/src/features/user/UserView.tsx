@@ -59,7 +59,11 @@ interface Benutzer {
   profileImageUrl: string;
   ausbildungsjahr: number;
   telefonnummer: string;
-  team: string;
+  trainer?: {
+    id: string;
+    name: string;
+    email: string;
+  };
   roles: string[];
 }
 
@@ -438,9 +442,7 @@ export default function UserView() {
                   </TableCell>
                   <TableCell>
                     <span className="text-sm">
-                      {java.team && trainersMap[java.team]
-                        ? trainersMap[java.team]
-                        : '-'}
+                      {java.trainer?.name || '-'}
                     </span>
                   </TableCell>
                   <TableCell>

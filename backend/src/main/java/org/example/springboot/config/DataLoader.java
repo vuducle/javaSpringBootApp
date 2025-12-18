@@ -127,7 +127,8 @@ public class DataLoader implements CommandLineRunner {
     }
 
     private void seedAusbilder() {
-        if (userRepository.findByUsername("sebastianreichenbach").isEmpty()) {
+        if (userRepository.findByUsername("sebastianreichenbach").isEmpty() &&
+                userRepository.findByEmail("vuducle97@gmail.com").isEmpty()) {
             Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
                     .orElseThrow(() -> new RuntimeException("Rolle nicht gefunden: ADMIN"));
 

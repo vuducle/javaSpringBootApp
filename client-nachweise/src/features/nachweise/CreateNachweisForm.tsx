@@ -1215,9 +1215,8 @@ export function CreateNachweisForm() {
 
                 <div className="space-y-2">
                   <p className="text-red-500">
-                    Die drei Sachen unten mit Bermerkung/Remark
-                    funktionieren nicht! Aber die Generierung
-                    funktioniert.
+                    Bermerkung/Remark funktioniert nicht! Aber die
+                    Generierung funktioniert.
                   </p>
                   <Label htmlFor="datumAzubi">
                     {t('nachweis.dateAzubi')}

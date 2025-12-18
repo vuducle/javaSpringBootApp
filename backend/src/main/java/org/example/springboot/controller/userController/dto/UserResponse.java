@@ -20,8 +20,17 @@ public class UserResponse {
     private String profileImageUrl;
     private Integer ausbildungsjahr;
     private String telefonnummer;
-    private String team;
+    private TrainerDTO trainer;
     private List<String> roles;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class TrainerDTO {
+        private UUID id;
+        private String name;
+        private String email;
+    }
 
     public UserResponse(User user) {
         this.id = user.getId();
@@ -31,7 +40,12 @@ public class UserResponse {
         this.profileImageUrl = user.getProfileImageUrl();
         this.ausbildungsjahr = user.getAusbildungsjahr();
         this.telefonnummer = user.getTelefonnummer();
-        this.team = user.getTeam();
+        if (user.getTrainer() != null) {
+            this.trainer = new TrainerDTO(
+                    user.getTrainer().getId(),
+                    user.getTrainer().getName(),
+                    user.getTrainer().getEmail());
+        }
         this.roles = user.getRoles().stream()
                 .map(role -> role.getName().name())
                 .collect(Collectors.toList());

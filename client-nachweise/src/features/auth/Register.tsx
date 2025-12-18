@@ -36,7 +36,6 @@ export default function RegisterForm() {
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
   const { t } = useTranslation();
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -59,7 +58,7 @@ export default function RegisterForm() {
         !formData.email ||
         !formData.ausbildungsjahr
       ) {
-        const msg = 'Bitte alle Felder ausfüllen.';
+        const msg = t('register.error.fillAllFields');
         setError(msg);
         toast.error(msg);
         setLoading(false);
@@ -74,16 +73,13 @@ export default function RegisterForm() {
         ausbildungsjahr: parseInt(formData.ausbildungsjahr),
       });
 
-      toast.success(
-        'Registrierung erfolgreich! Redirect zur Login-Seite...'
-      );
+      toast.success(t('register.success'));
       router.push('/login');
     } catch (err) {
-      let errorMsg = 'Ein unerwarteter Fehler ist aufgetreten.';
+      let errorMsg = t('register.error.unexpected');
       if (axios.isAxiosError(err) && err.response) {
         errorMsg =
-          err.response.data?.message ||
-          'Registrierung fehlgeschlagen.';
+          err.response.data?.message || t('register.error.failed');
       }
       setError(errorMsg);
       toast.error(errorMsg);
@@ -109,32 +105,34 @@ export default function RegisterForm() {
             height={50}
           />
           <h1 className="text-3xl md:text-4xl font-bold mt-4 text-foreground text-center">
-            Konto erstellen
+            {t('register.title')}
           </h1>
           <p className="text-lg mt-2 text-muted-foreground text-center">
-            Registriere dich um die Nachweisverwaltung zu nutzen
+            {t('register.description')}
           </p>
         </div>
         <div className="flex items-center justify-center">
           <Card className="w-full max-w-2xl border border-border bg-card/20 backdrop-blur-md shadow-lg">
             <CardHeader>
               <CardTitle className="text-2xl text-primary text-center">
-                Registrierung
+                {t('register.heading')}
               </CardTitle>
               <CardDescription className="text-center">
-                Gib deine Daten ein um einen Account zu erstellen
+                {t('register.subheading')}
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleRegister} className="w-full">
               <CardContent className="grid gap-4">
                 {/* Username */}
                 <div className="grid gap-2">
-                  <Label htmlFor="username">Benutzername</Label>
+                  <Label htmlFor="username">
+                    {t('register.usernameLabel')}
+                  </Label>
                   <Input
                     id="username"
                     name="username"
                     type="text"
-                    placeholder="z.B. deniskunz"
+                    placeholder={t('register.usernamePlaceholder')}
                     value={formData.username}
                     onChange={handleChange}
                     required
@@ -143,12 +141,14 @@ export default function RegisterForm() {
 
                 {/* Full Name */}
                 <div className="grid gap-2">
-                  <Label htmlFor="name">Vollständiger Name</Label>
+                  <Label htmlFor="name">
+                    {t('register.nameLabel')}
+                  </Label>
                   <Input
                     id="name"
                     name="name"
                     type="text"
-                    placeholder="z.B. Denis Kunz"
+                    placeholder={t('register.namePlaceholder')}
                     value={formData.name}
                     onChange={handleChange}
                     required
@@ -157,12 +157,14 @@ export default function RegisterForm() {
 
                 {/* Email */}
                 <div className="grid gap-2">
-                  <Label htmlFor="email">E-Mail</Label>
+                  <Label htmlFor="email">
+                    {t('register.emailLabel')}
+                  </Label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="z.B. deniskunz@example.com"
+                    placeholder={t('register.emailPlaceholder')}
                     value={formData.email}
                     onChange={handleChange}
                     required
@@ -171,13 +173,15 @@ export default function RegisterForm() {
 
                 {/* Password */}
                 <div className="grid gap-2">
-                  <Label htmlFor="password">Passwort</Label>
+                  <Label htmlFor="password">
+                    {t('register.passwordLabel')}
+                  </Label>
                   <div className="relative">
                     <Input
                       id="password"
                       name="password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Mindestens 8 Zeichen"
+                      placeholder={t('register.passwordPlaceholder')}
                       value={formData.password}
                       onChange={handleChange}
                       required
@@ -200,13 +204,15 @@ export default function RegisterForm() {
                 {/* Ausbildungsjahr */}
                 <div className="grid gap-2 mb-4">
                   <Label htmlFor="ausbildungsjahr">
-                    Ausbildungsjahr
+                    {t('register.ausbildungsjahr')}
                   </Label>
                   <Input
                     id="ausbildungsjahr"
                     name="ausbildungsjahr"
                     type="number"
-                    placeholder="z.B. 1"
+                    placeholder={t(
+                      'register.ausbildungsjahrPlaceholder'
+                    )}
                     min="1"
                     max="4"
                     value={formData.ausbildungsjahr}
@@ -228,16 +234,18 @@ export default function RegisterForm() {
                   disabled={loading}
                 >
                   <UserPlus />
-                  {loading ? 'Wird registriert...' : 'Registrieren'}
+                  {loading
+                    ? t('register.loading')
+                    : t('register.submitButton')}
                 </Button>
                 <div className="text-sm text-center">
-                  Hast du bereits ein Konto?{' '}
+                  {t('register.haveAccount')}{' '}
                   <Link
                     href="/login"
                     className="font-medium text-primary hover:underline"
                     passHref
                   >
-                    Hier anmelden
+                    {t('register.loginLinkText')}
                   </Link>
                 </div>
               </CardFooter>

@@ -11,7 +11,11 @@ interface Profile {
   email: string;
   ausbildungsjahr: number;
   telefonnummer: string;
-  team: string;
+  trainer?: {
+    id: string;
+    name: string;
+    email: string;
+  };
   profileImageUrl: string;
 }
 
@@ -97,7 +101,10 @@ export default function ProfileCard() {
             {profile.telefonnummer}
           </p>
           <p className="mb-1">
-            <strong>{t('profile.team')}:</strong> {profile.team}
+            <strong>{t('profile.trainer')}:</strong>{' '}
+            {profile.trainer?.name ||
+              t('profile.noTrainer') ||
+              'Keine'}
           </p>
         </div>
       </div>

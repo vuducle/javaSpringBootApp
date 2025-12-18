@@ -274,12 +274,12 @@ public class UserService implements UserDetailsService {
         // Find all trainees assigned to this trainer (team field contains user ID as
         // string)
         String targetId = target.getId().toString();
-        List<User> dependentTrainees = userRepository.findAllByTeam(targetId);
+        List<User> dependentTrainees = userRepository.findAllByTrainer(target);
 
-        // Unassign all dependent trainees (set team to null)
+        // Unassign all dependent trainees (set trainer to null)
         if (!dependentTrainees.isEmpty()) {
             dependentTrainees.forEach(trainee -> {
-                trainee.setTeam(null);
+                trainee.setTrainer(null);
                 log.info("Unassigned trainee {} from trainer {}", trainee.getUsername(), targetUsername);
             });
             userRepository.saveAll(dependentTrainees);
@@ -409,8 +409,10 @@ public class UserService implements UserDetailsService {
         if (request.getTelefonnummer() != null) {
             user.setTelefonnummer(request.getTelefonnummer());
         }
-        if (request.getTeam() != null) {
-            user.setTeam(request.getTeam());
+        if (request.getTrainerId() != null) {
+            User trainer = userRepository.findById(request.getTrainerId())
+                    .orElseThrow(() -> new IllegalArgumentException("Trainer nicht gefunden"));
+            user.setTrainer(trainer);
         }
 
         return userRepository.save(user);
@@ -452,8 +454,10 @@ public class UserService implements UserDetailsService {
         if (request.getTelefonnummer() != null) {
             user.setTelefonnummer(request.getTelefonnummer());
         }
-        if (request.getTeam() != null) {
-            user.setTeam(request.getTeam());
+        if (request.getTrainerId() != null) {
+            User trainer = userRepository.findById(request.getTrainerId())
+                    .orElseThrow(() -> new IllegalArgumentException("Trainer nicht gefunden"));
+            user.setTrainer(trainer);
         }
 
         return userRepository.save(user);

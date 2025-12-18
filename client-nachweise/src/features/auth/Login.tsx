@@ -173,10 +173,10 @@ export default function LoginForm() {
                     </button>
                   </div>
                 </div>
-                <div className="text-sm">
+                <div className="text-sm mb-4">
                   <Link
                     href="/forgot-password"
-                    className="font-medium text-primary hover:underline"
+                    className="font-medium mb-4 text-primary hover:underline"
                     passHref
                   >
                     {t('login.forgotPassword')}
@@ -192,13 +192,13 @@ export default function LoginForm() {
                   {t('login.submitButton')}
                 </Button>
                 <div className="text-sm text-center">
-                  Noch kein Konto?{' '}
+                  {t('login.noAccount')}{' '}
                   <Link
                     href="/register"
                     className="font-medium text-primary hover:underline"
                     passHref
                   >
-                    Hier registrieren
+                    {t('login.registerLinkText')}
                   </Link>
                 </div>
               </CardFooter>

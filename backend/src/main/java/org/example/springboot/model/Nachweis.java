@@ -1,6 +1,7 @@
 package org.example.springboot.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,10 +18,9 @@ import java.util.UUID;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "nachweis",
-       uniqueConstraints = {
-           @UniqueConstraint(columnNames = {"nummer", "azubi_id"})
-       })
+@Table(name = "nachweis", uniqueConstraints = {
+                @UniqueConstraint(columnNames = { "nummer", "azubi_id" })
+})
 public class Nachweis {
         @Id
         @GeneratedValue(strategy = GenerationType.UUID)
@@ -43,10 +43,12 @@ public class Nachweis {
 
         @ManyToOne
         @JoinColumn(name = "ausbilder_id")
+        @JsonIgnoreProperties({ "trainer", "roles", "activities", "todos" })
         private User ausbilder;
 
         @ManyToOne
         @JoinColumn(name = "azubi_id")
+        @JsonIgnoreProperties({ "trainer", "roles", "activities", "todos" })
         private User azubi;
 
         private LocalDate datumAzubi;

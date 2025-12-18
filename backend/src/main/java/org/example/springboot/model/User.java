@@ -33,7 +33,10 @@ public class User implements UserDetails {
 
     private Integer ausbildungsjahr;
     private String telefonnummer;
-    private String team;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "trainer_id")
+    private User trainer;
 
     @Column(nullable = false)
     private String password;

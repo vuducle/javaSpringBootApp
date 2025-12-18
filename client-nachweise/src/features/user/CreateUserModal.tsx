@@ -76,7 +76,7 @@ export default function CreateUserModal({
     email: '',
     ausbildungsjahr: 1,
     telefonnummer: '',
-    team: '',
+    trainerId: '',
     role: 'ROLE_USER',
   });
   const [formError, setFormError] = useState<string | null>(null);
@@ -140,7 +140,7 @@ export default function CreateUserModal({
         email: '',
         ausbildungsjahr: 1,
         telefonnummer: '',
-        team: '',
+        trainerId: '',
         role: 'USER',
       });
       // revalidate trainers list so newly-created admins show up
@@ -283,9 +283,9 @@ export default function CreateUserModal({
             {t('userPage.teamLabel') ?? 'Team'}
           </label>
           <Select
-            value={form.team}
+            value={form.trainerId}
             onValueChange={(val: string) =>
-              setForm({ ...form, team: val })
+              setForm({ ...form, trainerId: val })
             }
           >
             <SelectTrigger>

@@ -6,6 +6,9 @@
     "emailPlaceholder": "momohirai@example.com",
     "passwordLabel": "Password",
     "submitButton": "Sign In",
+    "loading": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "registerLinkText": "Register here",
     "error": {
       "invalid": "Invalid email or password.",
       "locked": "Your account is temporarily locked due to too many failed login attempts. Please wait 15 minutes.",
@@ -416,6 +419,32 @@
   "roles": {
     "admin": "🧑‍🏫 Trainer",
     "user": "🧑‍🎓 Apprentice"
+  },
+  "register": {
+    "title": "Create Account",
+    "description": "Register to use the record management system",
+    "heading": "Registration",
+    "subheading": "Enter your information to create an account",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "e.g. deniskunz",
+    "nameLabel": "Full Name",
+    "namePlaceholder": "e.g. Denis Kunz",
+    "emailLabel": "Email",
+    "emailPlaceholder": "e.g. deniskunz@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "At least 8 characters",
+    "ausbildungsjahr": "Training Year",
+    "ausbildungsjahrPlaceholder": "e.g. 1",
+    "submitButton": "Register",
+    "loading": "Registering...",
+    "haveAccount": "Already have an account?",
+    "loginLinkText": "Sign in here",
+    "error": {
+      "fillAllFields": "Please fill in all fields.",
+      "unexpected": "An unexpected error occurred.",
+      "failed": "Registration failed."
+    },
+    "success": "Registration successful! Redirecting to login page..."
   },
   "features": {
     "title": "App features",
