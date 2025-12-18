@@ -21,7 +21,7 @@ ENV NODE_ENV=production
 RUN apk add --no-cache dumb-init
 RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
 
-# NUR notwendige Standalone-Dateien kopieren (viel kleiner!)
+# Copy built application from builder
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
@@ -29,8 +29,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-ENTRYPOINT ["dumb-init", "--"]
-
-# Im Standalone-Modus nutzt man den generierten server.js
+ENTRYPOINE ["dumb-init", "--"]
 CMD ["node", "server.js"]
