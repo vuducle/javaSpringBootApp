@@ -123,6 +123,11 @@ services:
   # Next.js Frontend
   frontend:
     image: ghcr.io/${GITHUB_ACTOR:-vuducle}/nachweise-frontend:latest
+    build:
+      context: ./client-nachweise
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api-nachweise.le-vu-duc.com:8088}
     pull_policy: always
     restart: unless-stopped
     container_name: nachweise-frontend
