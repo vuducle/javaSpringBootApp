@@ -376,18 +376,86 @@ public class UserService implements UserDetailsService {
     public User updateUserProfile(String username,
             UserUpdateRequest request) {
         User user = findByUsername(username);
-        user.setAusbildungsjahr(request.getAusbildungsjahr());
-        user.setTelefonnummer(request.getTelefonnummer());
-        user.setTeam(request.getTeam());
+
+        // Update name if provided
+        if (request.getName() != null && !request.getName().trim().isEmpty()) {
+            user.setName(request.getName());
+        }
+
+        // Update email if provided and check for uniqueness
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
+            if (!request.getEmail().equals(user.getEmail())) {
+                if (userRepository.existsByEmail(request.getEmail())) {
+                    throw new IllegalArgumentException("Email ist bereits vergeben");
+                }
+                user.setEmail(request.getEmail());
+            }
+        }
+
+        // Update username if provided and check for uniqueness
+        if (request.getUsername() != null && !request.getUsername().trim().isEmpty()) {
+            if (!request.getUsername().equals(user.getUsername())) {
+                if (userRepository.existsByUsername(request.getUsername())) {
+                    throw new IllegalArgumentException("Benutzername ist bereits vergeben");
+                }
+                user.setUsername(request.getUsername());
+            }
+        }
+
+        // Update other fields
+        if (request.getAusbildungsjahr() != null) {
+            user.setAusbildungsjahr(request.getAusbildungsjahr());
+        }
+        if (request.getTelefonnummer() != null) {
+            user.setTelefonnummer(request.getTelefonnummer());
+        }
+        if (request.getTeam() != null) {
+            user.setTeam(request.getTeam());
+        }
+
         return userRepository.save(user);
     }
 
     public User updateUserProfileByAdmin(String username,
             UserUpdateRequest request) {
         User user = findByUsername(username);
-        user.setAusbildungsjahr(request.getAusbildungsjahr());
-        user.setTelefonnummer(request.getTelefonnummer());
-        user.setTeam(request.getTeam());
+
+        // Update name if provided
+        if (request.getName() != null && !request.getName().trim().isEmpty()) {
+            user.setName(request.getName());
+        }
+
+        // Update email if provided and check for uniqueness
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
+            if (!request.getEmail().equals(user.getEmail())) {
+                if (userRepository.existsByEmail(request.getEmail())) {
+                    throw new IllegalArgumentException("Email ist bereits vergeben");
+                }
+                user.setEmail(request.getEmail());
+            }
+        }
+
+        // Update username if provided and check for uniqueness
+        if (request.getUsername() != null && !request.getUsername().trim().isEmpty()) {
+            if (!request.getUsername().equals(user.getUsername())) {
+                if (userRepository.existsByUsername(request.getUsername())) {
+                    throw new IllegalArgumentException("Benutzername ist bereits vergeben");
+                }
+                user.setUsername(request.getUsername());
+            }
+        }
+
+        // Update other fields
+        if (request.getAusbildungsjahr() != null) {
+            user.setAusbildungsjahr(request.getAusbildungsjahr());
+        }
+        if (request.getTelefonnummer() != null) {
+            user.setTelefonnummer(request.getTelefonnummer());
+        }
+        if (request.getTeam() != null) {
+            user.setTeam(request.getTeam());
+        }
+
         return userRepository.save(user);
     }
 

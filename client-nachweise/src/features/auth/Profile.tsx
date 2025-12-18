@@ -202,6 +202,9 @@ export function Profile() {
       const {
         oldPassword,
         password,
+        name,
+        email,
+        username,
         ausbildungsjahr,
         telefonnummer,
         team,
@@ -227,8 +230,11 @@ export function Profile() {
         );
       }
 
-      // Prepare profile update payload (only fields accepted by backend)
+      // Prepare profile update payload (all fields accepted by backend)
       const profileUpdatePayload = {
+        name,
+        email,
+        username,
         ausbildungsjahr,
         telefonnummer,
         team,
@@ -236,6 +242,9 @@ export function Profile() {
 
       // Check if profile fields have changed
       const profileChanged =
+        name !== user?.name ||
+        email !== user?.email ||
+        username !== user?.username ||
         ausbildungsjahr !== user?.ausbildungsjahr ||
         telefonnummer !== user?.telefonnummer ||
         team !== user?.team;
