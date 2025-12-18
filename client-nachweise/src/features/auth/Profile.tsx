@@ -248,7 +248,7 @@ export function Profile() {
         username !== user?.username ||
         ausbildungsjahr !== user?.ausbildungsjahr ||
         telefonnummer !== user?.telefonnummer ||
-        trainerId !== (user?.trainer?.id || '');
+        trainerId !== user?.trainerId;
 
       if (profileChanged) {
         const response = await api.put(
