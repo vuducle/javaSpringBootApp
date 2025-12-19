@@ -12,6 +12,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
 import java.time.Duration;
 
 /**
@@ -79,6 +80,8 @@ public class CacheConfig {
                 ObjectMapper objectMapper = new ObjectMapper();
                 // Registriere das JSR310 Module für LocalDateTime Support
                 objectMapper.registerModule(new JavaTimeModule());
+                // Registriere Hibernate6 Module zur Handling von Proxies
+                objectMapper.registerModule(new Hibernate6Module());
                 // Schreibe Timestamps als ISO 8601 Strings statt als Zahlen
                 objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
                 return objectMapper;

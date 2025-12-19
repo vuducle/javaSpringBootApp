@@ -1,5 +1,6 @@
 package org.example.springboot.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 @Table(name = "app_user")
 @Data
 @NoArgsConstructor
-@JsonIgnoreProperties({ "roles", "trainer", "todos", "password", "authorities", "accountNonExpired", "accountNonLocked",
+@JsonIgnoreProperties({ "roles", "todos", "password", "authorities", "accountNonExpired", "accountNonLocked",
         "credentialsNonExpired", "enabled", "nachweiseAlsAzubi", "nachweiseAlsAusbilder" })
 public class User implements UserDetails {
     @Id
@@ -36,6 +37,7 @@ public class User implements UserDetails {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "trainer_id")
+    @JsonIgnore // Prevent circular reference in JSON (trainer has trainer...)
     private User trainer;
 
     @Column(nullable = false)

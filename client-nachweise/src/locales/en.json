@@ -262,6 +262,7 @@
     "deleteError": "An unexpected error occurred while deleting your profile image.",
     "selectFile": "Please select a file to upload.",
     "trainer": "Trainer",
+    "noTrainer": "Not assigned",
     "selectTrainer": "Select your trainer",
     "imageSizeHint": "Maximum file size: 2MB",
     "oldPassword": "Old Password",

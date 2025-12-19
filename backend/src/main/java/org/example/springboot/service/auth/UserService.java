@@ -353,9 +353,35 @@ public class UserService implements UserDetailsService {
     }
 
     @Cacheable(value = "users", key = "#username")
+    @Transactional(readOnly = true)
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+
+        // Force-load trainer to avoid LazyInitializationException after cache retrieval
+        if (user.getTrainer() != null) {
+            user.getTrainer().getName(); // Access a property to initialize proxy
+        }
+
+        return user;
+    }
+
+    /**
+     * 🚀 Lade User mit Trainer für Profile-Anzeige
+     * Nicht gecacht, weil Trainer via @JsonIgnore nicht serialisiert wird
+     * und danach verloren wäre
+     */
+    @Transactional(readOnly = true)
+    public User getUserProfileWithTrainer(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+
+        // Force-load trainer
+        if (user.getTrainer() != null) {
+            user.getTrainer().getName();
+        }
+
+        return user;
     }
 
     @Transactional

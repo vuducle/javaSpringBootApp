@@ -263,6 +263,7 @@
     "deleteError": "Beim Löschen Ihres Profilbildes ist ein unerwarteter Fehler aufgetreten.",
     "selectFile": "Bitte wählen Sie eine Datei zum Hochladen aus.",
     "trainer": "Ausbilder/innen",
+    "noTrainer": "Keine/r zugewiesen",
     "selectTrainer": "Wähle deinen Ausbilder/innen",
     "imageSizeHint": "Maximale Dateigröße: 2MB",
     "oldPassword": "Altes Passwort",
