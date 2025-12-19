@@ -58,7 +58,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/swagger-ui")
                 || path.startsWith("/uploads/profile-images");
         log.info("shouldNotFilter for path: {} = {}", path, skip);
-        return skip;
+        // return skip;
+
+        if (log.isDebugEnabled()) {
+            log.debug("shouldNotFilter for path: {} = {}", path, skip);
+        }
+
+        return !skip;
     }
 
     @Override
