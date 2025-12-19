@@ -492,9 +492,11 @@ export function CreateNachweisForm() {
     const fetchAusbilder = async () => {
       try {
         const response = await api.get('/api/user/ausbilder');
+        console.log('✅ Ausbilder-Liste geladen:', response.data);
         setAusbilderList(response.data);
         return response.data;
       } catch (error: unknown) {
+        console.error('❌ Fehler beim Laden der Ausbilder:', error);
         if (error instanceof Error) {
           showToast(error.message, 'error');
         } else {
@@ -503,9 +505,11 @@ export function CreateNachweisForm() {
         return [];
       }
     };
-    const fetchUserProfile = async (ausbilder: Ausbilder[]) => {
+    const fetchUserProfile = async (ausbilderList: Ausbilder[]) => {
       try {
         const response = await api.get('/api/user/profile');
+        console.log('✅ User-Profil geladen:', response.data);
+
         if (response.data) {
           setValue('name', response.data.name || user.name || '');
           if (response.data.ausbildungsjahr) {
@@ -514,17 +518,54 @@ export function CreateNachweisForm() {
               String(response.data.ausbildungsjahr)
             );
           }
-          if (response.data.team) {
-            const foundAusbilder = ausbilder.find(
-              (a: Ausbilder) => a.name === response.data.team
+
+          console.log('🔍 Suche nach Trainer-Objekt...');
+          console.log(
+            '   trainer vorhanden:',
+            !!response.data.trainer
+          );
+          console.log(
+            '   trainer.id vorhanden:',
+            response.data.trainer?.id
+          );
+
+          // Der Trainer wird im Profil als Objekt mit id, name, email zurückgegeben
+          if (response.data.trainer?.id) {
+            const trainerId = response.data.trainer.id;
+            console.log('✅ Trainer gefunden im Profil:', {
+              id: trainerId,
+              name: response.data.trainer.name,
+            });
+            console.log(
+              '📊 Verfügbare Ausbilder-IDs:',
+              ausbilderList.map((a) => ({ id: a.id, name: a.name }))
             );
+
+            const foundAusbilder = ausbilderList.find(
+              (a) => a.id === trainerId
+            );
+
             if (foundAusbilder) {
+              console.log('✅✅✅ AUSBILDER GEFUNDEN UND GESETZT:', {
+                id: foundAusbilder.id,
+                name: foundAusbilder.name,
+              });
               setCurrentAusbilder(foundAusbilder);
               setValue('ausbilderId', foundAusbilder.id);
+            } else {
+              console.warn(
+                '⚠️ TRAINER-ID NICHT IN AUSBILDER-LISTE:',
+                trainerId
+              );
             }
+          } else {
+            console.log(
+              'ℹ️ Kein Trainer oder keine Trainer-ID im Profil'
+            );
           }
         }
-      } catch {
+      } catch (error) {
+        console.error('❌ Fehler beim Laden des Profils:', error);
         setValue('name', user.name || '');
       }
     };
@@ -550,9 +591,13 @@ export function CreateNachweisForm() {
     };
 
     const initialize = async () => {
-      const ausbilder = await fetchAusbilder();
       if (user.istEingeloggt) {
-        await fetchUserProfile(ausbilder);
+        const ausbilderData = await fetchAusbilder();
+        console.log(
+          '🔄 Nach fetchAusbilder, Daten vorhanden:',
+          ausbilderData.length
+        );
+        await fetchUserProfile(ausbilderData);
         await fetchNextNummer();
       }
     };

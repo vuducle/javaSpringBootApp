@@ -477,8 +477,43 @@
       "desc": "Small Todo API for demo and testing purposes."
     }
   },
-  "sort": {
-    "asc": "Ascending",
-    "desc": "Descending"
+  "notifications": {
+    "title": "Notifications",
+    "center": {
+      "title": "Notifications",
+      "description": "Your notifications",
+      "markAllAsRead": "Mark all as read",
+      "noNotifications": "No notifications",
+      "empty": "You have no new notifications"
+    },
+    "badge": {
+      "unread": "{count} unread"
+    },
+    "types": {
+      "SUCCESS": "Success",
+      "WARNING": "Warning",
+      "ERROR": "Error",
+      "INFO": "Information"
+    },
+    "status": {
+      "UNREAD": "Unread",
+      "READ": "Read"
+    },
+    "actions": {
+      "markAsRead": "Mark as read",
+      "delete": "Delete"
+    },
+    "nachweis": {
+      "submitted": "New record submitted",
+      "submittedMessage": "Apprentice {azubiName} submitted a new record No. {nachweisNummer}",
+      "updated": "Record updated",
+      "updatedMessage": "Apprentice {azubiName} updated record No. {nachweisNummer}",
+      "accepted": "Record approved",
+      "acceptedMessage": "Your record No. {nachweisNummer} has been approved",
+      "rejected": "Record rejected",
+      "rejectedMessage": "Your record No. {nachweisNummer} has been rejected. Comment: {comment}",
+      "statusChanged": "Record status changed",
+      "statusChangedMessage": "The status of record No. {nachweisNummer} has changed"
+    }
   }
 }

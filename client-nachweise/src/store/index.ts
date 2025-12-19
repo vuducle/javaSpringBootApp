@@ -16,6 +16,7 @@ import {
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
 import { userSlice } from './slices/userSlice';
+import notificationSlice from './slices/notificationSlice';
 
 // Persist config
 const persistConfig = {
@@ -27,6 +28,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   // Add your reducers here
   user: userSlice.reducer,
+  notifications: notificationSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

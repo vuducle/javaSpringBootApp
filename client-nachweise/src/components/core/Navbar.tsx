@@ -24,6 +24,7 @@ import { Logo } from '../ui/Logo';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import NotificationCenter from '../notifications/NotificationCenter';
 
 export function Navbar({ user }: { user: User }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -141,6 +142,7 @@ export function Navbar({ user }: { user: User }) {
           </div>
           <div className="hidden md:block">
             <div className="flex items-center space-x-4">
+              <NotificationCenter />
               <RoleIcon className="h-6 w-6 text-foreground" />
               <LanguageSwitcher />
               <ThemeToggleButton />
@@ -193,6 +195,7 @@ export function Navbar({ user }: { user: User }) {
           </div>
           <div className="pt-4 pb-3 border-t border-gray-700">
             <div className="flex items-center px-5 space-x-4">
+              <NotificationCenter />
               <RoleIcon className="h-6 w-6 text-foreground" />
               <LanguageSwitcher />
               <ThemeToggleButton />

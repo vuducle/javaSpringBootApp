@@ -8,6 +8,14 @@ export interface Version {
 
 export const PATCHNOTES: Version[] = [
   {
+    version: '1.3.0',
+    releaseDate: '2025-12-20',
+    features: ['Notifications system'],
+    bugfixes: [
+      'Fixed various minor & major bugs (couldnt load the trainer)',
+    ],
+  },
+  {
     version: '1.2.0',
     releaseDate: '2025-12-19',
     improvements: [

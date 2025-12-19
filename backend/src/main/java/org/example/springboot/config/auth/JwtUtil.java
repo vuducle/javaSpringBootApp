@@ -17,16 +17,22 @@ import java.util.function.Function;
 
 /**
  * 🛠️ **Was geht hier ab?**
- * Das ist unser Schweizer Taschenmesser für alles, was mit JSON Web Tokens (JWTs) zu tun hat.
- * Diese Utility-Klasse ist der Go-To-Guy für die `JwtAuthenticationFilter` und den `AuthController`.
+ * Das ist unser Schweizer Taschenmesser für alles, was mit JSON Web Tokens
+ * (JWTs) zu tun hat.
+ * Diese Utility-Klasse ist der Go-To-Guy für die `JwtAuthenticationFilter` und
+ * den `AuthController`.
  *
  * Ihre Skills:
- * - **Token generieren:** Erstellt einen neuen, signierten JWT für einen User, z.B. direkt nach dem Login.
- *   In den Token packt sie wichtige Infos wie E-Mail (als Subject), User-Rollen und ein Ablaufdatum.
- * - **Token validieren:** Checkt, ob ein Token, der mit einem Request reinkommt, echt ist (über die Signatur)
- *   und ob er nicht schon abgelaufen ist.
- * - **Infos auslesen:** Kann alle Claims (die Infos im Token) auslesen, z.B. das Subject (die E-Mail des Users),
- *   um den User in der Datenbank zu finden.
+ * - **Token generieren:** Erstellt einen neuen, signierten JWT für einen User,
+ * z.B. direkt nach dem Login.
+ * In den Token packt sie wichtige Infos wie E-Mail (als Subject), User-Rollen
+ * und ein Ablaufdatum.
+ * - **Token validieren:** Checkt, ob ein Token, der mit einem Request
+ * reinkommt, echt ist (über die Signatur)
+ * und ob er nicht schon abgelaufen ist.
+ * - **Infos auslesen:** Kann alle Claims (die Infos im Token) auslesen, z.B.
+ * das Subject (die E-Mail des Users),
+ * um den User in der Datenbank zu finden.
  *
  * Absolut central für die ganze Auth-Logik.
  */
@@ -44,6 +50,7 @@ public class JwtUtil {
         User user = (User) userDetails;
 
         Map<String, Object> map = new HashMap<>();
+        map.put("userId", user.getId().toString()); // Speichere User ID
         map.put("userName", user.getUsername()); // Keep username in claims for other purposes
         map.put("authorities", user.getAuthorities());
         map.put("roles", user.getAuthorities());
@@ -65,6 +72,19 @@ public class JwtUtil {
         return extractClaims(token, Claims::getSubject);
     }
 
+    /**
+     * 🆔 Extrahiere User ID aus JWT Token
+     */
+    public String extractUserId(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            Object userId = claims.get("userId");
+            return userId != null ? userId.toString() : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public boolean isTokenValid(String token, UserDetails userDetails) {
         if (!(userDetails instanceof User)) {
             return false;
@@ -73,8 +93,7 @@ public class JwtUtil {
             final String subject = extractSubject(token);
             // Subject is now email
             return (subject.equals(((User) userDetails).getEmail()) && !isTokenExpired(token));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return false;
         }
     }

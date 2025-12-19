@@ -481,5 +481,44 @@
       "title": "Todos",
       "desc": "Kleine Todo-API für Demo- und Testzwecke."
     }
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "center": {
+      "title": "Benachrichtigungen",
+      "description": "Deine Benachrichtigungen",
+      "markAllAsRead": "Alle als gelesen markieren",
+      "noNotifications": "Keine Benachrichtigungen",
+      "empty": "Du hast keine neuen Benachrichtigungen"
+    },
+    "badge": {
+      "unread": "{count} ungelesen"
+    },
+    "types": {
+      "SUCCESS": "Erfolg",
+      "WARNING": "Warnung",
+      "ERROR": "Fehler",
+      "INFO": "Information"
+    },
+    "status": {
+      "UNREAD": "Ungelesen",
+      "READ": "Gelesen"
+    },
+    "actions": {
+      "markAsRead": "Als gelesen markieren",
+      "delete": "Löschen"
+    },
+    "nachweis": {
+      "submitted": "Neuer Nachweis eingereicht",
+      "submittedMessage": "Der Azubi {azubiName} hat einen neuen Nachweis Nr. {nachweisNummer} eingereicht",
+      "updated": "Nachweis aktualisiert",
+      "updatedMessage": "Der Azubi {azubiName} hat den Nachweis Nr. {nachweisNummer} aktualisiert",
+      "accepted": "Nachweis genehmigt",
+      "acceptedMessage": "Dein Nachweis Nr. {nachweisNummer} wurde genehmigt",
+      "rejected": "Nachweis abgelehnt",
+      "rejectedMessage": "Dein Nachweis Nr. {nachweisNummer} wurde abgelehnt. Kommentar: {comment}",
+      "statusChanged": "Nachweis-Status geändert",
+      "statusChangedMessage": "Der Status von Nachweis Nr. {nachweisNummer} hat sich geändert"
+    }
   }
 }

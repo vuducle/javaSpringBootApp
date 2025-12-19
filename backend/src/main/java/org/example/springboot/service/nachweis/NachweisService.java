@@ -7,11 +7,13 @@ import org.example.springboot.exception.ResourceNotFoundException;
 import org.example.springboot.exception.UnauthorizedActionException;
 import org.example.springboot.model.Activity;
 import org.example.springboot.model.Nachweis;
+import org.example.springboot.model.Notification;
 import org.example.springboot.model.User;
 import org.example.springboot.model.enums.EStatus;
 import org.example.springboot.model.enums.Weekday;
 import org.example.springboot.repository.NachweisRepository;
 import org.example.springboot.repository.UserRepository;
+import org.example.springboot.service.NotificationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
@@ -35,24 +37,34 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * 👑 **Was geht hier ab?**
- * Das ist der absolute Master-Service für die Ausbildungsnachweise. Hier passiert die
+ * Das ist der absolute Master-Service für die Ausbildungsnachweise. Hier
+ * passiert die
  * komplette Magie. Dieser Service ist der Dirigent, der die anderen Services
- * (`PdfExportService`, `EmailService`, `NachweisAuditService`) koordiniert, um den
+ * (`PdfExportService`, `EmailService`, `NachweisAuditService`) koordiniert, um
+ * den
  * ganzen Lebenszyklus eines Nachweises zu managen.
  *
  * Die Main-Quests dieses Services:
- * - **erstelleNachweis()**: Nicht nur ein simpler DB-Eintrag. Dieser Flow erstellt den Nachweis,
- *   ruft den `PdfExportService` auf, um ein PDF zu backen, speichert das PDF ab UND schickt
- *   dem Ausbilder direkt 'ne Mail mit dem PDF im Anhang. All-in-One-Paket.
- * - **kriegeNachweise...()**: Holt die Nachweise aus der DB, mit Filter, Paginierung und allem
- *   Drum und Dran, damit im Frontend alles fresh aussieht.
- * - **loescheNachweis()**: Killt nicht nur den Eintrag in der Datenbank, sondern sucht auch
- *   die zugehörige PDF-Datei auf dem Server und löscht sie. No ghosts in the machine.
- * - **updateNachweisStatus()**: Wenn der Ausbilder einen Nachweis annimmt oder ablehnt,
- *   updated dieser Service den Status, loggt die Aktion über den `NachweisAuditService`
- *   und schickt dem Azubi 'ne Benachrichtigungs-Mail.
- * - **aktualisiereNachweisDurchAzubi()**: Wenn der Azubi was ändert, wird der Status
- *   zurückgesetzt, das PDF neu generiert und der Ausbilder wieder benachrichtigt.
+ * - **erstelleNachweis()**: Nicht nur ein simpler DB-Eintrag. Dieser Flow
+ * erstellt den Nachweis,
+ * ruft den `PdfExportService` auf, um ein PDF zu backen, speichert das PDF ab
+ * UND schickt
+ * dem Ausbilder direkt 'ne Mail mit dem PDF im Anhang. All-in-One-Paket.
+ * - **kriegeNachweise...()**: Holt die Nachweise aus der DB, mit Filter,
+ * Paginierung und allem
+ * Drum und Dran, damit im Frontend alles fresh aussieht.
+ * - **loescheNachweis()**: Killt nicht nur den Eintrag in der Datenbank,
+ * sondern sucht auch
+ * die zugehörige PDF-Datei auf dem Server und löscht sie. No ghosts in the
+ * machine.
+ * - **updateNachweisStatus()**: Wenn der Ausbilder einen Nachweis annimmt oder
+ * ablehnt,
+ * updated dieser Service den Status, loggt die Aktion über den
+ * `NachweisAuditService`
+ * und schickt dem Azubi 'ne Benachrichtigungs-Mail.
+ * - **aktualisiereNachweisDurchAzubi()**: Wenn der Azubi was ändert, wird der
+ * Status
+ * zurückgesetzt, das PDF neu generiert und der Ausbilder wieder benachrichtigt.
  *
  * Kurz: Der heftigste Service hier, der das Kern-Feature der App rockt.
  */
@@ -66,6 +78,7 @@ public class NachweisService {
     private final EmailService emailService; // Inject EmailService
     private final PdfExportService pdfExportService; // Inject PdfExportService
     private final NachweisAuditService nachweisAuditService; // Inject NachweisAuditService
+    private final NotificationService notificationService; // Inject NotificationService
 
     private final Path rootLocation = Paths.get("generated_pdfs");
 
@@ -225,6 +238,26 @@ public class NachweisService {
                         "application/pdf");
             }
 
+            // Create in-app notification for Ausbilder about new Nachweis submission
+            try {
+                if (ausbilder != null && ausbilder.getId() != null) {
+                    notificationService.createNotification(
+                            ausbilder.getId(),
+                            "Neuer Nachweis eingereicht",
+                            "Der Azubi " + user.getName() + " hat einen neuen Nachweis Nr. " + savedNachweis.getNummer()
+                                    + " eingereicht",
+                            Notification.NotificationType.INFO,
+                            nachweisId,
+                            "/nachweis/" + nachweisId);
+                    log.info("Notification created for Ausbilder {} - New Nachweis {} submitted by {}",
+                            ausbilder.getId(), nachweisId, user.getName());
+                }
+            } catch (Exception e) {
+                log.error("Fehler beim Erstellen der Benachrichtigung für Ausbilder zu Nachweis {}: {}", nachweisId,
+                        e.getMessage(), e);
+                // Continue - notification failure should not break the main flow
+            }
+
             return savedNachweis;
         } catch (IOException e) {
             log.error("Fehler bei der PDF-Generierung oder Speicherung für Nachweis {}: {}", savedNachweis.getId(),
@@ -264,17 +297,19 @@ public class NachweisService {
         }
     }
 
-    public Page<Nachweis> kriegeAlleNachweiseMitFilterUndPagination(EStatus status, UUID ausbilderId, int page, int size, String sortBy, String sortDir) {
+    public Page<Nachweis> kriegeAlleNachweiseMitFilterUndPagination(EStatus status, UUID ausbilderId, int page,
+            int size, String sortBy, String sortDir) {
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        
+
         Specification<Nachweis> spec = Specification.where(NachweisSpecification.hasStatus(status))
                 .and(NachweisSpecification.hasAusbilderId(ausbilderId));
 
         return nachweisRepository.findAll(spec, pageable);
     }
 
-    public Page<Nachweis> findNachweiseByUserIdMitFilterUndPagination(UUID userId, EStatus status, int page, int size, String sortBy, String sortDir) {
+    public Page<Nachweis> findNachweiseByUserIdMitFilterUndPagination(UUID userId, EStatus status, int page, int size,
+            String sortBy, String sortDir) {
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
         if (status != null) {
@@ -400,14 +435,16 @@ public class NachweisService {
         Nachweis alterNachweis = nachweisRepository.findById(nachweisId)
                 .orElseThrow(
                         () -> new ResourceNotFoundException("Nachweis mit der ID " + nachweisId + " nicht gefunden."));
-        // Eine Kopie des alten Nachweises erstellen, um den Zustand vor der Änderung zu speichern
+        // Eine Kopie des alten Nachweises erstellen, um den Zustand vor der Änderung zu
+        // speichern
         Nachweis alterNachweisKopie = new Nachweis(alterNachweis); // Annahme: Es gibt einen Kopierkonstruktor
 
         alterNachweis.setStatus(neuerStatus);
         alterNachweis.setComment(comment);
         Nachweis updatedNachweis = nachweisRepository.save(alterNachweis);
 
-        nachweisAuditService.loggeNachweisAktion(updatedNachweis.getId(), "STATUS_AKTUALISIERT", username, alterNachweisKopie, updatedNachweis);
+        nachweisAuditService.loggeNachweisAktion(updatedNachweis.getId(), "STATUS_AKTUALISIERT", username,
+                alterNachweisKopie, updatedNachweis);
 
         // Send email to Azubi about status update
         User azubi = updatedNachweis.getAzubi();
@@ -517,6 +554,52 @@ public class NachweisService {
                 emailService.sendEmail(azubi.getEmail(), subject, body);
             }
         }
+
+        // Create in-app notification for Azubi about status change
+        try {
+            if (azubi != null && azubi.getId() != null) {
+                if (neuerStatus == EStatus.ANGENOMMEN) {
+                    notificationService.createNotification(
+                            azubi.getId(),
+                            "Nachweis angenommen",
+                            "Dein Ausbildungsnachweis Nr. " + updatedNachweis.getNummer() + " wurde angenommen",
+                            Notification.NotificationType.SUCCESS,
+                            nachweisId,
+                            "/nachweis/" + nachweisId);
+                    log.info("Notification created for Azubi {} - Nachweis {} accepted", azubi.getId(), nachweisId);
+                } else if (neuerStatus == EStatus.ABGELEHNT) {
+                    String notificationMessage = "Dein Ausbildungsnachweis Nr. " + updatedNachweis.getNummer()
+                            + " wurde abgelehnt";
+                    if (comment != null && !comment.isEmpty()) {
+                        notificationMessage += ": " + comment;
+                    }
+                    notificationService.createNotification(
+                            azubi.getId(),
+                            "Nachweis abgelehnt",
+                            notificationMessage,
+                            Notification.NotificationType.WARNING,
+                            nachweisId,
+                            "/nachweis/" + nachweisId);
+                    log.info("Notification created for Azubi {} - Nachweis {} rejected", azubi.getId(), nachweisId);
+                } else {
+                    // For other status changes (like IN_BEARBEITUNG), create an INFO notification
+                    notificationService.createNotification(
+                            azubi.getId(),
+                            "Nachweis aktualisiert",
+                            "Der Status deines Ausbildungsnachweises Nr. " + updatedNachweis.getNummer()
+                                    + " wurde aktualisiert",
+                            Notification.NotificationType.INFO,
+                            nachweisId,
+                            "/nachweis/" + nachweisId);
+                    log.info("Notification created for Azubi {} - Nachweis {} status changed to {}", azubi.getId(),
+                            nachweisId, neuerStatus);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Fehler beim Erstellen der Benachrichtigung für Nachweis {}: {}", nachweisId, e.getMessage(), e);
+            // Continue - notification failure should not break the main flow
+        }
+
         return updatedNachweis;
     }
 
@@ -574,7 +657,8 @@ public class NachweisService {
         }
 
         Nachweis updatedNachweis = nachweisRepository.save(alterNachweis);
-        nachweisAuditService.loggeNachweisAktion(updatedNachweis.getId(), "AKTUALISIERT_AZUBI", username, alterNachweisKopie, updatedNachweis);
+        nachweisAuditService.loggeNachweisAktion(updatedNachweis.getId(), "AKTUALISIERT_AZUBI", username,
+                alterNachweisKopie, updatedNachweis);
 
         try {
             byte[] pdfBytes = pdfExportService.generateAusbildungsnachweisPdf(updatedNachweis);
@@ -632,6 +716,26 @@ public class NachweisService {
                         + "</html>";
                 emailService.sendEmail(nachweisAusbilder.getEmail(), subject, body);
             }
+
+            // Create in-app notification for Ausbilder about updated Nachweis
+            try {
+                if (nachweisAusbilder != null && nachweisAusbilder.getId() != null) {
+                    notificationService.createNotification(
+                            nachweisAusbilder.getId(),
+                            "Nachweis aktualisiert",
+                            "Der Azubi " + azubi.getName() + " hat den Nachweis Nr. " + updatedNachweis.getNummer()
+                                    + " aktualisiert",
+                            Notification.NotificationType.INFO,
+                            updatedNachweis.getId(),
+                            "/nachweis/" + updatedNachweis.getId());
+                    log.info("Notification created for Ausbilder {} - Nachweis {} updated by {}",
+                            nachweisAusbilder.getId(), updatedNachweis.getId(), azubi.getName());
+                }
+            } catch (Exception e) {
+                log.error("Fehler beim Erstellen der Benachrichtigung für Ausbilder zu aktualisiertem Nachweis {}: {}",
+                        updatedNachweis.getId(), e.getMessage(), e);
+                // Continue - notification failure should not break the main flow
+            }
         } catch (IOException e) {
             log.error("Fehler bei der PDF-Generierung oder Speicherung für Nachweis {}: {}", updatedNachweis.getId(),
                     e.getMessage());
@@ -641,8 +745,6 @@ public class NachweisService {
         return updatedNachweis;
 
     }
-
-                
 
     public boolean checkIfNummerExistsForUser(int nummer, String username) {
 
@@ -671,7 +773,8 @@ public class NachweisService {
             for (Nachweis nachweis : nachweise) {
                 try {
                     String userVollerName = nachweis.getAzubi().getName().toLowerCase().replaceAll(" ", "_");
-                    Path userDirectory = rootLocation.resolve(userVollerName + "_" + nachweis.getAzubi().getId().toString());
+                    Path userDirectory = rootLocation
+                            .resolve(userVollerName + "_" + nachweis.getAzubi().getId().toString());
                     Path pdfPath = userDirectory.resolve(nachweis.getId().toString() + ".pdf");
 
                     if (Files.exists(pdfPath) && Files.isReadable(pdfPath)) {
@@ -682,10 +785,12 @@ public class NachweisService {
                         zos.write(pdfBytes);
                         zos.closeEntry();
                     } else {
-                        log.warn("PDF für Nachweis {} nicht gefunden oder nicht lesbar unter: {}", nachweis.getId(), pdfPath);
+                        log.warn("PDF für Nachweis {} nicht gefunden oder nicht lesbar unter: {}", nachweis.getId(),
+                                pdfPath);
                     }
                 } catch (IOException e) {
-                    log.error("Fehler beim Hinzufügen des Nachweises {} zum Zip-Archiv: {}", nachweis.getId(), e.getMessage());
+                    log.error("Fehler beim Hinzufügen des Nachweises {} zum Zip-Archiv: {}", nachweis.getId(),
+                            e.getMessage());
                     // Continue with the next file
                 }
             }
@@ -693,7 +798,3 @@ public class NachweisService {
         return baos.toByteArray();
     }
 }
-
-                
-
-        
