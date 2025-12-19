@@ -321,8 +321,7 @@ public class UserService implements UserDetailsService {
 
     public Page<User> findAllWithFilters(String search, String team, Integer ausbildungsjahr, String rolle,
             Pageable pageable) {
-        Specification<User> spec = Specification
-                .where(UserSpecification.searchByTerm(search))
+        Specification<User> spec = UserSpecification.searchByTerm(search)
                 .and(UserSpecification.hasTeam(team))
                 .and(UserSpecification
                         .hasAusbildungsjahr(ausbildungsjahr))

@@ -100,7 +100,10 @@ export default function MonitoringPage() {
 
   if (loading) {
     return (
-      <StatusPlaceholder message="Monitoring-Daten werden geladen..." />
+      <StatusPlaceholder
+        loading={true}
+        loadingText="Monitoring-Daten werden geladen..."
+      />
     );
   }
 
@@ -238,7 +241,10 @@ export default function MonitoringPage() {
               </div>
             </>
           ) : (
-            <StatusPlaceholder message="Keine Cache-Daten verfügbar" />
+            <StatusPlaceholder
+              error={true}
+              errorText="Keine Cache-Daten verfügbar"
+            />
           )}
         </TabsContent>
 
@@ -318,7 +324,10 @@ export default function MonitoringPage() {
               </Card>
             </>
           ) : (
-            <StatusPlaceholder message="Keine Redis-Daten verfügbar" />
+            <StatusPlaceholder
+              error={true}
+              errorText="Keine Redis-Daten verfügbar"
+            />
           )}
         </TabsContent>
       </Tabs>

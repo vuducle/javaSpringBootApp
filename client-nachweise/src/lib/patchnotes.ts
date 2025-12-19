@@ -8,9 +8,13 @@ export interface Version {
 
 export const PATCHNOTES: Version[] = [
   {
-    version: '1.1.3',
+    version: '1.2.0',
     releaseDate: '2025-12-19',
-    improvements: ['Optimized profile image handling and caching'],
+    improvements: [
+      'Optimized profile image handling and caching',
+      'Improved query performance',
+    ],
+    features: ['Monitoring Dashboard for Trainer/Ausbilder/in'],
   },
   {
     version: '1.1.2',
