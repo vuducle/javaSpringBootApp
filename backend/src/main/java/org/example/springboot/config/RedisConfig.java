@@ -8,24 +8,32 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory; // NEUER Import
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.time.Duration;
 
 /**
  * 🚀 **Was geht hier ab?**
- * Hier wird die Connection zu Redis klargemacht. Redis ist 'ne geisteskrank schnelle In-Memory-Datenbank.
- * Wir nutzen die als Cache, um Daten, die oft gebraucht werden, zwischenzuspeichern (z.B. User-Sessions,
+ * Hier wird die Connection zu Redis klargemacht. Redis ist 'ne geisteskrank
+ * schnelle In-Memory-Datenbank.
+ * Wir nutzen die als Cache, um Daten, die oft gebraucht werden,
+ * zwischenzuspeichern (z.B. User-Sessions,
  * häufig abgefragte Daten).
  *
- * Statt jedes Mal lahm auf die Haupt-DB zuzugreifen, holt sich die App die Daten blitzschnell aus Redis.
- * Das gibt der App 'nen krassen Performance-Boost und sorgt für 'nen smootheren Vibe.
- * Diese Klasse stellt sicher, dass die App weiß, wo Redis läuft und wie sie damit quatschen soll.
+ * Statt jedes Mal lahm auf die Haupt-DB zuzugreifen, holt sich die App die
+ * Daten blitzschnell aus Redis.
+ * Das gibt der App 'nen krassen Performance-Boost und sorgt für 'nen smootheren
+ * Vibe.
+ * Diese Klasse stellt sicher, dass die App weiß, wo Redis läuft und wie sie
+ * damit quatschen soll.
  */
 @Configuration
 @EnableCaching
@@ -46,18 +54,27 @@ public class RedisConfig {
         return new LettuceConnectionFactory(redisHost, redisPort);
     }
 
-    // 2. Manuelle Konfiguration des RedisTemplate (wie zuvor, aber mit injizierter ConnectionFactory)
+    // 2. Manuelle Konfiguration des RedisTemplate (wie zuvor, aber mit injizierter
+    // ConnectionFactory)
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
 
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
 
+        // Konfiguriere ObjectMapper mit JSR310-Support für LocalDateTime und andere
+        // Java 8 date/time types
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
+
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        template.setValueSerializer(serializer);
 
         template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+        template.setHashValueSerializer(serializer);
 
         template.afterPropertiesSet();
         return template;
@@ -68,11 +85,13 @@ public class RedisConfig {
         return RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(10))
                 .disableCachingNullValues()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+                .serializeValuesWith(RedisSerializationContext.SerializationPair
+                        .fromSerializer(new GenericJackson2JsonRedisSerializer()));
     }
 
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory connectionFactory, RedisCacheConfiguration cacheConfiguration) {
+    public CacheManager cacheManager(RedisConnectionFactory connectionFactory,
+            RedisCacheConfiguration cacheConfiguration) {
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(cacheConfiguration)
                 .build();

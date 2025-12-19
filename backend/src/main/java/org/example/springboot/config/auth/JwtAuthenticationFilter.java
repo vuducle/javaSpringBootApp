@@ -57,14 +57,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/swagger-ui")
                 || path.startsWith("/uploads/profile-images");
-        log.info("shouldNotFilter for path: {} = {}", path, skip);
-        // return skip;
 
         if (log.isDebugEnabled()) {
             log.debug("shouldNotFilter for path: {} = {}", path, skip);
         }
 
-        return !skip;
+        return skip;
     }
 
     @Override
@@ -83,26 +81,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         jwt = authorizationHeader.substring(7);
-        final String email = jwtUtil.extractSubject(jwt);
-        // 3. Wichtigste Logik (kommt als Nächstes):
-        // TODO: Extrahiere den Username aus dem JWT.
-        // TODO: Prüfe, ob der Token gültig ist.
-        // TODO: Lade den User aus PostgreSQL via UserDetailsService.
-        // TODO: Speichere den User im Spring Security Context.
 
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // Tải UserDetails từ cơ sở dữ liệu PostgreSQL (thông qua UserService)
-            UserDetails userDetails = userService.loadUserByUsername(email);
-            if (jwtUtil.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities());
+        try {
+            final String email = jwtUtil.extractSubject(jwt);
+            log.info("JWT Subject extracted: {}", email);
 
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                log.info("Loading UserDetails for email: {}", email);
+                UserDetails userDetails = userService.loadUserByUsername(email);
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                if (jwtUtil.isTokenValid(jwt, userDetails)) {
+                    log.info("JWT Token is valid for user: {}", email);
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities());
+
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.info("Authentication set successfully for user: {}", email);
+                } else {
+                    log.warn("JWT Token is NOT valid for user: {}", email);
+                }
+            } else {
+                log.warn("Email is null or authentication already exists. email={}", email);
             }
+        } catch (Exception e) {
+            log.error("Error processing JWT token: {}", e.getMessage(), e);
         }
 
         // filterChain.doFilter(request, response);

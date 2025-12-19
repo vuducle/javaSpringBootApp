@@ -22,6 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 
 import java.io.IOException;
 import java.awt.AlphaComposite;
@@ -341,17 +344,23 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // The "username" parameter is treated as the email for authentication purposes
+        // Note: Not cached to avoid LazyInitializationException when deserializing from
+        // Redis
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Benutzer mit E-Mail nicht gefunden: " + username));
     }
 
+    @Cacheable(value = "users", key = "#username")
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 
+    @Transactional
+    @CacheEvict(value = "users", key = "#username")
     public void changePassword(String username, String oldPassword, String newPassword) {
         User user = findByUsername(username);
 
@@ -366,6 +375,8 @@ public class UserService implements UserDetailsService {
         log.info("AUDIT: Passwort wurde vom Benutzer '{}' geändert.", username);
     }
 
+    @Transactional
+    @CacheEvict(value = "users", key = "#user.username")
     public void resetPassword(User user, String newPassword) {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
@@ -373,6 +384,8 @@ public class UserService implements UserDetailsService {
                 user.getUsername());
     }
 
+    @Transactional
+    @CacheEvict(value = "users", key = "#username")
     public User updateUserProfile(String username,
             UserUpdateRequest request) {
         User user = findByUsername(username);

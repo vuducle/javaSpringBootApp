@@ -10,6 +10,7 @@ import {
   LogOut,
   Key,
   Info,
+  Activity,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAppDispatch } from '@/store';
@@ -83,6 +84,12 @@ export function Navbar({ user }: { user: User }) {
       href: '/audit-logs',
       label: 'navbar.auditLogs',
       icon: Briefcase,
+      adminOnly: true,
+    },
+    {
+      href: '/admin/monitoring',
+      label: 'navbar.monitoring',
+      icon: Activity,
       adminOnly: true,
     },
     { href: '/profil', label: 'navbar.profile', icon: UserIcon },

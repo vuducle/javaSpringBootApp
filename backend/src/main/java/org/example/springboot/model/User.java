@@ -20,7 +20,7 @@ import java.util.ArrayList;
 @Table(name = "app_user")
 @Data
 @NoArgsConstructor
-@JsonIgnoreProperties({ "todos", "password", "authorities", "accountNonExpired", "accountNonLocked",
+@JsonIgnoreProperties({ "roles", "trainer", "todos", "password", "authorities", "accountNonExpired", "accountNonLocked",
         "credentialsNonExpired", "enabled", "nachweiseAlsAzubi", "nachweiseAlsAusbilder" })
 public class User implements UserDetails {
     @Id
