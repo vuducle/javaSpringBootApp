@@ -1,6 +1,6 @@
 'use client';
 
-import { EditNachweisForm } from '@/features/nachweise/EditNachweisForm';
+import EditNachweisForm from '@/features/nachweise/EditNachweisForm';
 import { useParams } from 'next/navigation';
 
 export default function EditNachweisPageClient() {

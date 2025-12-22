@@ -166,7 +166,7 @@ public class NachweisController {
     @ApiResponse(responseCode = "404", description = "Nachweis nicht gefunden.")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isOwner(authentication, #id)")
     public ResponseEntity<Nachweis> getNachweisById(@PathVariable UUID id) {
-        Nachweis nachweis = nachweisRepository.findById(id)
+        Nachweis nachweis = nachweisRepository.findWithActivitiesById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Nachweis not found"));
         return ResponseEntity.ok(nachweis);
     }

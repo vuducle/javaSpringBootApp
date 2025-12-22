@@ -546,20 +546,10 @@ export function AllNachweiseView() {
                           <Eye />
                         </Link>
                       </Button>
-                      <Button
-                        asChild={nachweis.status === 'ABGELEHNT'}
-                        disabled={nachweis.status !== 'ABGELEHNT'}
-                        className="bg-chart-4 hover:bg-chart-4/80 dark:bg-chart-4 dark:hover:bg-chart-4/80 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {nachweis.status === 'ABGELEHNT' ? (
-                          <Link
-                            href={`/nachweis/${nachweis.id}/edit`}
-                          >
-                            <Pen />
-                          </Link>
-                        ) : (
+                      <Button className="bg-chart-4 hover:bg-chart-4/80 dark:bg-chart-4 dark:hover:bg-chart-4/80 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        <Link href={`/nachweis/${nachweis.id}/edit`}>
                           <Pen />
-                        )}
+                        </Link>
                       </Button>
                       <ConfirmDeleteDialog
                         onConfirm={async () => {
