@@ -160,11 +160,13 @@ export default function EditUserModal({
   async function saveProfile() {
     setSaving(true);
     try {
+      // Exclude 'role' from the request body as it's managed via separate endpoints
+      const { role, ...profileData } = form;
       await api.put(
         `/api/user/users/${encodeURIComponent(
           user.username
         )}/profile`,
-        form
+        profileData
       );
       // handle role changes: grant admin if needed
       if (
@@ -217,12 +219,13 @@ export default function EditUserModal({
     setShowRevokeConfirm(false);
     setSaving(true);
     try {
-      // First save profile
+      // First save profile (exclude 'role' as it's managed via separate endpoints)
+      const { role, ...profileData } = form;
       await api.put(
         `/api/user/users/${encodeURIComponent(
           user.username
         )}/profile`,
-        form
+        profileData
       );
 
       // Then revoke admin
