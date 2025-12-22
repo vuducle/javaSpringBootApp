@@ -23,8 +23,8 @@ export default function NotificationItem({
   onMarkAsRead,
   onDelete,
 }: NotificationItemProps) {
-  const { t, language } = useTranslation();
-  const dateLocale = language === 'en' ? enUS : de;
+  const { t, locale } = useTranslation();
+  const dateLocale = locale === 'en' ? enUS : de;
 
   const typeConfig = {
     SUCCESS: {
@@ -110,7 +110,7 @@ export default function NotificationItem({
               }}
               className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
               title={
-                language === 'de'
+                locale === 'de'
                   ? 'Als gelesen markieren'
                   : 'Mark as read'
               }
@@ -124,7 +124,7 @@ export default function NotificationItem({
               onDelete(notification.id);
             }}
             className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900 rounded transition-colors"
-            title={language === 'de' ? 'Löschen' : 'Delete'}
+            title={locale === 'de' ? 'Löschen' : 'Delete'}
           >
             <Trash2 className="w-4 h-4 text-red-500" />
           </button>

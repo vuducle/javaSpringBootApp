@@ -21,7 +21,7 @@ interface NachweisBasicsSectionProps<T extends FieldValues> {
   currentAusbilder: {
     name: string;
     email: string;
-    profileImageUrl?: string;
+    profileImageUrl?: string | null;
   } | null;
   t: (key: string) => string;
 }

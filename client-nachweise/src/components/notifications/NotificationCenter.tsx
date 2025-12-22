@@ -33,7 +33,7 @@ export default function NotificationCenter({
   open,
   onOpenChange,
 }: NotificationCenterProps) {
-  const { t, language } = useTranslation();
+  const { t, locale } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const notifications = useSelector(selectNotifications);
   const unreadCount = useSelector(selectUnreadCount);
@@ -91,7 +91,7 @@ export default function NotificationCenter({
           <SheetTitle className="flex items-center justify-between">
             <span className="flex items-center gap-2">
               <Bell className="w-5 h-5" />
-              {language === 'de'
+              {locale === 'de'
                 ? 'Benachrichtigungen'
                 : 'Notifications'}
             </span>
@@ -103,9 +103,7 @@ export default function NotificationCenter({
           </SheetTitle>
           <SheetDescription>
             {notifications.length}{' '}
-            {language === 'de'
-              ? 'Benachrichtigungen'
-              : 'Notifications'}
+            {locale === 'de' ? 'Benachrichtigungen' : 'Notifications'}
           </SheetDescription>
         </SheetHeader>
 
@@ -118,7 +116,7 @@ export default function NotificationCenter({
               size="sm"
               className="w-full"
             >
-              {language === 'de'
+              {locale === 'de'
                 ? 'Alle als gelesen markieren'
                 : 'Mark all as read'}
             </Button>
@@ -134,9 +132,7 @@ export default function NotificationCenter({
                   <Bell className="w-8 h-8 text-gray-400" />
                 </div>
                 <p className="text-sm text-gray-500 mt-2">
-                  {language === 'de'
-                    ? 'Wird geladen...'
-                    : 'Loading...'}
+                  {locale === 'de' ? 'Wird geladen...' : 'Loading...'}
                 </p>
               </div>
             </div>
@@ -146,19 +142,19 @@ export default function NotificationCenter({
                 <img
                   src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3A0bnBiNG93YzAxa250Nm8wMnFnNDFqZ2d6ZjI2d3c1aHo5bHdwMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jU9OCvBiO1besabUKU/giphy.gif"
                   alt={
-                    language === 'de'
+                    locale === 'de'
                       ? 'Keine Benachrichtigungen'
                       : 'No notifications'
                   }
                   className="w-32 h-32 mx-auto mb-4 rounded-lg"
                 />
                 <p className="text-gray-500 font-medium">
-                  {language === 'de'
+                  {locale === 'de'
                     ? 'Keine Benachrichtigungen'
                     : 'No notifications'}
                 </p>
                 <p className="text-sm text-gray-400">
-                  {language === 'de'
+                  {locale === 'de'
                     ? 'Du erhältst Benachrichtigungen zu deinen Nachweisen'
                     : 'You will receive notifications about your records'}
                 </p>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -54,6 +54,7 @@ export function CreateNachweisForm() {
     string | null
   >(null);
   const [nummerError, setNummerError] = useState('');
+  const hasInitialized = useRef(false);
 
   const {
     register,
@@ -77,11 +78,16 @@ export function CreateNachweisForm() {
 
   // Auto-Berechnung Gesamtstunden
   useEffect(() => {
-    const calculateTotal = (timeValues: (string | undefined)[]) => {
+    const calculateTotal = (
+      timeValues: (string | number | undefined)[]
+    ) => {
       let total = 0;
       timeValues.forEach((time) => {
-        if (time) {
-          const hours = parseFloat(time);
+        if (time !== undefined && time !== null && time !== '') {
+          // parseFloat akzeptiert auch Zahlen, aber wir stellen sicher,
+          // dass es als String oder Zahl behandelt wird
+          const hours =
+            typeof time === 'number' ? time : parseFloat(time);
           if (!isNaN(hours)) total += hours;
         }
       });
@@ -96,7 +102,8 @@ export function CreateNachweisForm() {
         watch(
           `${prefix}_Time_${i + 1}` as keyof PdfGenerationFormValues
         )
-      );
+      ) as (string | undefined)[]; // Explizites Casting
+
       const dayTotal = calculateTotal(times);
       dayTotals.push(dayTotal);
       setValue(
@@ -142,7 +149,7 @@ export function CreateNachweisForm() {
     watch('su_Time_1'),
     watch('su_Time_2'),
     watch('su_Time_3'),
-    setValue,
+    // setValue NICHT in Dependencies - würde infinite loop verursachen!
   ]);
 
   // Ausbilder laden
@@ -204,16 +211,118 @@ export function CreateNachweisForm() {
       }
     };
 
+    const loadTemplateData = () => {
+      const templateDataStr = localStorage.getItem(
+        'nachweisTemplate'
+      );
+      if (templateDataStr) {
+        try {
+          const templateData = JSON.parse(templateDataStr);
+
+          // Setze die Basis-Daten
+          if (templateData.nummer)
+            setValue('nummer', templateData.nummer);
+          if (templateData.datumStart)
+            setValue('datumStart', templateData.datumStart);
+          if (templateData.datumEnde)
+            setValue('datumEnde', templateData.datumEnde);
+          if (templateData.ausbildungsjahr)
+            setValue(
+              'ausbildungsjahr',
+              String(templateData.ausbildungsjahr)
+            );
+          if (templateData.ausbilderId)
+            setValue('ausbilderId', templateData.ausbilderId);
+          if (templateData.bemerkung)
+            setValue('bemerkung', templateData.bemerkung);
+
+          // Lade Aktivitäten
+          if (
+            templateData.activities &&
+            Array.isArray(templateData.activities)
+          ) {
+            templateData.activities.forEach(
+              (activity: {
+                day: string;
+                slot: number;
+                description: string;
+                hours: number;
+                section: string;
+              }) => {
+                // Finde das richtige day mapping
+                const dayMapping = DAY_MAPPINGS.find(
+                  (dm) => dm.day === activity.day
+                );
+                if (dayMapping) {
+                  const { prefix } = dayMapping;
+                  const slot = activity.slot;
+
+                  // Setze die Werte für diese Aktivität
+                  setValue(
+                    `${prefix}_${slot}` as keyof PdfGenerationFormValues,
+                    activity.description
+                  );
+                  setValue(
+                    `${prefix}_Time_${slot}` as keyof PdfGenerationFormValues,
+                    String(activity.hours)
+                  );
+                  setValue(
+                    `${prefix}_Sec_${slot}` as keyof PdfGenerationFormValues,
+                    activity.section
+                  );
+                }
+              }
+            );
+          }
+
+          // Template aus localStorage entfernen
+          localStorage.removeItem('nachweisTemplate');
+
+          showToast(
+            t('nachweis.templateLoaded') || 'Vorlage wurde geladen',
+            'success'
+          );
+        } catch (error) {
+          console.error('Fehler beim Laden der Vorlage:', error);
+          localStorage.removeItem('nachweisTemplate');
+        }
+      }
+    };
+
     const init = async () => {
+      // CRITICAL: Verhindere mehrfache Ausführung
+      if (hasInitialized.current) {
+        console.log(
+          '[CreateNachweisForm] Init bereits ausgeführt, überspringe...'
+        );
+        return;
+      }
+      hasInitialized.current = true;
+      console.log('[CreateNachweisForm] Starte Initialisierung...');
+
       const ausbilder = await fetchAusbilder();
       if (user.istEingeloggt) {
         await fetchUserProfile(ausbilder);
         await fetchNextNummer();
+        // Lade Template-Daten nach der Initialisierung
+        loadTemplateData();
       }
+      console.log(
+        '[CreateNachweisForm] Initialisierung abgeschlossen'
+      );
     };
 
     init();
-  }, [user.istEingeloggt, user.name, setValue]);
+
+    // Cleanup: Reset guard beim unmount (wichtig für React Strict Mode)
+    return () => {
+      console.log(
+        '[CreateNachweisForm] Cleanup - setze hasInitialized zurück'
+      );
+      hasInitialized.current = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Läuft NUR EINMAL beim ersten Mount - verhindert unendliche API-Calls
 
   // Form Submit
   const onSubmit = async (data: PdfGenerationFormValues) => {
@@ -342,7 +451,7 @@ export function CreateNachweisForm() {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full container mx-auto py-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Formular */}
         <Card className="w-full">

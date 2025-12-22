@@ -46,7 +46,7 @@ export default function EditNachweisForm({
 }: EditNachweisFormProps) {
   const router = useRouter();
   const { showToast } = useToast();
-  const { t, language } = useTranslation();
+  const { t, locale } = useTranslation();
   const user = useAppSelector(selectUser);
 
   const {
@@ -91,7 +91,7 @@ export default function EditNachweisForm({
         const isTrainer = nachweisData.ausbilder?.id === user.id;
         if (!isOwner && !isTrainer) {
           showToast(
-            language === 'de'
+            locale === 'de'
               ? 'Sie haben keine Berechtigung, diesen Nachweis zu bearbeiten'
               : 'You do not have permission to edit this Nachweis',
             'error'
@@ -286,7 +286,7 @@ export default function EditNachweisForm({
       await api.put(`/api/nachweise/${nachweisId}`, updatePayload);
 
       showToast(
-        language === 'de'
+        locale === 'de'
           ? 'Nachweis erfolgreich aktualisiert'
           : 'Nachweis updated successfully',
         'success'
@@ -311,7 +311,7 @@ export default function EditNachweisForm({
       console.error('Error response:', error.response?.data);
       const message =
         error.response?.data?.message ||
-        (language === 'de'
+        (locale === 'de'
           ? 'Fehler beim Aktualisieren des Nachweises'
           : 'Error updating Nachweis');
       showToast(message, 'error');
@@ -352,7 +352,7 @@ export default function EditNachweisForm({
     return (
       <Card>
         <CardContent className="p-8 text-center">
-          {language === 'de' ? 'Wird geladen...' : 'Loading...'}
+          {locale === 'de' ? 'Wird geladen...' : 'Loading...'}
         </CardContent>
       </Card>
     );
@@ -375,7 +375,7 @@ export default function EditNachweisForm({
           <Card>
             <CardHeader>
               <CardTitle>
-                {language === 'de'
+                {locale === 'de'
                   ? 'Nachweis bearbeiten'
                   : 'Edit Nachweis'}
               </CardTitle>
@@ -510,10 +510,10 @@ export default function EditNachweisForm({
                 className="w-full"
               >
                 {isSubmitting
-                  ? language === 'de'
+                  ? locale === 'de'
                     ? 'Wird gespeichert...'
                     : 'Saving...'
-                  : language === 'de'
+                  : locale === 'de'
                   ? 'Nachweis aktualisieren & PDF generieren'
                   : 'Update Nachweis & Generate PDF'}
               </Button>

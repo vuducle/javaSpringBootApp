@@ -48,8 +48,10 @@ import {
   ChevronRight,
   ChevronUp,
   ChevronDown,
+  Copy,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
 import ConfirmDeleteDialog from '@/components/core/ConfirmDeleteDialog';
 
@@ -91,6 +93,7 @@ export function AllNachweiseView() {
   const { showToast } = useToast();
   const { t } = useTranslation();
   const { mutate } = useSWRConfig();
+  const router = useRouter();
   const [status, setStatus] = useState<string>('ALL');
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
@@ -102,6 +105,9 @@ export function AllNachweiseView() {
     useState('');
   const [isDeletingAll, setIsDeletingAll] = useState(false);
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [copyingAsTemplate, setCopyingAsTemplate] = useState<
+    string | null
+  >(null);
   // local loading state is not needed because SWR provides isLoading
 
   // per-row delete will be performed with ConfirmDeleteDialog per row
@@ -196,6 +202,96 @@ export function AllNachweiseView() {
       setIsDownloadingAll(false);
     }
   }, [showToast, t]);
+
+  const handleCopyAsTemplate = useCallback(
+    async (nachweisId: string) => {
+      // Verhindere mehrfache gleichzeitige Anfragen (Rate-Limit-Schutz)
+      if (copyingAsTemplate) {
+        showToast(
+          t('nachweis.copyInProgress') ||
+            'Bitte warten Sie, während die Vorlage erstellt wird...',
+          'warning'
+        );
+        return;
+      }
+
+      setCopyingAsTemplate(nachweisId);
+
+      try {
+        // Optimierte Strategie: Erst next-nummer abrufen, dann nachweis-Details
+        // Das reduziert die Anzahl an API-Calls wenn der erste Call fehlschlägt
+
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error('Request timeout')),
+            15000
+          )
+        );
+
+        // Nächste Nummer abrufen (schneller Call zuerst)
+        const nextNummerResponse = (await Promise.race([
+          api.get('/api/nachweise/my-nachweise/next-nummer'),
+          timeoutPromise,
+        ])) as any;
+        const nextNummer = nextNummerResponse.data?.nextNummer || 1;
+
+        // Längere Verzögerung zwischen API-Calls (Backend Rate Limit: 100/min)
+        // Bei 2 Calls pro Operation können ~25 Operationen pro Minute gemacht werden
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        // Nachweis Details abrufen
+        const nachweisResponse = (await Promise.race([
+          api.get(`/api/nachweise/${nachweisId}`),
+          timeoutPromise,
+        ])) as any;
+        const nachweisData = nachweisResponse.data;
+
+        // Template Daten im localStorage speichern
+        const templateData = {
+          ...nachweisData,
+          nummer: nextNummer,
+          // Entferne ID und Status für die Vorlage
+          id: undefined,
+          status: undefined,
+          // Behalte alle anderen Daten
+        };
+
+        localStorage.setItem(
+          'nachweisTemplate',
+          JSON.stringify(templateData)
+        );
+
+        showToast(
+          t('nachweis.copyAsTemplateSuccess') ||
+            'Vorlage erstellt. Sie werden weitergeleitet...',
+          'success'
+        );
+
+        // Kurze Verzögerung vor Navigation für bessere UX
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Zur Erstellenseite navigieren
+        router.push('/erstellen');
+      } catch (err: any) {
+        console.error('Fehler beim Kopieren als Vorlage:', err);
+
+        const errorMessage =
+          err?.message === 'Request timeout'
+            ? t('nachweis.copyTimeout') ||
+              'Anfrage dauert zu lange. Bitte versuchen Sie es später erneut.'
+            : err?.response?.status === 429
+            ? t('nachweis.rateLimitExceeded') ||
+              'Zu viele Anfragen. Bitte warten Sie 30 Sekunden und versuchen Sie es erneut.'
+            : t('nachweis.copyAsTemplateError') ||
+              'Fehler beim Erstellen der Vorlage';
+
+        showToast(errorMessage, 'error');
+      } finally {
+        setCopyingAsTemplate(null);
+      }
+    },
+    [copyingAsTemplate, showToast, t, router]
+  );
 
   // SWR with dedupe, caching, and automatic revalidation
   const { data, error, isLoading } = useSWR(
@@ -537,19 +633,46 @@ export function AllNachweiseView() {
                     {nachweis.comment}
                   </TableCell>
                   <TableCell>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-1">
                       <Button
                         asChild
                         className="bg-chart-3 hover:bg-chart-3/80 dark:bg-chart-2 dark:hover:bg-chart-2/80 cursor-pointer transition-all"
+                        title={t('nachweis.view') || 'Anzeigen'}
                       >
                         <Link href={`/nachweis/${nachweis.id}`}>
                           <Eye />
                         </Link>
                       </Button>
-                      <Button className="bg-chart-4 hover:bg-chart-4/80 dark:bg-chart-4 dark:hover:bg-chart-4/80 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                      <Button
+                        className="bg-chart-4 hover:bg-chart-4/80 dark:bg-chart-4 dark:hover:bg-chart-4/80 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={t('nachweis.edit') || 'Bearbeiten'}
+                      >
                         <Link href={`/nachweis/${nachweis.id}/edit`}>
                           <Pen />
                         </Link>
+                      </Button>
+                      <Button
+                        onClick={() =>
+                          handleCopyAsTemplate(nachweis.id)
+                        }
+                        disabled={
+                          copyingAsTemplate === nachweis.id ||
+                          !!copyingAsTemplate
+                        }
+                        className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={
+                          copyingAsTemplate === nachweis.id
+                            ? t('nachweis.copyInProgress') ||
+                              'Wird kopiert...'
+                            : t('nachweis.copyAsTemplate') ||
+                              'Als Vorlage erstellen'
+                        }
+                      >
+                        {copyingAsTemplate === nachweis.id ? (
+                          <div className="animate-spin">⏳</div>
+                        ) : (
+                          <Copy />
+                        )}
                       </Button>
                       <ConfirmDeleteDialog
                         onConfirm={async () => {
@@ -575,7 +698,10 @@ export function AllNachweiseView() {
                           ]);
                         }}
                       >
-                        <Button className="bg-destructive hover:bg-destructive/80 dark:bg-chart-5 dark:hover:bg-chart-5/80 cursor-pointer transition-all">
+                        <Button
+                          className="bg-destructive hover:bg-destructive/80 dark:bg-chart-5 dark:hover:bg-chart-5/80 cursor-pointer transition-all"
+                          title={t('nachweis.delete') || 'Löschen'}
+                        >
                           <Trash />
                         </Button>
                       </ConfirmDeleteDialog>
