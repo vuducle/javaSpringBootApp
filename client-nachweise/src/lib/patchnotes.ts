@@ -8,6 +8,16 @@ export interface Version {
 
 export const PATCHNOTES: Version[] = [
   {
+    version: '1.5.0',
+    releaseDate: '2025-12-24',
+    features: [
+      'Batch export of records/Nachweise to PDF',
+      'Batch delete of records/Nachweise',
+      'Batch status update for records/Nachweise',
+    ],
+    bugfixes: ['Fixed to revoke the role (admin) properly'],
+  },
+  {
     version: '1.4.0',
     releaseDate: '2025-12-22',
     features: ['Template copying from existing records/Nachweise'],

@@ -30,7 +30,10 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -796,5 +799,301 @@ public class NachweisService {
             }
         }
         return baos.toByteArray();
+    }
+
+    /**
+     * Erstellt ein ZIP-Archiv mit ausgewählten Nachweisen (Batch-PDF-Export)
+     */
+    public byte[] erstelleBatchZipArchiv(List<UUID> nachweisIds, String username) throws IOException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Benutzer nicht gefunden: " + username));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+            for (UUID nachweisId : nachweisIds) {
+                try {
+                    Nachweis nachweis = nachweisRepository.findById(nachweisId)
+                            .orElse(null);
+
+                    if (nachweis == null) {
+                        log.warn("Nachweis {} nicht gefunden, überspringe...", nachweisId);
+                        continue;
+                    }
+
+                    // Check if user has access to this Nachweis
+                    boolean hasAccess = nachweis.getAzubi().getId().equals(user.getId()) ||
+                            user.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
+
+                    if (!hasAccess) {
+                        log.warn("Benutzer {} hat keinen Zugriff auf Nachweis {}", username, nachweisId);
+                        continue;
+                    }
+
+                    String userVollerName = nachweis.getAzubi().getName().toLowerCase().replaceAll(" ", "_");
+                    Path userDirectory = rootLocation
+                            .resolve(userVollerName + "_" + nachweis.getAzubi().getId().toString());
+                    Path pdfPath = userDirectory.resolve(nachweis.getId().toString() + ".pdf");
+
+                    if (Files.exists(pdfPath) && Files.isReadable(pdfPath)) {
+                        byte[] pdfBytes = Files.readAllBytes(pdfPath);
+                        String fileName = String.format("Nachweis_%d_%s.pdf", nachweis.getNummer(), userVollerName);
+                        ZipEntry zipEntry = new ZipEntry(fileName);
+                        zos.putNextEntry(zipEntry);
+                        zos.write(pdfBytes);
+                        zos.closeEntry();
+                    } else {
+                        log.warn("PDF für Nachweis {} nicht gefunden oder nicht lesbar unter: {}", nachweis.getId(),
+                                pdfPath);
+                    }
+                } catch (IOException e) {
+                    log.error("Fehler beim Hinzufügen des Nachweises {} zum Zip-Archiv: {}", nachweisId,
+                            e.getMessage());
+                }
+            }
+        }
+        return baos.toByteArray();
+    }
+
+    /**
+     * Löscht mehrere Nachweise auf einmal (Bulk-Delete)
+     */
+    @Transactional
+    public Map<String, Object> loescheMehrerNachweise(List<UUID> nachweisIds, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Benutzer nicht gefunden: " + username));
+
+        int deletedCount = 0;
+        int failedCount = 0;
+        List<UUID> failedIds = new ArrayList<>();
+        boolean isAdmin = user.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
+
+        for (UUID nachweisId : nachweisIds) {
+            try {
+                Nachweis nachweis = nachweisRepository.findById(nachweisId)
+                        .orElse(null);
+
+                if (nachweis == null) {
+                    log.warn("Nachweis {} nicht gefunden", nachweisId);
+                    failedCount++;
+                    failedIds.add(nachweisId);
+                    continue;
+                }
+
+                // Check if user has permission to delete
+                boolean canDelete = nachweis.getAzubi().getId().equals(user.getId()) || isAdmin;
+
+                if (!canDelete) {
+                    log.warn("Benutzer {} hat keine Berechtigung, Nachweis {} zu löschen", username, nachweisId);
+                    failedCount++;
+                    failedIds.add(nachweisId);
+                    continue;
+                }
+
+                // Delete PDF file
+                String userVollerName = nachweis.getAzubi().getName().toLowerCase().replaceAll(" ", "_");
+                Path userDirectory = rootLocation
+                        .resolve(userVollerName + "_" + nachweis.getAzubi().getId().toString());
+                Path fileToDelete = userDirectory.resolve(nachweis.getId().toString() + ".pdf");
+                deletePdfFile(fileToDelete, nachweis.getId());
+
+                // Delete from database
+                nachweisRepository.delete(nachweis);
+
+                // Log the action
+                nachweisAuditService.loggeNachweisAktion(nachweisId, "GELOESCHT", username, nachweis, null);
+
+                deletedCount++;
+                log.info("Nachweis {} erfolgreich gelöscht von Benutzer {}", nachweisId, username);
+
+            } catch (Exception e) {
+                log.error("Fehler beim Löschen von Nachweis {}: {}", nachweisId, e.getMessage());
+                failedCount++;
+                failedIds.add(nachweisId);
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("deletedCount", deletedCount);
+        result.put("failedCount", failedCount);
+        result.put("failedIds", failedIds);
+        result.put("message",
+                String.format("%d Nachweise erfolgreich gelöscht, %d fehlgeschlagen", deletedCount, failedCount));
+
+        return result;
+    }
+
+    /**
+     * Aktualisiert den Status mehrerer Nachweise auf einmal (Batch-Status-Update)
+     */
+    @Transactional
+    public Map<String, Object> aktualisiereStatusVonMehrerenNachweisen(List<UUID> nachweisIds, EStatus neuerStatus,
+            String comment, String username) {
+        int updatedCount = 0;
+        int failedCount = 0;
+        List<UUID> failedIds = new ArrayList<>();
+
+        for (UUID nachweisId : nachweisIds) {
+            try {
+                Nachweis nachweis = nachweisRepository.findById(nachweisId)
+                        .orElse(null);
+
+                if (nachweis == null) {
+                    log.warn("Nachweis {} nicht gefunden", nachweisId);
+                    failedCount++;
+                    failedIds.add(nachweisId);
+                    continue;
+                }
+
+                // Update status
+                Nachweis alterNachweisKopie = new Nachweis(nachweis);
+                nachweis.setStatus(neuerStatus);
+                nachweis.setComment(comment);
+                Nachweis updatedNachweis = nachweisRepository.save(nachweis);
+
+                // Log audit
+                nachweisAuditService.loggeNachweisAktion(updatedNachweis.getId(), "BATCH_STATUS_AKTUALISIERT",
+                        username, alterNachweisKopie, updatedNachweis);
+
+                // Send email to Azubi about status update
+                User azubi = updatedNachweis.getAzubi();
+                if (azubi != null && azubi.getEmail() != null && !azubi.getEmail().isEmpty()) {
+                    try {
+                        sendStatusUpdateEmail(updatedNachweis, azubi, neuerStatus);
+                    } catch (Exception e) {
+                        log.error("Fehler beim Senden der E-Mail für Nachweis {}: {}", nachweisId, e.getMessage());
+                        // Continue - email failure should not break the main flow
+                    }
+                }
+
+                updatedCount++;
+                log.info("Status von Nachweis {} erfolgreich aktualisiert zu {} durch {}",
+                        nachweisId, neuerStatus, username);
+
+            } catch (Exception e) {
+                log.error("Fehler beim Aktualisieren des Status von Nachweis {}: {}", nachweisId, e.getMessage());
+                failedCount++;
+                failedIds.add(nachweisId);
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("updatedCount", updatedCount);
+        result.put("failedCount", failedCount);
+        result.put("failedIds", failedIds);
+        result.put("message", String.format("%d Nachweise erfolgreich aktualisiert, %d fehlgeschlagen",
+                updatedCount, failedCount));
+
+        return result;
+    }
+
+    /**
+     * Hilfsmethode zum Senden von Status-Update-E-Mails
+     */
+    private void sendStatusUpdateEmail(Nachweis nachweis, User azubi, EStatus status) {
+        if (status == EStatus.ANGENOMMEN) {
+            String subject = "Dein Ausbildungsnachweis Nr. " + nachweis.getNummer() + " wurde angenommen";
+            String body = buildAcceptedEmailBody(nachweis, azubi);
+
+            // Try to attach PDF
+            try {
+                String userVollerName = azubi.getName().toLowerCase().replaceAll(" ", "_");
+                Path userDirectory = rootLocation.resolve(userVollerName + "_" + azubi.getId().toString());
+                Path file = userDirectory.resolve(nachweis.getId().toString() + ".pdf");
+                if (Files.exists(file) && Files.isReadable(file)) {
+                    byte[] pdfBytes = Files.readAllBytes(file);
+                    emailService.sendEmailWithAttachment(
+                            azubi.getEmail(),
+                            subject,
+                            body,
+                            pdfBytes,
+                            "Nachweis_" + nachweis.getNummer() + ".pdf",
+                            "application/pdf");
+                } else {
+                    emailService.sendEmail(azubi.getEmail(), subject, body);
+                }
+            } catch (IOException e) {
+                log.error("Fehler beim Laden des PDFs für E-Mail: {}", e.getMessage());
+                emailService.sendEmail(azubi.getEmail(), subject, body);
+            }
+        } else if (status == EStatus.ABGELEHNT) {
+            String subject = "Dein Ausbildungsnachweis Nr. " + nachweis.getNummer() + " wurde abgelehnt";
+            String body = buildRejectedEmailBody(nachweis, azubi);
+            emailService.sendEmail(azubi.getEmail(), subject, body);
+        }
+    }
+
+    private String buildAcceptedEmailBody(Nachweis nachweis, User azubi) {
+        return "<html>"
+                + "<head>"
+                + "<meta charset='utf-8'/>"
+                + "<style>"
+                + "body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; line-height: 1.5; color: #0f172a; }"
+                + ".container { max-width: 640px; margin: 0 auto; padding: 20px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 6px 20px rgba(16,24,40,0.06); }"
+                + ".header { background: linear-gradient(90deg, #1DB954 0%, #16a34a 100%); color: #ffffff; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }"
+                + ".content { padding: 22px; color: #0f172a; }"
+                + ".footer { text-align: center; font-size: 0.85em; color: #64748b; margin-top: 18px; }"
+                + ".btn { display:inline-block; background:#1DB954; color:#fff; padding:10px 16px; border-radius:999px; text-decoration:none; font-weight:600; }"
+                + "p { margin: 0 0 12px 0; }"
+                + "</style>"
+                + "</head>"
+                + "<body>"
+                + "<div class='container'>"
+                + "<div class='header'>"
+                + "<h2 style='margin:0;font-size:20px;'>Nice — dein Nachweis ist angenommen 🎉</h2>"
+                + "</div>"
+                + "<div class='content'>"
+                + "<p>Hallo " + azubi.getName() + ",</p>"
+                + "<p>dein Ausbildungsnachweis Nr. <strong>" + nachweis.getNummer()
+                + "</strong> wurde von deinem Ausbilder angenommen.</p>"
+                + "<p>Herzlichen Glückwunsch! Du findest den Nachweis im Anhang dieser E-Mail.</p>"
+                + "<p>Mit freundlichen Grüßen,</p>"
+                + "<p>Dein Ausbilder/in " + nachweis.getAusbilder().getName() + "</p>"
+                + "</div>"
+                + "<div class='footer'>"
+                + "<p>Dies ist eine automatisch generierte E-Mail. Bitte antworte nicht direkt auf diese Nachricht.</p>"
+                + "<p>Mit viel Liebe mit Java gecodet ❤️🇮🇩🇻🇳☕️</p>"
+                + "</div>"
+                + "</div>"
+                + "</body>"
+                + "</html>";
+    }
+
+    private String buildRejectedEmailBody(Nachweis nachweis, User azubi) {
+        return "<html>"
+                + "<head>"
+                + "<meta charset='utf-8'/>"
+                + "<style>"
+                + "body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; line-height: 1.5; color: #0f172a; }"
+                + ".container { max-width: 640px; margin: 0 auto; padding: 20px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 6px 20px rgba(16,24,40,0.06); }"
+                + ".header { background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%); color: #ffffff; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }"
+                + ".content { padding: 22px; color: #0f172a; }"
+                + ".footer { text-align: center; font-size: 0.85em; color: #64748b; margin-top: 18px; }"
+                + ".note { background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 12px; margin: 12px 0; }"
+                + "p { margin: 0 0 12px 0; }"
+                + "</style>"
+                + "</head>"
+                + "<body>"
+                + "<div class='container'>"
+                + "<div class='header'>"
+                + "<h2 style='margin:0;font-size:20px;'>Nachweis wurde abgelehnt</h2>"
+                + "</div>"
+                + "<div class='content'>"
+                + "<p>Hallo " + azubi.getName() + ",</p>"
+                + "<p>dein Ausbildungsnachweis Nr. <strong>" + nachweis.getNummer()
+                + "</strong> wurde leider abgelehnt.</p>"
+                + (nachweis.getComment() != null && !nachweis.getComment().isEmpty()
+                        ? "<div class='note'><strong>Kommentar:</strong><br/>" + nachweis.getComment() + "</div>"
+                        : "")
+                + "<p>Bitte überarbeite den Nachweis und reiche ihn erneut ein.</p>"
+                + "<p>Mit freundlichen Grüßen,</p>"
+                + "<p>Dein Ausbilder/in " + nachweis.getAusbilder().getName() + "</p>"
+                + "</div>"
+                + "<div class='footer'>"
+                + "<p>Dies ist eine automatisch generierte E-Mail. Bitte antworte nicht direkt auf diese Nachricht.</p>"
+                + "<p>Mit viel Liebe mit Java gecodet ❤️🇮🇩🇻🇳☕️</p>"
+                + "</div>"
+                + "</div>"
+                + "</body>"
+                + "</html>";
     }
 }

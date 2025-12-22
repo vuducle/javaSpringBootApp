@@ -10,6 +10,15 @@ import { selectUser } from '@/store/slices/userSlice';
 import useTrainers from '@/hooks/useTrainers';
 import useAzubis from '@/hooks/useAzubis';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
@@ -37,6 +46,10 @@ import {
   ChevronRight,
   ChevronUp,
   ChevronDown,
+  FileArchive,
+  Trash2,
+  CheckCircle,
+  XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
@@ -93,6 +106,22 @@ export function AdminNachweiseView() {
   const [sortBy, setSortBy] = useState<string>('datumStart');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const { mutate } = useSWRConfig();
+  // Bulk operations state
+  const [selectedNachweise, setSelectedNachweise] = useState<
+    Set<string>
+  >(new Set());
+  const [isBatchExporting, setIsBatchExporting] = useState(false);
+  const [isBatchDeleting, setIsBatchDeleting] = useState(false);
+  const [batchDeleteDialogOpen, setBatchDeleteDialogOpen] =
+    useState(false);
+  const [batchStatusDialogOpen, setBatchStatusDialogOpen] =
+    useState(false);
+  const [batchStatusAction, setBatchStatusAction] = useState<
+    'ANGENOMMEN' | 'ABGELEHNT' | null
+  >(null);
+  const [batchStatusComment, setBatchStatusComment] = useState('');
+  const [isBatchUpdatingStatus, setIsBatchUpdatingStatus] =
+    useState(false);
 
   // per-row delete handled via ConfirmDeleteDialog component
 
@@ -144,6 +173,214 @@ export function AdminNachweiseView() {
         return '⏳';
       default:
         return 'ℹ️';
+    }
+  };
+
+  // Bulk operations handlers
+  const toggleSelectAll = () => {
+    if (!data?.content) return;
+
+    if (selectedNachweise.size === data.content.length) {
+      setSelectedNachweise(new Set());
+    } else {
+      setSelectedNachweise(new Set(data.content.map((n) => n.id)));
+    }
+  };
+
+  const toggleSelectNachweis = (id: string) => {
+    setSelectedNachweise((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const handleBatchExport = async () => {
+    if (selectedNachweise.size === 0) {
+      showToast(
+        t('nachweis.batchExportNoSelection') ||
+          'Bitte wählen Sie mindestens einen Nachweis aus',
+        'warning'
+      );
+      return;
+    }
+
+    setIsBatchExporting(true);
+    try {
+      const resp = await api.post(
+        '/api/nachweise/batch-export',
+        { nachweisIds: Array.from(selectedNachweise) },
+        { responseType: 'blob' }
+      );
+
+      const contentType =
+        resp.headers['content-type'] || 'application/zip';
+      const blob = new Blob([resp.data], { type: contentType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const filename = `nachweise_batch_${new Date()
+        .toISOString()
+        .slice(0, 10)}.zip`;
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      showToast(
+        t('nachweis.batchExportSuccess') ||
+          `${selectedNachweise.size} Nachweise erfolgreich exportiert`,
+        'success'
+      );
+      setSelectedNachweise(new Set());
+    } catch (err) {
+      console.error(err);
+      showToast(
+        t('nachweis.batchExportError') || 'Fehler beim Batch-Export',
+        'error'
+      );
+    } finally {
+      setIsBatchExporting(false);
+    }
+  };
+
+  const handleBatchDelete = async () => {
+    if (selectedNachweise.size === 0) {
+      showToast(
+        t('nachweis.batchDeleteNoSelection') ||
+          'Bitte wählen Sie mindestens einen Nachweis aus',
+        'warning'
+      );
+      return;
+    }
+
+    setIsBatchDeleting(true);
+    try {
+      const resp = await api.delete('/api/nachweise/batch-delete', {
+        data: { nachweisIds: Array.from(selectedNachweise) },
+      });
+
+      const { deletedCount, failedCount } = resp.data;
+
+      showToast(
+        t('nachweis.batchDeleteSuccess') ||
+          `${deletedCount} Nachweise erfolgreich gelöscht${
+            failedCount > 0 ? `, ${failedCount} fehlgeschlagen` : ''
+          }`,
+        deletedCount > 0 ? 'success' : 'warning'
+      );
+
+      setSelectedNachweise(new Set());
+      setBatchDeleteDialogOpen(false);
+
+      // Revalidate list
+      mutate(
+        azubiId && azubiId !== 'ALL'
+          ? [
+              `/api/nachweise/admin/user/${azubiId}`,
+              {
+                status: status === 'ALL' ? undefined : status,
+                page,
+                size,
+                sortBy,
+                sortDir,
+              },
+            ]
+          : [
+              '/api/nachweise/admin/all',
+              {
+                status: status === 'ALL' ? undefined : status,
+                ausbilderId:
+                  ausbilderId === 'ALL' ? undefined : ausbilderId,
+                page,
+                size,
+                sortBy,
+                sortDir,
+              },
+            ]
+      );
+    } catch (err) {
+      console.error(err);
+      showToast(
+        t('nachweis.batchDeleteError') || 'Fehler beim Löschen',
+        'error'
+      );
+    } finally {
+      setIsBatchDeleting(false);
+    }
+  };
+
+  const handleBatchStatusUpdate = async () => {
+    if (!batchStatusAction) return;
+
+    setIsBatchUpdatingStatus(true);
+    try {
+      const resp = await api.put('/api/nachweise/batch-status', {
+        nachweisIds: Array.from(selectedNachweise),
+        status: batchStatusAction,
+        comment: batchStatusComment,
+      });
+
+      const { updatedCount, failedCount } = resp.data;
+
+      const statusText =
+        batchStatusAction === 'ANGENOMMEN'
+          ? t('nachweis.statusAngenommen') || 'genehmigt'
+          : t('nachweis.statusAbgelehnt') || 'abgelehnt';
+
+      showToast(
+        t('nachweis.batchStatusUpdateSuccess') ||
+          `${updatedCount} Nachweise erfolgreich ${statusText}${
+            failedCount > 0 ? `, ${failedCount} fehlgeschlagen` : ''
+          }`,
+        updatedCount > 0 ? 'success' : 'warning'
+      );
+
+      setSelectedNachweise(new Set());
+      setBatchStatusDialogOpen(false);
+      setBatchStatusAction(null);
+      setBatchStatusComment('');
+
+      // Revalidate list
+      mutate(
+        azubiId && azubiId !== 'ALL'
+          ? [
+              `/api/nachweise/admin/user/${azubiId}`,
+              {
+                status: status === 'ALL' ? undefined : status,
+                page,
+                size,
+                sortBy,
+                sortDir,
+              },
+            ]
+          : [
+              '/api/nachweise/admin/all',
+              {
+                status: status === 'ALL' ? undefined : status,
+                ausbilderId:
+                  ausbilderId === 'ALL' ? undefined : ausbilderId,
+                page,
+                size,
+                sortBy,
+                sortDir,
+              },
+            ]
+      );
+    } catch (err) {
+      console.error(err);
+      showToast(
+        t('nachweis.batchStatusUpdateError') ||
+          'Fehler beim Aktualisieren des Status',
+        'error'
+      );
+    } finally {
+      setIsBatchUpdatingStatus(false);
     }
   };
 
@@ -308,6 +545,58 @@ export function AdminNachweiseView() {
             </Select>
           </div>
           <div className="flex items-center space-x-2">
+            {selectedNachweise.size > 0 && (
+              <>
+                <div className="text-sm font-medium mr-2">
+                  {selectedNachweise.size}{' '}
+                  {t('nachweis.selected') || 'ausgewählt'}
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setBatchStatusAction('ANGENOMMEN');
+                    setBatchStatusDialogOpen(true);
+                  }}
+                  disabled={isBatchUpdatingStatus}
+                  className="bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700"
+                >
+                  <CheckCircle className="mr-1" />
+                  {t('nachweis.batchApprove') || 'Genehmigen'}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setBatchStatusAction('ABGELEHNT');
+                    setBatchStatusDialogOpen(true);
+                  }}
+                  disabled={isBatchUpdatingStatus}
+                  className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
+                >
+                  <XCircle className="mr-1" />
+                  {t('nachweis.batchReject') || 'Ablehnen'}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleBatchExport}
+                  disabled={isBatchExporting}
+                  className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+                >
+                  <FileArchive className="mr-1" />
+                  {isBatchExporting
+                    ? t('nachweis.exporting') || 'Exportiere...'
+                    : t('nachweis.batchExport') || 'Batch-Export'}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setBatchDeleteDialogOpen(true)}
+                  disabled={isBatchDeleting}
+                  className="bg-destructive hover:bg-destructive/80"
+                >
+                  <Trash2 className="mr-1" />
+                  {t('nachweis.batchDelete') || 'Batch-Löschen'}
+                </Button>
+              </>
+            )}
             <Button
               onClick={() => setPage(page - 1)}
               disabled={page === 0 || isLoading}
@@ -332,6 +621,21 @@ export function AdminNachweiseView() {
         <Table className="bg-sidebar-primary-foreground dark:bg-muted rounded-lg p-2">
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12">
+                <input
+                  type="checkbox"
+                  checked={
+                    data?.content &&
+                    selectedNachweise.size === data.content.length &&
+                    data.content.length > 0
+                  }
+                  onChange={toggleSelectAll}
+                  disabled={
+                    !data?.content || data.content.length === 0
+                  }
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </TableHead>
               <TableHead className="text-xs uppercase text-muted-foreground">
                 {t('nachweis.nummer')}
               </TableHead>
@@ -361,7 +665,7 @@ export function AdminNachweiseView() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-6">
+                <TableCell colSpan={9} className="text-center py-6">
                   <StatusPlaceholder
                     loading
                     loadingText={t('common.loading') ?? 'Lädt...'}
@@ -370,7 +674,7 @@ export function AdminNachweiseView() {
               </TableRow>
             ) : error ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-6">
+                <TableCell colSpan={9} className="text-center py-6">
                   <StatusPlaceholder
                     error
                     errorImage="https://http.cat/status/404.jpg"
@@ -387,6 +691,16 @@ export function AdminNachweiseView() {
                   key={nachweis.id}
                   className="group bg-white/60 dark:bg-slate-800/60 rounded-lg mb-3 shadow-sm hover:shadow-lg transition-shadow transform hover:-translate-y-0.5"
                 >
+                  <TableCell className="w-12">
+                    <input
+                      type="checkbox"
+                      checked={selectedNachweise.has(nachweis.id)}
+                      onChange={() =>
+                        toggleSelectNachweis(nachweis.id)
+                      }
+                      className="w-4 h-4 cursor-pointer"
+                    />
+                  </TableCell>
                   <TableCell className="w-12 text-lg font-semibold text-violet-600">
                     {nachweis.nummer ?? '-'}
                   </TableCell>
@@ -549,7 +863,7 @@ export function AdminNachweiseView() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={9}
                   className="text-center py-6 text-muted-foreground"
                 >
                   <div className="flex flex-col justify-center items-center">
@@ -569,6 +883,142 @@ export function AdminNachweiseView() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Batch Delete Dialog */}
+      <Dialog
+        open={batchDeleteDialogOpen}
+        onOpenChange={(open) => {
+          if (!open && !isBatchDeleting) {
+            setBatchDeleteDialogOpen(false);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t('nachweis.batchDeleteTitle') ||
+                'Ausgewählte Nachweise löschen?'}
+            </DialogTitle>
+            <DialogDescription>
+              {t('nachweis.batchDeleteDescription') ||
+                `Sie sind dabei, ${selectedNachweise.size} Nachweise zu löschen. Diese Aktion kann nicht rückgängig gemacht werden.`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <div className="text-sm font-semibold">
+              {selectedNachweise.size}{' '}
+              {t('nachweis.nachweiseWillBeDeleted') ||
+                'Nachweise werden gelöscht'}
+            </div>
+          </div>
+          <DialogFooter>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => setBatchDeleteDialogOpen(false)}
+                disabled={isBatchDeleting}
+              >
+                {t('nachweis.deleteCancel') || 'Abbrechen'}
+              </Button>
+              <Button
+                className="bg-destructive"
+                onClick={handleBatchDelete}
+                disabled={isBatchDeleting}
+              >
+                {isBatchDeleting
+                  ? t('nachweis.deleting') || 'Lösche...'
+                  : t('nachweis.batchDeleteConfirm') || 'Löschen'}
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Batch Status Update Dialog */}
+      <Dialog
+        open={batchStatusDialogOpen}
+        onOpenChange={(open) => {
+          if (!open && !isBatchUpdatingStatus) {
+            setBatchStatusDialogOpen(false);
+            setBatchStatusAction(null);
+            setBatchStatusComment('');
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {batchStatusAction === 'ANGENOMMEN'
+                ? t('nachweis.batchApproveTitle') ||
+                  'Nachweise genehmigen?'
+                : t('nachweis.batchRejectTitle') ||
+                  'Nachweise ablehnen?'}
+            </DialogTitle>
+            <DialogDescription>
+              {batchStatusAction === 'ANGENOMMEN'
+                ? t('nachweis.batchApproveDescription') ||
+                  `Sie sind dabei, ${selectedNachweise.size} Nachweise zu genehmigen. Die Azubis werden per E-Mail benachrichtigt.`
+                : t('nachweis.batchRejectDescription') ||
+                  `Sie sind dabei, ${selectedNachweise.size} Nachweise abzulehnen. Die Azubis werden per E-Mail benachrichtigt.`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="text-sm font-semibold">
+              {selectedNachweise.size}{' '}
+              {t('nachweis.nachweiseWillBeUpdated') ||
+                'Nachweise werden aktualisiert'}
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {t('nachweis.kommentar') || 'Kommentar'} (
+                {t('common.optional') || 'optional'})
+              </label>
+              <Textarea
+                placeholder={
+                  t('nachweis.commentPlaceholder') ||
+                  'Optionaler Kommentar...'
+                }
+                value={batchStatusComment}
+                onChange={(e) =>
+                  setBatchStatusComment(e.target.value)
+                }
+                rows={3}
+                disabled={isBatchUpdatingStatus}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setBatchStatusDialogOpen(false);
+                  setBatchStatusAction(null);
+                  setBatchStatusComment('');
+                }}
+                disabled={isBatchUpdatingStatus}
+              >
+                {t('nachweis.deleteCancel') || 'Abbrechen'}
+              </Button>
+              <Button
+                className={
+                  batchStatusAction === 'ANGENOMMEN'
+                    ? 'bg-green-500 hover:bg-green-600'
+                    : 'bg-red-500 hover:bg-red-600'
+                }
+                onClick={handleBatchStatusUpdate}
+                disabled={isBatchUpdatingStatus}
+              >
+                {isBatchUpdatingStatus
+                  ? t('nachweis.updating') || 'Aktualisiere...'
+                  : batchStatusAction === 'ANGENOMMEN'
+                  ? t('nachweis.batchApproveConfirm') || 'Genehmigen'
+                  : t('nachweis.batchRejectConfirm') || 'Ablehnen'}
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
