@@ -16,6 +16,9 @@ Eine moderne Full-Stack-Anwendung zur Verwaltung und Genehmigung von Ausbildungs
 - 🔄 **Nachweise bearbeiten** - Abgelehnte Nachweise nachbessern und erneut einreichen
 - 👤 **Profil verwalten** - Persönliche Daten und Profilbild aktualisieren
 - 🔒 **Passwort ändern** - Sichere Passwort-Verwaltung
+- 📦 **Batch-Export** - Mehrere Nachweise als ZIP-Archiv herunterladen
+- 🗑️ **Batch-Löschung** - Mehrere Nachweise gleichzeitig löschen
+- 🔔 **E-Mail-Benachrichtigungen** - Automatische Updates bei Statusänderungen
 
 ### Für Ausbilder/innen (Trainer)
 
@@ -24,6 +27,9 @@ Eine moderne Full-Stack-Anwendung zur Verwaltung und Genehmigung von Ausbildungs
 - 💬 **Feedback geben** - Kommentarfunktion für konstruktives Feedback
 - 📊 **Dashboard** - Statistische Übersicht aller Nachweise
 - 👥 **Azubis verwalten** - Zuordnung von Azubis zum Ausbilder
+- ⚡ **Batch-Genehmigung** - Mehrere Nachweise gleichzeitig genehmigen
+- ❌ **Batch-Ablehnung** - Mehrere Nachweise gleichzeitig ablehnen
+- 📧 **Automatische E-Mails** - PDFs werden automatisch an Azubis gesendet
 
 ### Für Administratoren
 
@@ -31,6 +37,7 @@ Eine moderne Full-Stack-Anwendung zur Verwaltung und Genehmigung von Ausbildungs
 - 👨‍💼 **Rollenverwaltung** - Azubi & Ausbilder-Rollen zuweisen
 - 📝 **Audit-Logs** - Nachverfolgung aller Aktionen im System
 - ⚙️ **Systemverwaltung** - Konfiguration und Überwachung
+- 📦 **Batch-Operationen** - Massenbearbeitung von Nachweisen
 
 ---
 
@@ -190,7 +197,7 @@ npm run dev
 ### Backend entwickeln
 
 ```bash
-cd javaMusicApp
+cd backend
 ./gradlew bootRun
 # http://localhost:8088
 ```
@@ -259,6 +266,9 @@ cd javaMusicApp
 - `PUT /api/nachweise/{id}` - Nachweis aktualisieren
 - `DELETE /api/nachweise/{id}` - Nachweis löschen
 - `GET /api/nachweise/{id}/pdf` - PDF herunterladen
+- `POST /api/nachweise/batch-export` - Mehrere Nachweise als ZIP herunterladen
+- `POST /api/nachweise/batch-delete` - Mehrere Nachweise löschen
+- `PUT /api/nachweise/batch-status` - Batch-Statusänderung (Admin)
 
 ### Admin
 
@@ -267,7 +277,7 @@ cd javaMusicApp
 - `PUT /api/user/{id}` - Benutzer aktualisieren
 - `DELETE /api/user/{id}` - Benutzer löschen
 
-Vollständige API-Dokumentation siehe [javaMusicApp/USER_API_DOCUMENTATION.md](./javaMusicApp/USER_API_DOCUMENTATION.md)
+Vollständige API-Dokumentation siehe [backend/USER_API_DOCUMENTATION.md](./backend/USER_API_DOCUMENTATION.md)
 
 ---
 
