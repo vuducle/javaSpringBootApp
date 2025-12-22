@@ -43,6 +43,7 @@
     "createUser": "Create User",
     "viewNachweise": "View Records",
     "auditLogs": "Audit Logs",
+    "monitoring": "Monitoring",
     "profile": "Profile",
     "logout": "Logout",
     "login": "Login"
@@ -187,6 +188,16 @@
     "statusIN_BEARBEITUNG": "In Progress",
     "azubi": "Apprentice",
     "aktion": "Actions",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "copyAsTemplate": "Create as template",
+    "copyAsTemplateSuccess": "Template created. Redirecting...",
+    "copyAsTemplateError": "Error creating template",
+    "copyInProgress": "Please wait while the template is being created...",
+    "copyTimeout": "Request is taking too long. Please try again later.",
+    "rateLimitExceeded": "Too many requests. Please wait 30 seconds and try again.",
+    "templateLoaded": "Template loaded successfully",
     "deleteConfirmTitle": "Delete record?",
     "deleteConfirmDescription": "Are you sure you want to delete this record? This action cannot be undone.",
     "deleteCancel": "Cancel",
@@ -212,6 +223,32 @@
     "downloading": "Preparing ZIP…",
     "downloadSuccess": "Download started.",
     "downloadError": "Error downloading records.",
+    "selected": "selected",
+    "batchExport": "Batch Export",
+    "batchDelete": "Batch Delete",
+    "exporting": "Exporting...",
+    "batchExportNoSelection": "Please select at least one record",
+    "batchExportSuccess": "Records exported successfully",
+    "batchExportError": "Error during batch export",
+    "batchDeleteNoSelection": "Please select at least one record",
+    "batchDeleteSuccess": "Records deleted successfully",
+    "batchDeleteError": "Error during deletion",
+    "batchDeleteTitle": "Delete selected records?",
+    "batchDeleteDescription": "You are about to delete multiple records. This action cannot be undone.",
+    "nachweiseWillBeDeleted": "records will be deleted",
+    "batchDeleteConfirm": "Delete",
+    "batchApprove": "Approve",
+    "batchReject": "Reject",
+    "batchApproveTitle": "Approve records?",
+    "batchApproveDescription": "You are about to approve multiple records. The apprentices will be notified by email.",
+    "batchRejectTitle": "Reject records?",
+    "batchRejectDescription": "You are about to reject multiple records. The apprentices will be notified by email.",
+    "nachweiseWillBeUpdated": "records will be updated",
+    "batchApproveConfirm": "Approve",
+    "batchRejectConfirm": "Reject",
+    "batchStatusUpdateSuccess": "Status updated successfully",
+    "batchStatusUpdateError": "Error updating status",
+    "commentPlaceholder": "Optional comment...",
     "viewer": {
       "title": "Training Record",
       "download": "Download",
@@ -261,6 +298,7 @@
     "deleteError": "An unexpected error occurred while deleting your profile image.",
     "selectFile": "Please select a file to upload.",
     "trainer": "Trainer",
+    "noTrainer": "Not assigned",
     "selectTrainer": "Select your trainer",
     "imageSizeHint": "Maximum file size: 2MB",
     "oldPassword": "Old Password",
@@ -280,7 +318,8 @@
   "common": {
     "cancel": "Cancel",
     "loading": "Loading...",
-    "ok": "OK"
+    "ok": "OK",
+    "optional": "optional"
   },
   "deleteModal": {
     "title": "Permanently delete?",
@@ -475,8 +514,43 @@
       "desc": "Small Todo API for demo and testing purposes."
     }
   },
-  "sort": {
-    "asc": "Ascending",
-    "desc": "Descending"
+  "notifications": {
+    "title": "Notifications",
+    "center": {
+      "title": "Notifications",
+      "description": "Your notifications",
+      "markAllAsRead": "Mark all as read",
+      "noNotifications": "No notifications",
+      "empty": "You have no new notifications"
+    },
+    "badge": {
+      "unread": "{count} unread"
+    },
+    "types": {
+      "SUCCESS": "Success",
+      "WARNING": "Warning",
+      "ERROR": "Error",
+      "INFO": "Information"
+    },
+    "status": {
+      "UNREAD": "Unread",
+      "READ": "Read"
+    },
+    "actions": {
+      "markAsRead": "Mark as read",
+      "delete": "Delete"
+    },
+    "nachweis": {
+      "submitted": "New record submitted",
+      "submittedMessage": "Apprentice {azubiName} submitted a new record No. {nachweisNummer}",
+      "updated": "Record updated",
+      "updatedMessage": "Apprentice {azubiName} updated record No. {nachweisNummer}",
+      "accepted": "Record approved",
+      "acceptedMessage": "Your record No. {nachweisNummer} has been approved",
+      "rejected": "Record rejected",
+      "rejectedMessage": "Your record No. {nachweisNummer} has been rejected. Comment: {comment}",
+      "statusChanged": "Record status changed",
+      "statusChangedMessage": "The status of record No. {nachweisNummer} has changed"
+    }
   }
 }

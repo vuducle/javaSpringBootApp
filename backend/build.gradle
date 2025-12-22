@@ -35,6 +35,10 @@ dependencies {
     implementation 'io.lettuce:lettuce-core'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+    // Jackson support for Java 8 date/time types
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    // Jackson support for Hibernate (fix ByteBuddy proxy serialization)
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate6'
     // Flyway for database migrations
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'

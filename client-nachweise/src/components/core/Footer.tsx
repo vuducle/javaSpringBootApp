@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useTranslation } from '@/context/LanguageContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggleButton } from './ThemeToggleButton';
+import { PatchnotesModal } from './PatchnotesModal';
 import { Github } from 'lucide-react'; // Import Github icon
 
 export function Footer() {
@@ -17,7 +18,10 @@ export function Footer() {
     <footer className="w-full bg-card p-4 text-center text-muted-foreground shadow-lg dark:bg-card">
       <div className="container mx-auto flex flex-col items-center justify-between gap-2 sm:flex-row">
         <div className="mx-automt-2 text-sm">
-          <p>&copy; 2025 - {currentYear} - NachweiseWelt - v1.1.2</p>
+          <p>
+            &copy; 2025 - {currentYear} - NachweiseWelt -{' '}
+            <PatchnotesModal />
+          </p>
         </div>
         <div className="mt-2 text-sm">
           <p>{t('footer.codedWithLove')}</p>

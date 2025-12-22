@@ -48,8 +48,12 @@ import {
   ChevronRight,
   ChevronUp,
   ChevronDown,
+  Copy,
+  FileArchive,
+  Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import StatusPlaceholder from '@/components/ui/StatusPlaceholder';
 import ConfirmDeleteDialog from '@/components/core/ConfirmDeleteDialog';
 
@@ -91,6 +95,7 @@ export function AllNachweiseView() {
   const { showToast } = useToast();
   const { t } = useTranslation();
   const { mutate } = useSWRConfig();
+  const router = useRouter();
   const [status, setStatus] = useState<string>('ALL');
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
@@ -102,6 +107,17 @@ export function AllNachweiseView() {
     useState('');
   const [isDeletingAll, setIsDeletingAll] = useState(false);
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [copyingAsTemplate, setCopyingAsTemplate] = useState<
+    string | null
+  >(null);
+  // Bulk operations state
+  const [selectedNachweise, setSelectedNachweise] = useState<
+    Set<string>
+  >(new Set());
+  const [isBatchExporting, setIsBatchExporting] = useState(false);
+  const [isBatchDeleting, setIsBatchDeleting] = useState(false);
+  const [batchDeleteDialogOpen, setBatchDeleteDialogOpen] =
+    useState(false);
   // local loading state is not needed because SWR provides isLoading
 
   // per-row delete will be performed with ConfirmDeleteDialog per row
@@ -197,6 +213,96 @@ export function AllNachweiseView() {
     }
   }, [showToast, t]);
 
+  const handleCopyAsTemplate = useCallback(
+    async (nachweisId: string) => {
+      // Verhindere mehrfache gleichzeitige Anfragen (Rate-Limit-Schutz)
+      if (copyingAsTemplate) {
+        showToast(
+          t('nachweis.copyInProgress') ||
+            'Bitte warten Sie, während die Vorlage erstellt wird...',
+          'warning'
+        );
+        return;
+      }
+
+      setCopyingAsTemplate(nachweisId);
+
+      try {
+        // Optimierte Strategie: Erst next-nummer abrufen, dann nachweis-Details
+        // Das reduziert die Anzahl an API-Calls wenn der erste Call fehlschlägt
+
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error('Request timeout')),
+            15000
+          )
+        );
+
+        // Nächste Nummer abrufen (schneller Call zuerst)
+        const nextNummerResponse = (await Promise.race([
+          api.get('/api/nachweise/my-nachweise/next-nummer'),
+          timeoutPromise,
+        ])) as any;
+        const nextNummer = nextNummerResponse.data?.nextNummer || 1;
+
+        // Längere Verzögerung zwischen API-Calls (Backend Rate Limit: 100/min)
+        // Bei 2 Calls pro Operation können ~25 Operationen pro Minute gemacht werden
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        // Nachweis Details abrufen
+        const nachweisResponse = (await Promise.race([
+          api.get(`/api/nachweise/${nachweisId}`),
+          timeoutPromise,
+        ])) as any;
+        const nachweisData = nachweisResponse.data;
+
+        // Template Daten im localStorage speichern
+        const templateData = {
+          ...nachweisData,
+          nummer: nextNummer,
+          // Entferne ID und Status für die Vorlage
+          id: undefined,
+          status: undefined,
+          // Behalte alle anderen Daten
+        };
+
+        localStorage.setItem(
+          'nachweisTemplate',
+          JSON.stringify(templateData)
+        );
+
+        showToast(
+          t('nachweis.copyAsTemplateSuccess') ||
+            'Vorlage erstellt. Sie werden weitergeleitet...',
+          'success'
+        );
+
+        // Kurze Verzögerung vor Navigation für bessere UX
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Zur Erstellenseite navigieren
+        router.push('/erstellen');
+      } catch (err: any) {
+        console.error('Fehler beim Kopieren als Vorlage:', err);
+
+        const errorMessage =
+          err?.message === 'Request timeout'
+            ? t('nachweis.copyTimeout') ||
+              'Anfrage dauert zu lange. Bitte versuchen Sie es später erneut.'
+            : err?.response?.status === 429
+            ? t('nachweis.rateLimitExceeded') ||
+              'Zu viele Anfragen. Bitte warten Sie 30 Sekunden und versuchen Sie es erneut.'
+            : t('nachweis.copyAsTemplateError') ||
+              'Fehler beim Erstellen der Vorlage';
+
+        showToast(errorMessage, 'error');
+      } finally {
+        setCopyingAsTemplate(null);
+      }
+    },
+    [copyingAsTemplate, showToast, t, router]
+  );
+
   // SWR with dedupe, caching, and automatic revalidation
   const { data, error, isLoading } = useSWR(
     [
@@ -224,6 +330,140 @@ export function AllNachweiseView() {
       },
     }
   );
+
+  // Bulk operations handlers (after data is defined)
+  const toggleSelectAll = useCallback(() => {
+    if (!data?.content) return;
+
+    if (selectedNachweise.size === data.content.length) {
+      setSelectedNachweise(new Set());
+    } else {
+      setSelectedNachweise(new Set(data.content.map((n) => n.id)));
+    }
+  }, [data?.content, selectedNachweise.size]);
+
+  const toggleSelectNachweis = useCallback((id: string) => {
+    setSelectedNachweise((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const handleBatchExport = useCallback(async () => {
+    if (selectedNachweise.size === 0) {
+      showToast(
+        t('nachweis.batchExportNoSelection') ||
+          'Bitte wählen Sie mindestens einen Nachweis aus',
+        'warning'
+      );
+      return;
+    }
+
+    setIsBatchExporting(true);
+    try {
+      const resp = await api.post(
+        '/api/nachweise/batch-export',
+        { nachweisIds: Array.from(selectedNachweise) },
+        { responseType: 'blob' }
+      );
+
+      const contentType =
+        resp.headers['content-type'] || 'application/zip';
+      const blob = new Blob([resp.data], { type: contentType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const filename = `nachweise_batch_${new Date()
+        .toISOString()
+        .slice(0, 10)}.zip`;
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      showToast(
+        t('nachweis.batchExportSuccess') ||
+          `${selectedNachweise.size} Nachweise erfolgreich exportiert`,
+        'success'
+      );
+      setSelectedNachweise(new Set());
+    } catch (err) {
+      console.error(err);
+      showToast(
+        t('nachweis.batchExportError') || 'Fehler beim Batch-Export',
+        'error'
+      );
+    } finally {
+      setIsBatchExporting(false);
+    }
+  }, [selectedNachweise, showToast, t]);
+
+  const handleBatchDelete = useCallback(async () => {
+    if (selectedNachweise.size === 0) {
+      showToast(
+        t('nachweis.batchDeleteNoSelection') ||
+          'Bitte wählen Sie mindestens einen Nachweis aus',
+        'warning'
+      );
+      return;
+    }
+
+    setIsBatchDeleting(true);
+    try {
+      const resp = await api.delete('/api/nachweise/batch-delete', {
+        data: { nachweisIds: Array.from(selectedNachweise) },
+      });
+
+      const { deletedCount, failedCount } = resp.data;
+
+      showToast(
+        t('nachweis.batchDeleteSuccess') ||
+          `${deletedCount} Nachweise erfolgreich gelöscht${
+            failedCount > 0 ? `, ${failedCount} fehlgeschlagen` : ''
+          }`,
+        deletedCount > 0 ? 'success' : 'warning'
+      );
+
+      setSelectedNachweise(new Set());
+      setBatchDeleteDialogOpen(false);
+
+      // Revalidate list
+      mutate([
+        '/api/nachweise/my-nachweise',
+        {
+          status: status === 'ALL' ? undefined : status,
+          page,
+          size,
+          sortBy,
+          sortDir,
+        },
+      ]);
+    } catch (err) {
+      console.error(err);
+      showToast(
+        t('nachweis.batchDeleteError') || 'Fehler beim Löschen',
+        'error'
+      );
+    } finally {
+      setIsBatchDeleting(false);
+    }
+  }, [
+    selectedNachweise,
+    showToast,
+    t,
+    mutate,
+    status,
+    page,
+    size,
+    sortBy,
+    sortDir,
+  ]);
 
   // status variants replaced by emoji in getStatusEmoji
 
@@ -340,6 +580,34 @@ export function AllNachweiseView() {
             </div>
           </div>
           <div className="flex items-center space-x-2">
+            {selectedNachweise.size > 0 && (
+              <>
+                <div className="text-sm font-medium mr-2">
+                  {selectedNachweise.size}{' '}
+                  {t('nachweis.selected') || 'ausgewählt'}
+                </div>
+                <Button
+                  size="sm"
+                  onClick={handleBatchExport}
+                  disabled={isBatchExporting}
+                  className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+                >
+                  <FileArchive className="mr-1" />
+                  {isBatchExporting
+                    ? t('nachweis.exporting') || 'Exportiere...'
+                    : t('nachweis.batchExport') || 'Batch-Export'}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setBatchDeleteDialogOpen(true)}
+                  disabled={isBatchDeleting}
+                  className="bg-destructive hover:bg-destructive/80"
+                >
+                  <Trash2 className="mr-1" />
+                  {t('nachweis.batchDelete') || 'Batch-Löschen'}
+                </Button>
+              </>
+            )}
             <Button
               size="sm"
               onClick={() => openDeleteAllModal()}
@@ -384,6 +652,21 @@ export function AllNachweiseView() {
         <Table className="bg-sidebar-primary-foreground dark:bg-muted rounded-lg p-2">
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12">
+                <input
+                  type="checkbox"
+                  checked={
+                    data?.content &&
+                    selectedNachweise.size === data.content.length &&
+                    data.content.length > 0
+                  }
+                  onChange={toggleSelectAll}
+                  disabled={
+                    !data?.content || data.content.length === 0
+                  }
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </TableHead>
               <TableHead className="text-xs uppercase text-muted-foreground">
                 {t('nachweis.nummer')}
               </TableHead>
@@ -413,7 +696,7 @@ export function AllNachweiseView() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-6">
+                <TableCell colSpan={9} className="text-center py-6">
                   <StatusPlaceholder
                     loading
                     loadingText={t('common.loading') ?? 'Lädt...'}
@@ -422,7 +705,7 @@ export function AllNachweiseView() {
               </TableRow>
             ) : error ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-6">
+                <TableCell colSpan={9} className="text-center py-6">
                   <StatusPlaceholder
                     error
                     errorImage="https://http.cat/status/400"
@@ -440,6 +723,16 @@ export function AllNachweiseView() {
                   key={nachweis.id}
                   className="group bg-white/60 dark:bg-slate-800/60 rounded-lg mb-3 shadow-sm hover:shadow-lg transition-shadow transform hover:-translate-y-0.5"
                 >
+                  <TableCell className="w-12">
+                    <input
+                      type="checkbox"
+                      checked={selectedNachweise.has(nachweis.id)}
+                      onChange={() =>
+                        toggleSelectNachweis(nachweis.id)
+                      }
+                      className="w-4 h-4 cursor-pointer"
+                    />
+                  </TableCell>
                   <TableCell className="w-12 text-lg font-semibold text-violet-600">
                     {nachweis.nummer ?? '-'}
                   </TableCell>
@@ -537,28 +830,45 @@ export function AllNachweiseView() {
                     {nachweis.comment}
                   </TableCell>
                   <TableCell>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-1">
                       <Button
                         asChild
                         className="bg-chart-3 hover:bg-chart-3/80 dark:bg-chart-2 dark:hover:bg-chart-2/80 cursor-pointer transition-all"
+                        title={t('nachweis.view') || 'Anzeigen'}
                       >
                         <Link href={`/nachweis/${nachweis.id}`}>
                           <Eye />
                         </Link>
                       </Button>
                       <Button
-                        asChild={nachweis.status === 'ABGELEHNT'}
-                        disabled={nachweis.status !== 'ABGELEHNT'}
                         className="bg-chart-4 hover:bg-chart-4/80 dark:bg-chart-4 dark:hover:bg-chart-4/80 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={t('nachweis.edit') || 'Bearbeiten'}
                       >
-                        {nachweis.status === 'ABGELEHNT' ? (
-                          <Link
-                            href={`/nachweis/${nachweis.id}/edit`}
-                          >
-                            <Pen />
-                          </Link>
-                        ) : (
+                        <Link href={`/nachweis/${nachweis.id}/edit`}>
                           <Pen />
+                        </Link>
+                      </Button>
+                      <Button
+                        onClick={() =>
+                          handleCopyAsTemplate(nachweis.id)
+                        }
+                        disabled={
+                          copyingAsTemplate === nachweis.id ||
+                          !!copyingAsTemplate
+                        }
+                        className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={
+                          copyingAsTemplate === nachweis.id
+                            ? t('nachweis.copyInProgress') ||
+                              'Wird kopiert...'
+                            : t('nachweis.copyAsTemplate') ||
+                              'Als Vorlage erstellen'
+                        }
+                      >
+                        {copyingAsTemplate === nachweis.id ? (
+                          <div className="animate-spin">⏳</div>
+                        ) : (
+                          <Copy />
                         )}
                       </Button>
                       <ConfirmDeleteDialog
@@ -585,7 +895,10 @@ export function AllNachweiseView() {
                           ]);
                         }}
                       >
-                        <Button className="bg-destructive hover:bg-destructive/80 dark:bg-chart-5 dark:hover:bg-chart-5/80 cursor-pointer transition-all">
+                        <Button
+                          className="bg-destructive hover:bg-destructive/80 dark:bg-chart-5 dark:hover:bg-chart-5/80 cursor-pointer transition-all"
+                          title={t('nachweis.delete') || 'Löschen'}
+                        >
                           <Trash />
                         </Button>
                       </ConfirmDeleteDialog>
@@ -597,7 +910,7 @@ export function AllNachweiseView() {
               // ---- ELSE-Teil: Keine Daten vorhanden (Placeholder) ----
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={9}
                   className="text-center py-6 text-muted-foreground"
                 >
                   <div className="flex flex-col justify-center items-center">
@@ -680,6 +993,56 @@ export function AllNachweiseView() {
                 {isDeletingAll
                   ? t('nachweis.deleting')
                   : t('nachweis.deleteAllConfirmButton')}
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Batch Delete Dialog */}
+      <Dialog
+        open={batchDeleteDialogOpen}
+        onOpenChange={(open) => {
+          if (!open && !isBatchDeleting) {
+            setBatchDeleteDialogOpen(false);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t('nachweis.batchDeleteTitle') ||
+                'Ausgewählte Nachweise löschen?'}
+            </DialogTitle>
+            <DialogDescription>
+              {t('nachweis.batchDeleteDescription') ||
+                `Sie sind dabei, ${selectedNachweise.size} Nachweise zu löschen. Diese Aktion kann nicht rückgängig gemacht werden.`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <div className="text-sm font-semibold">
+              {selectedNachweise.size}{' '}
+              {t('nachweis.nachweiseWillBeDeleted') ||
+                'Nachweise werden gelöscht'}
+            </div>
+          </div>
+          <DialogFooter>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => setBatchDeleteDialogOpen(false)}
+                disabled={isBatchDeleting}
+              >
+                {t('nachweis.deleteCancel') || 'Abbrechen'}
+              </Button>
+              <Button
+                className="bg-destructive"
+                onClick={handleBatchDelete}
+                disabled={isBatchDeleting}
+              >
+                {isBatchDeleting
+                  ? t('nachweis.deleting') || 'Lösche...'
+                  : t('nachweis.batchDeleteConfirm') || 'Löschen'}
               </Button>
             </div>
           </DialogFooter>

@@ -11,6 +11,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.springboot.controller.nachweisController.dto.CreateNachweisRequest;
 import org.example.springboot.controller.nachweisController.dto.NachweisStatusUpdateRequest;
+import org.example.springboot.controller.nachweisController.dto.BatchRequest;
+import org.example.springboot.controller.nachweisController.dto.BatchDeleteResponse;
+import org.example.springboot.controller.nachweisController.dto.BatchStatusUpdateRequest;
+import org.example.springboot.controller.nachweisController.dto.BatchStatusUpdateResponse;
 import org.example.springboot.exception.ResourceNotFoundException;
 import org.example.springboot.model.enums.EStatus;
 import org.springframework.data.domain.Page;
@@ -34,6 +38,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -166,7 +171,7 @@ public class NachweisController {
     @ApiResponse(responseCode = "404", description = "Nachweis nicht gefunden.")
     @PreAuthorize("hasRole('ADMIN') or @nachweisSecurityService.isOwner(authentication, #id)")
     public ResponseEntity<Nachweis> getNachweisById(@PathVariable UUID id) {
-        Nachweis nachweis = nachweisRepository.findById(id)
+        Nachweis nachweis = nachweisRepository.findWithActivitiesById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Nachweis not found"));
         return ResponseEntity.ok(nachweis);
     }
@@ -365,5 +370,95 @@ public class NachweisController {
         Nachweis updatedNachweis = nachweisService.aktualisiereNachweisDurchAzubi(id, request,
                 userDetails.getUsername());
         return ResponseEntity.ok(updatedNachweis);
+    }
+
+    /**
+     * Batch-PDF-Export: Lädt ausgewählte Nachweise als ZIP-Archiv herunter.
+     * Sammelt die angegebenen Nachweis-PDFs und packt sie in ein ZIP-Archiv.
+     */
+    @PostMapping("/batch-export")
+    @Operation(summary = "Batch-PDF-Export: Lädt ausgewählte Nachweise als ZIP-Archiv herunter.", description = "Sammelt die angegebenen Nachweis-PDFs und packt sie in ein ZIP-Archiv. "
+            +
+            "Azubis können nur ihre eigenen Nachweise exportieren, Admins/Ausbilder alle.")
+    @ApiResponse(responseCode = "200", description = "ZIP-Archiv erfolgreich erstellt und zurückgegeben.")
+    @ApiResponse(responseCode = "400", description = "Ungültige Anfrage - Liste der IDs ist leer.")
+    @ApiResponse(responseCode = "403", description = "Verboten - Keine Berechtigung.")
+    @ApiResponse(responseCode = "500", description = "Interner Serverfehler beim Erstellen des ZIP-Archivs.")
+    public ResponseEntity<byte[]> batchExportPdfs(@Valid @RequestBody BatchRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            byte[] zipData = nachweisService.erstelleBatchZipArchiv(request.getNachweisIds(),
+                    userDetails.getUsername());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            String filename = "nachweise_export_" + System.currentTimeMillis() + ".zip";
+            headers.setContentDispositionFormData("attachment", filename);
+            return new ResponseEntity<>(zipData, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Bulk-Delete: Löscht mehrere Nachweise auf einmal.
+     * Löscht die angegebenen Nachweise aus der Datenbank und die zugehörigen
+     * PDF-Dateien.
+     */
+    @DeleteMapping("/batch-delete")
+    @Operation(summary = "Bulk-Delete: Löscht mehrere Nachweise auf einmal.", description = "Löscht die angegebenen Nachweise aus der Datenbank und die zugehörigen PDF-Dateien. "
+            +
+            "Azubis können nur ihre eigenen Nachweise löschen, Admins alle.")
+    @ApiResponse(responseCode = "200", description = "Nachweise erfolgreich gelöscht.")
+    @ApiResponse(responseCode = "400", description = "Ungültige Anfrage - Liste der IDs ist leer.")
+    @ApiResponse(responseCode = "403", description = "Verboten - Keine Berechtigung zum Löschen.")
+    public ResponseEntity<BatchDeleteResponse> batchDeleteNachweise(@Valid @RequestBody BatchRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> result = nachweisService.loescheMehrerNachweise(request.getNachweisIds(),
+                userDetails.getUsername());
+
+        @SuppressWarnings("unchecked")
+        List<UUID> failedIds = (List<UUID>) result.get("failedIds");
+
+        BatchDeleteResponse response = new BatchDeleteResponse(
+                (Integer) result.get("deletedCount"),
+                (Integer) result.get("failedCount"),
+                failedIds,
+                (String) result.get("message"));
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Batch-Status-Update: Aktualisiert den Status mehrerer Nachweise auf einmal.
+     * Ermöglicht Admins/Ausbildern, mehrere Nachweise gleichzeitig zu genehmigen
+     * oder abzulehnen.
+     */
+    @PutMapping("/batch-status")
+    @Operation(summary = "Batch-Status-Update: Aktualisiert den Status mehrerer Nachweise auf einmal.", description = "Ermöglicht Administratoren und Ausbildern, mehrere Nachweise gleichzeitig zu genehmigen oder abzulehnen. "
+            +
+            "Sendet automatisch E-Mails an die betroffenen Azubis.")
+    @ApiResponse(responseCode = "200", description = "Status erfolgreich aktualisiert.")
+    @ApiResponse(responseCode = "400", description = "Ungültige Anfrage - Liste der IDs ist leer oder Status ungültig.")
+    @ApiResponse(responseCode = "403", description = "Verboten - Nur Administratoren können den Status ändern.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<BatchStatusUpdateResponse> batchUpdateStatus(
+            @Valid @RequestBody BatchStatusUpdateRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Map<String, Object> result = nachweisService.aktualisiereStatusVonMehrerenNachweisen(
+                request.getNachweisIds(),
+                request.getStatus(),
+                request.getComment(),
+                userDetails.getUsername());
+
+        @SuppressWarnings("unchecked")
+        List<UUID> failedIds = (List<UUID>) result.get("failedIds");
+
+        BatchStatusUpdateResponse response = new BatchStatusUpdateResponse(
+                (Integer) result.get("updatedCount"),
+                (Integer) result.get("failedCount"),
+                failedIds,
+                (String) result.get("message"));
+
+        return ResponseEntity.ok(response);
     }
 }

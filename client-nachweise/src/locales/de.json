@@ -43,6 +43,7 @@
     "createUser": "User Erstellen",
     "viewNachweise": "Nachweise anschauen",
     "auditLogs": "Audit-Logs",
+    "monitoring": "Monitoring",
     "profile": "Profil",
     "logout": "Logout",
     "login": "Login"
@@ -131,7 +132,7 @@
     "ausbildungsjahr": "Ausbildungsjahr",
     "ausbildungsjahrPlaceholder": "z.B. 1. Ausbildungsjahr",
     "Ausbilder/innen": "Ausbilder/innen auswählen",
-    "Ausbilder/innenPlaceholder": "-- Bitte Ausbilder/innen wählen --",
+    "ausbilderPlaceholder": "-- Bitte Ausbilder/innen wählen --",
     "listEvery": "Liste jede",
     "monday": "Montag",
     "tuesday": "Dienstag",
@@ -188,6 +189,16 @@
     "statusIN_BEARBEITUNG": "In Bearbeitung",
     "azubi": "Azubi",
     "aktion": "Aktionen",
+    "view": "Anzeigen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "copyAsTemplate": "Als Vorlage erstellen",
+    "copyAsTemplateSuccess": "Vorlage erstellt. Sie werden weitergeleitet...",
+    "copyAsTemplateError": "Fehler beim Erstellen der Vorlage",
+    "copyInProgress": "Bitte warten Sie, während die Vorlage erstellt wird...",
+    "copyTimeout": "Anfrage dauert zu lange. Bitte versuchen Sie es später erneut.",
+    "rateLimitExceeded": "Zu viele Anfragen. Bitte warten Sie 30 Sekunden und versuchen Sie es erneut.",
+    "templateLoaded": "Vorlage wurde erfolgreich geladen",
     "deleteConfirmTitle": "Nachweis löschen?",
     "deleteConfirmDescription": "Möchtest du diesen Nachweis wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
     "deleteCancel": "Abbrechen",
@@ -213,6 +224,32 @@
     "downloading": "Erstelle ZIP…",
     "downloadSuccess": "Download gestartet.",
     "downloadError": "Fehler beim Herunterladen der Nachweise.",
+    "selected": "ausgewählt",
+    "batchExport": "Batch-Export",
+    "batchDelete": "Batch-Löschen",
+    "exporting": "Exportiere...",
+    "batchExportNoSelection": "Bitte wählen Sie mindestens einen Nachweis aus",
+    "batchExportSuccess": "Nachweise erfolgreich exportiert",
+    "batchExportError": "Fehler beim Batch-Export",
+    "batchDeleteNoSelection": "Bitte wählen Sie mindestens einen Nachweis aus",
+    "batchDeleteSuccess": "Nachweise erfolgreich gelöscht",
+    "batchDeleteError": "Fehler beim Löschen",
+    "batchDeleteTitle": "Ausgewählte Nachweise löschen?",
+    "batchDeleteDescription": "Sie sind dabei, mehrere Nachweise zu löschen. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "nachweiseWillBeDeleted": "Nachweise werden gelöscht",
+    "batchDeleteConfirm": "Löschen",
+    "batchApprove": "Genehmigen",
+    "batchReject": "Ablehnen",
+    "batchApproveTitle": "Nachweise genehmigen?",
+    "batchApproveDescription": "Sie sind dabei, mehrere Nachweise zu genehmigen. Die Azubis werden per E-Mail benachrichtigt.",
+    "batchRejectTitle": "Nachweise ablehnen?",
+    "batchRejectDescription": "Sie sind dabei, mehrere Nachweise abzulehnen. Die Azubis werden per E-Mail benachrichtigt.",
+    "nachweiseWillBeUpdated": "Nachweise werden aktualisiert",
+    "batchApproveConfirm": "Genehmigen",
+    "batchRejectConfirm": "Ablehnen",
+    "batchStatusUpdateSuccess": "Status erfolgreich aktualisiert",
+    "batchStatusUpdateError": "Fehler beim Aktualisieren des Status",
+    "commentPlaceholder": "Optionaler Kommentar...",
     "viewer": {
       "title": "Ausbildungsnachweis",
       "download": "Herunterladen",
@@ -262,6 +299,7 @@
     "deleteError": "Beim Löschen Ihres Profilbildes ist ein unerwarteter Fehler aufgetreten.",
     "selectFile": "Bitte wählen Sie eine Datei zum Hochladen aus.",
     "trainer": "Ausbilder/innen",
+    "noTrainer": "Keine/r zugewiesen",
     "selectTrainer": "Wähle deinen Ausbilder/innen",
     "imageSizeHint": "Maximale Dateigröße: 2MB",
     "oldPassword": "Altes Passwort",
@@ -281,7 +319,8 @@
   "common": {
     "cancel": "Abbrechen",
     "loading": "Lädt...",
-    "ok": "OK"
+    "ok": "OK",
+    "optional": "optional"
   },
   "deleteModal": {
     "title": "Endgültig löschen?",
@@ -478,6 +517,45 @@
     "todos": {
       "title": "Todos",
       "desc": "Kleine Todo-API für Demo- und Testzwecke."
+    }
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "center": {
+      "title": "Benachrichtigungen",
+      "description": "Deine Benachrichtigungen",
+      "markAllAsRead": "Alle als gelesen markieren",
+      "noNotifications": "Keine Benachrichtigungen",
+      "empty": "Du hast keine neuen Benachrichtigungen"
+    },
+    "badge": {
+      "unread": "{count} ungelesen"
+    },
+    "types": {
+      "SUCCESS": "Erfolg",
+      "WARNING": "Warnung",
+      "ERROR": "Fehler",
+      "INFO": "Information"
+    },
+    "status": {
+      "UNREAD": "Ungelesen",
+      "READ": "Gelesen"
+    },
+    "actions": {
+      "markAsRead": "Als gelesen markieren",
+      "delete": "Löschen"
+    },
+    "nachweis": {
+      "submitted": "Neuer Nachweis eingereicht",
+      "submittedMessage": "Der Azubi {azubiName} hat einen neuen Nachweis Nr. {nachweisNummer} eingereicht",
+      "updated": "Nachweis aktualisiert",
+      "updatedMessage": "Der Azubi {azubiName} hat den Nachweis Nr. {nachweisNummer} aktualisiert",
+      "accepted": "Nachweis genehmigt",
+      "acceptedMessage": "Dein Nachweis Nr. {nachweisNummer} wurde genehmigt",
+      "rejected": "Nachweis abgelehnt",
+      "rejectedMessage": "Dein Nachweis Nr. {nachweisNummer} wurde abgelehnt. Kommentar: {comment}",
+      "statusChanged": "Nachweis-Status geändert",
+      "statusChangedMessage": "Der Status von Nachweis Nr. {nachweisNummer} hat sich geändert"
     }
   }
 }

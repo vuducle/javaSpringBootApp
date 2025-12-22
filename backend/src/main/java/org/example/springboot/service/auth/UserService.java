@@ -22,6 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 
 import java.io.IOException;
 import java.awt.AlphaComposite;
@@ -318,8 +321,7 @@ public class UserService implements UserDetailsService {
 
     public Page<User> findAllWithFilters(String search, String team, Integer ausbildungsjahr, String rolle,
             Pageable pageable) {
-        Specification<User> spec = Specification
-                .where(UserSpecification.searchByTerm(search))
+        Specification<User> spec = UserSpecification.searchByTerm(search)
                 .and(UserSpecification.hasTeam(team))
                 .and(UserSpecification
                         .hasAusbildungsjahr(ausbildungsjahr))
@@ -341,17 +343,49 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // The "username" parameter is treated as the email for authentication purposes
+        // Note: Not cached to avoid LazyInitializationException when deserializing from
+        // Redis
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Benutzer mit E-Mail nicht gefunden: " + username));
     }
 
+    @Cacheable(value = "users", key = "#username")
+    @Transactional(readOnly = true)
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+
+        // Force-load trainer to avoid LazyInitializationException after cache retrieval
+        if (user.getTrainer() != null) {
+            user.getTrainer().getName(); // Access a property to initialize proxy
+        }
+
+        return user;
     }
 
+    /**
+     * 🚀 Lade User mit Trainer für Profile-Anzeige
+     * Nicht gecacht, weil Trainer via @JsonIgnore nicht serialisiert wird
+     * und danach verloren wäre
+     */
+    @Transactional(readOnly = true)
+    public User getUserProfileWithTrainer(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+
+        // Force-load trainer
+        if (user.getTrainer() != null) {
+            user.getTrainer().getName();
+        }
+
+        return user;
+    }
+
+    @Transactional
+    @CacheEvict(value = "users", key = "#username")
     public void changePassword(String username, String oldPassword, String newPassword) {
         User user = findByUsername(username);
 
@@ -366,6 +400,8 @@ public class UserService implements UserDetailsService {
         log.info("AUDIT: Passwort wurde vom Benutzer '{}' geändert.", username);
     }
 
+    @Transactional
+    @CacheEvict(value = "users", key = "#user.username")
     public void resetPassword(User user, String newPassword) {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
@@ -373,6 +409,8 @@ public class UserService implements UserDetailsService {
                 user.getUsername());
     }
 
+    @Transactional
+    @CacheEvict(value = "users", key = "#username")
     public User updateUserProfile(String username,
             UserUpdateRequest request) {
         User user = findByUsername(username);

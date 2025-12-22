@@ -161,7 +161,8 @@ public class UserController {
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getUserProfile(Authentication authentication) {
         String username = authentication.getName();
-        User user = userService.findByUsername(username);
+        // Use getUserProfileWithTrainer to ensure trainer is loaded
+        User user = userService.getUserProfileWithTrainer(username);
 
         UserResponse response = new UserResponse(user);
 
