@@ -21,7 +21,7 @@ ORDER BY installed_rank;
 -- To fix the checksum mismatch for V3, you have two options:
 
 -- OPTION 1: Update the checksum to match the local file
--- Run this if you intentionally modified V3 and want to update the database record
+-- Run this if you intentionally modified V3 and want to update the database e
 -- UPDATE flyway_schema_history
 -- SET checksum = -108703863
 -- WHERE version = '3';

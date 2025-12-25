@@ -35,6 +35,8 @@ public class Activity {
 
     private String section;
 
+
+
     // Kopierkonstruktor für Audit-Zwecke
     public Activity(Activity other) {
         this.id = other.id; // ID kopieren, falls benötigt, aber normalerweise bei neuen Objekten null

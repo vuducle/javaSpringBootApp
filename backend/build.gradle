@@ -57,6 +57,10 @@ dependencies {
     // Note: using TwelveMonkeys WebP provider (com.twelvemonkeys.imageio:imageio-webp)
     // Add alternative JAI-ImageIO core from JitPack to increase chance of WebP writer availability
     implementation 'com.github.jai-imageio:jai-imageio-core:1.4.0'
+    // Spring AI
+    implementation platform('org.springframework.ai:spring-ai-bom:1.0.0')
+    implementation 'org.springframework.ai:spring-ai-ollama-spring-boot-starter'
+
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
@@ -64,6 +68,13 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'com.h2database:h2'
+}
+
+// Spring AI BOM (Bill of Materials) um Versionen zu verwalten
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:1.0.0-M5" // Version für Ende 2025
+    }
 }
 
 // Task to run the PdfFieldLister CLI helper

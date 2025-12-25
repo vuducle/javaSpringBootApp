@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * wenn es um das Nachverfolgen von Rollen-Änderungen geht.
  *
  * Seine Hauptaufgaben:
- * - **record()**: Wird aufgerufen, wenn jemand einem User eine Rolle gibt oder wegnimmt.
+ * - **e()**: Wird aufgerufen, wenn jemand einem User eine Rolle gibt oder wegnimmt.
  *   Der Service erstellt dann einen `RoleAudit`-Eintrag in der Datenbank mit allen wichtigen
  *   Infos: Wer hat's getan, bei wem wurde was geändert und wann.
  * - **list()**: Holt alle Audit-Einträge aus der Datenbank, schön sortiert und aufgeteilt

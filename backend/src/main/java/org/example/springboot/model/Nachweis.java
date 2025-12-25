@@ -61,6 +61,10 @@ public class Nachweis {
         @OneToMany(mappedBy = "nachweis", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<Activity> activities = new ArrayList<>();
 
+        //v2
+        private String kiBewertung; // Zusammenfassendes Feedback der KI/AI
+        private boolean kiVorschlagAnnahme; // annehmen oder ablehnen
+
         // Kopierkonstruktor für Audit-Zwecke
         public Nachweis(Nachweis other) {
                 this.id = other.id;
