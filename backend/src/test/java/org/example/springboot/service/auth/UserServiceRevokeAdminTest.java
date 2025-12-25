@@ -67,7 +67,7 @@ class UserServiceRevokeAdminTest {
         trainee1.setName("Azubi One");
         trainee1.setEmail("azubi1@example.com");
         trainee1.setPassword("password");
-        trainee1.setTeam(adminUser.getId().toString());
+        trainee1.setTrainer(adminUser);
         trainee1.setRoles(new HashSet<>(Collections.singletonList(userRole)));
 
         // Setup trainee 2 assigned to admin
@@ -77,7 +77,7 @@ class UserServiceRevokeAdminTest {
         trainee2.setName("Azubi Two");
         trainee2.setEmail("azubi2@example.com");
         trainee2.setPassword("password");
-        trainee2.setTeam(adminUser.getId().toString());
+        trainee2.setTrainer(adminUser);
         trainee2.setRoles(new HashSet<>(Collections.singletonList(userRole)));
     }
 
@@ -87,7 +87,7 @@ class UserServiceRevokeAdminTest {
         List<User> dependents = Arrays.asList(trainee1, trainee2);
 
         when(userRepository.findByUsername("trainer1")).thenReturn(Optional.of(adminUser));
-        when(userRepository.findAllByTeam(adminUser.getId().toString())).thenReturn(dependents);
+        when(userRepository.findAllByTrainer(adminUser)).thenReturn(dependents);
         when(roleRepository.findByName(ERole.ROLE_ADMIN)).thenReturn(Optional.of(adminRole));
         when(roleRepository.findByName(ERole.ROLE_USER)).thenReturn(Optional.of(userRole));
         when(userRepository.countByRoles_Name(ERole.ROLE_ADMIN)).thenReturn(2L); // More than 1 admin exists
@@ -110,8 +110,8 @@ class UserServiceRevokeAdminTest {
 
         // Verify trainees were unassigned
         verify(userRepository).saveAll(dependents);
-        assertNull(trainee1.getTeam());
-        assertNull(trainee2.getTeam());
+        assertNull(trainee1.getTrainer());
+        assertNull(trainee2.getTrainer());
 
         // Verify admin role was removed
         verify(userRepository, atLeastOnce()).save(adminUser);
@@ -122,7 +122,7 @@ class UserServiceRevokeAdminTest {
     void revokeAdminWithoutDependents_shouldRevokeRoleOnly() {
         // Given
         when(userRepository.findByUsername("trainer1")).thenReturn(Optional.of(adminUser));
-        when(userRepository.findAllByTeam(adminUser.getId().toString())).thenReturn(Collections.emptyList());
+        when(userRepository.findAllByTrainer(adminUser)).thenReturn(Collections.emptyList());
         when(roleRepository.findByName(ERole.ROLE_ADMIN)).thenReturn(Optional.of(adminRole));
         when(roleRepository.findByName(ERole.ROLE_USER)).thenReturn(Optional.of(userRole));
         when(userRepository.countByRoles_Name(ERole.ROLE_ADMIN)).thenReturn(2L);
@@ -161,7 +161,7 @@ class UserServiceRevokeAdminTest {
     void revokeAdmin_shouldThrowException_whenLastAdmin() {
         // Given
         when(userRepository.findByUsername("trainer1")).thenReturn(Optional.of(adminUser));
-        when(userRepository.findAllByTeam(adminUser.getId().toString())).thenReturn(Collections.emptyList());
+        when(userRepository.findAllByTrainer(adminUser)).thenReturn(Collections.emptyList());
         when(roleRepository.findByName(ERole.ROLE_ADMIN)).thenReturn(Optional.of(adminRole));
         when(userRepository.countByRoles_Name(ERole.ROLE_ADMIN)).thenReturn(1L); // Last admin
 

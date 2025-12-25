@@ -20,7 +20,8 @@ import java.time.Instant;
 public class EmailVerificationToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "email_verification_token_seq_generator")
+    @SequenceGenerator(name = "email_verification_token_seq_generator", sequenceName = "email_verification_tokens_seq", allocationSize = 1)
     private Long id;
 
     @Column(nullable = false, unique = true)

@@ -13,7 +13,8 @@ import java.time.Instant;
 public class PasswordResetToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "password_reset_token_seq_generator")
+    @SequenceGenerator(name = "password_reset_token_seq_generator", sequenceName = "password_reset_tokens_seq", allocationSize = 50)
     private long id;
 
     @Column(nullable = false, unique = true)

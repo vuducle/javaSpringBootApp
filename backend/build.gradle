@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.flywaydb.flyway' version '9.22.3'
 }
 
 group = 'org.example'
@@ -52,6 +53,8 @@ dependencies {
     implementation 'org.apache.pdfbox:pdfbox:2.0.29'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'jakarta.mail:jakarta.mail-api:2.1.2'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
     // ImageIO WebP support (TwelveMonkeys)
     implementation 'com.twelvemonkeys.imageio:imageio-webp:3.9.4'
     // Note: using TwelveMonkeys WebP provider (com.twelvemonkeys.imageio:imageio-webp)
@@ -77,4 +80,10 @@ tasks.register('runPdfLister', JavaExec) {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+flyway {
+    url = 'jdbc:postgresql://localhost:5432/musik_lyrics_db'
+    user = 'postgres'
+    password = 'password'
 }

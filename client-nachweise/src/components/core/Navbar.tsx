@@ -87,12 +87,12 @@ export function Navbar({ user }: { user: User }) {
       icon: Briefcase,
       adminOnly: true,
     },
-    {
-      href: '/admin/monitoring',
-      label: 'navbar.monitoring',
-      icon: Activity,
-      adminOnly: true,
-    },
+    // {
+    //   href: '/admin/monitoring',
+    //   label: 'navbar.monitoring',
+    //   icon: Activity,
+    //   adminOnly: true,
+    // },
     { href: '/profil', label: 'navbar.profile', icon: UserIcon },
   ];
 

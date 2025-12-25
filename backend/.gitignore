@@ -39,3 +39,4 @@ application.properties
 generated_pdfs/
 
 *.log
+backups/
