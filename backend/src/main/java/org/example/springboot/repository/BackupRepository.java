@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface BackupRepository extends JpaRepository<BackupMetaData, String> {
     List<BackupMetaData> findByStatusOrderByCreatedAtDesc(String status);
+
     List<BackupMetaData> findByCreatedAtBefore(LocalDateTime date);
 }

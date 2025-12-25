@@ -3,16 +3,15 @@ ALTER TABLE app_user
 ADD COLUMN is_email_verified BOOLEAN DEFAULT FALSE NOT NULL;
 
 -- Create sequence for email verification tokens
-CREATE SEQUENCE email_verification_tokens_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+CREATE SEQUENCE email_verification_tokens_seq START
+WITH
+    1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
 
 -- Create email verification tokens table
 CREATE TABLE email_verification_tokens (
-    id BIGINT PRIMARY KEY DEFAULT nextval('email_verification_tokens_seq'),
+    id BIGINT PRIMARY KEY DEFAULT nextval(
+        'email_verification_tokens_seq'
+    ),
     token VARCHAR(255) NOT NULL UNIQUE,
     user_id UUID NOT NULL,
     expiry_date TIMESTAMP NOT NULL,

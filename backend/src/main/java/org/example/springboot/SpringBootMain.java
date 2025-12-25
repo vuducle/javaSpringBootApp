@@ -11,17 +11,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@OpenAPIDefinition(
-        info = @Info(
-                title="Spring Boot API",
-                version="1.0.0",
-                description = "Backend-Service für für Allrounder Zwecker, Java beste!",
-                contact = @Contact(
-                        name = "Denis Kunz - Der beste Java-Entwickler in Berlin, Deutschland",
-                        email = "deniskunz@example.com"
-                )
-        )
-)
+@OpenAPIDefinition(info = @Info(title = "Spring Boot API", version = "1.0.0", description = "Backend-Service für für Allrounder Zwecker, Java beste!", contact = @Contact(name = "Denis Kunz - Der beste Java-Entwickler in Berlin, Deutschland", email = "deniskunz@example.com")))
 
 @SpringBootApplication
 @EnableAsync
@@ -30,8 +20,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableConfigurationProperties(BackupProperties.class)
 public class SpringBootMain {
 
-    public static void main(String[] args) {
-        SpringApplication.run(SpringBootMain.class, args);
-    }
+        public static void main(String[] args) {
+                SpringApplication.run(SpringBootMain.class, args);
+        }
 
 }

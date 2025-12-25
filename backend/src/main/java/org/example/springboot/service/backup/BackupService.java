@@ -26,9 +26,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class BackupService {
-    
+
     private final BackupProperties backupProperties;
-    
+
     @Value("${spring.datasource.url}")
     private String datasourceUrl;
 
@@ -43,7 +43,7 @@ public class BackupService {
 
     @Autowired(required = false)
     private BackupRepository backupRepository;
-    
+
     public BackupService(BackupProperties backupProperties) {
         this.backupProperties = backupProperties;
     }
@@ -91,7 +91,7 @@ public class BackupService {
         String timestamp = LocalDateTime.now().format(FORMATTER);
         String filename = "nachweise_backup_" + timestamp + ".tar.gz";
         Path backupFile = backupDir.resolve(filename);
-        
+
         // Temporäre Verzeichnis für DB-Dump
         Path tempDir = Files.createTempDirectory("backup_");
         Path dbDumpFile = tempDir.resolve("database.sql.gz");
@@ -132,8 +132,7 @@ public class BackupService {
                 "-h", extractHost(),
                 "-U", datasourceUsername,
                 "-d", extractDatabase(),
-                "-F", "plain"
-        );
+                "-F", "plain");
 
         // Umgebungsvariable für Passwort
         Map<String, String> env = pb.environment();
@@ -142,11 +141,11 @@ public class BackupService {
         // Output zu gzip pipen
         pb.redirectErrorStream(true);
         Process pgDump = pb.start();
-        
+
         Process gzip = new ProcessBuilder("gzip")
                 .redirectOutput(outputFile.toFile())
                 .start();
-        
+
         // Stream manuell verbinden
         InputStream pgDumpOut = pgDump.getInputStream();
         OutputStream gzipIn = gzip.getOutputStream();
@@ -169,7 +168,7 @@ public class BackupService {
         if (exitCode != 0) {
             throw new RuntimeException("Database backup failed with exit code: " + exitCode);
         }
-        
+
         log.info("Database dump created: {}", outputFile);
     }
 
@@ -185,23 +184,23 @@ public class BackupService {
             String backendDir = System.getProperty("user.dir");
             Path generatedPdfsDir = Paths.get(backendDir, "generated_pdfs");
             Path uploadsDir = Paths.get(backendDir, "uploads");
-            
+
             // Baue tar Befehl mit ALLEN Dateien auf einmal
             List<String> tarCmd = new ArrayList<>();
             tarCmd.add("tar");
             tarCmd.add("-czf");
             tarCmd.add(outputFile.toAbsolutePath().toString());
-            
+
             // Datenbank-Dump hinzufügen (aus tempDir)
             tarCmd.add("-C");
             tarCmd.add(tempDir.toAbsolutePath().toString());
             tarCmd.add("database.sql.gz");
-            
+
             // Generierte PDFs hinzufügen wenn vorhanden (mit absoluten Pfaden)
             if (Files.exists(generatedPdfsDir) && Files.isDirectory(generatedPdfsDir)) {
                 log.info("Including generated_pdfs in backup");
                 tarCmd.add("-C");
-                tarCmd.add(backendDir);  // Absoluter Pfad zum Backend
+                tarCmd.add(backendDir); // Absoluter Pfad zum Backend
                 tarCmd.add("generated_pdfs");
             }
 
@@ -209,15 +208,15 @@ public class BackupService {
             if (Files.exists(uploadsDir) && Files.isDirectory(uploadsDir)) {
                 log.info("Including uploads in backup");
                 tarCmd.add("-C");
-                tarCmd.add(backendDir);  // Absoluter Pfad zum Backend
+                tarCmd.add(backendDir); // Absoluter Pfad zum Backend
                 tarCmd.add("uploads");
             }
 
             // Führe tar Befehl aus
             ProcessBuilder pb = new ProcessBuilder(tarCmd);
-            
+
             int exitCode = pb.start().waitFor();
-            
+
             if (exitCode != 0) {
                 log.error("Failed to create tar archive with exit code: {}", exitCode);
                 log.error("Tar command: {}", String.join(" ", tarCmd));
@@ -229,7 +228,7 @@ public class BackupService {
             } else {
                 throw new IOException("Tar archive file was not created");
             }
-            
+
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IOException("Tar creation was interrupted", e);
@@ -243,7 +242,7 @@ public class BackupService {
         if (!Files.exists(path)) {
             return;
         }
-        
+
         if (Files.isDirectory(path)) {
             Files.walk(path)
                     .sorted(Comparator.reverseOrder())
@@ -274,7 +273,7 @@ public class BackupService {
 
         // Temporäres Verzeichnis zum Extrahieren
         Path extractDir = Files.createTempDirectory("restore_");
-        
+
         try {
             // Step 1: tar.gz extrahieren
             log.info("Extracting tar archive...");
@@ -283,9 +282,8 @@ public class BackupService {
                     "-xzf",
                     backupFile.toAbsolutePath().toString(),
                     "-C",
-                    extractDir.toAbsolutePath().toString()
-            );
-            
+                    extractDir.toAbsolutePath().toString());
+
             int exitCode = pbTar.start().waitFor();
             if (exitCode != 0) {
                 throw new RuntimeException("Tar extraction failed with exit code: " + exitCode);
@@ -299,29 +297,28 @@ public class BackupService {
                     "psql",
                     "-h", extractHost(),
                     "-U", datasourceUsername,
-                    "-d", "postgres",  // Verbinde zu default DB
-                    "-c", "DROP DATABASE IF EXISTS \"" + dbName + "\" WITH (FORCE);"
-            );
-            
+                    "-d", "postgres", // Verbinde zu default DB
+                    "-c", "DROP DATABASE IF EXISTS \"" + dbName + "\" WITH (FORCE);");
+
             Map<String, String> envDrop = pbDropDb.environment();
             envDrop.put("PGPASSWORD", datasourcePassword);
-            
+
             int dropExitCode = pbDropDb.start().waitFor();
             if (dropExitCode != 0) {
                 log.warn("Warning: Failed to drop database, continuing with restore");
             } else {
                 log.info("Database dropped successfully");
             }
-            
+
             // Kurze Pause
             Thread.sleep(500);
-            
+
             // Datenbank-Dump wiederherstellen
             Path dbDumpFile = extractDir.resolve("database.sql.gz");
             if (!Files.exists(dbDumpFile)) {
                 throw new FileNotFoundException("database.sql.gz not found in backup");
             }
-            
+
             log.info("Restoring database from dump...");
             ProcessBuilder pbZcat = new ProcessBuilder("zcat", dbDumpFile.toString());
             pbZcat.redirectErrorStream(true);
@@ -331,15 +328,14 @@ public class BackupService {
                     "psql",
                     "-h", extractHost(),
                     "-U", datasourceUsername,
-                    "-d", "postgres",  // Stelle in postgres DB wieder her (wird CREATE DATABASE Befehle enthalten)
-                    "-v", "ON_ERROR_STOP=1"
-            );
+                    "-d", "postgres", // Stelle in postgres DB wieder her (wird CREATE DATABASE Befehle enthalten)
+                    "-v", "ON_ERROR_STOP=1");
 
             Map<String, String> env = pbPsql.environment();
             env.put("PGPASSWORD", datasourcePassword);
 
             Process psql = pbPsql.start();
-            
+
             // Streams verbinden
             InputStream zcatOut = zcat.getInputStream();
             OutputStream psqlIn = psql.getOutputStream();
@@ -391,7 +387,7 @@ public class BackupService {
             }
 
             log.info("Restore completed successfully");
-            
+
         } finally {
             // Cleanup temp directory
             deleteRecursively(extractDir);
@@ -478,8 +474,7 @@ public class BackupService {
                     try {
                         LocalDateTime fileTime = LocalDateTime.ofInstant(
                                 new Date(Files.getLastModifiedTime(path).toMillis()).toInstant(),
-                                java.time.ZoneId.systemDefault()
-                        );
+                                java.time.ZoneId.systemDefault());
 
                         if (fileTime.isBefore(cutoffDate)) {
                             Files.delete(path);
@@ -493,7 +488,7 @@ public class BackupService {
 
     /**
      * Speichere Backup-Metadaten in Datenbank (deaktiviert)
-     * Diese Funktionalität benötigt die backup_metadata Entity, 
+     * Diese Funktionalität benötigt die backup_metadata Entity,
      * die Datenbank-Schema-Abhängigkeiten verursacht beim Startup
      */
     private void saveBackupMetadata(BackupResult result) {
