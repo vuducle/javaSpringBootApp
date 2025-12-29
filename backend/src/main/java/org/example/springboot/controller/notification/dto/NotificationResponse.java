@@ -1,4 +1,4 @@
-package org.example.springboot.dto;
+package org.example.springboot.controller.notification.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

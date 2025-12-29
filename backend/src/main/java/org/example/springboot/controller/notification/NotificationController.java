@@ -1,4 +1,4 @@
-package org.example.springboot.controller;
+package org.example.springboot.controller.notification;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

@@ -1,9 +1,8 @@
-package org.example.springboot.controller;
+package org.example.springboot.controller.ai;
 
 import org.example.springboot.service.ai.NachweisAiService;
-import org.example.springboot.dto.NachweisAiReviewRequest;
-import org.example.springboot.dto.NachweisAiReviewResponse;
-import org.example.springboot.dto.ActivityDTO;
+import org.example.springboot.controller.ai.dto.NachweisAiReviewRequest;
+import org.example.springboot.controller.ai.dto.ActivityDTO;
 import org.example.springboot.model.record.ReviewResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +24,7 @@ import java.util.Map;
  * 
  * Diese API unterstützt Azubis und Ausbilder bei der Bewertung von
  * Ausbildungsnachweisen
- * mit Hilfe von Ollama (Gemma3:1b) Modell als KI-Unterstützung.
+ * mithilfe von Ollama (Gemma3:1b) Modell als KI-Unterstützung.
  */
 @RestController
 @RequestMapping("/api/nachweis/ai")
@@ -92,7 +90,7 @@ public class NachweisAiController {
                             "Migration auf PostgreSQL und Hibernate-Mapping",
                             "Backend"),
                     new ActivityDTO("Freitag", java.math.BigDecimal.valueOf(4),
-                            "Vorbereitung für nächste Woche, Gespräch mit Ausbilder",
+                            "Vorbereitung für nächste Woche, Gespräch mit Ausbilder Sebastian Preuschoff",
                             "Allgemein"));
 
             // KI-Analyse durchführen

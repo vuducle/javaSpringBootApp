@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.7'
+    id 'org.springframework.boot' version '3.5.5'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -34,7 +34,10 @@ dependencies {
     implementation 'org.springframework.session:spring-session-data-redis'
     implementation 'io.lettuce:lettuce-core'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+    
+    // OpenAPI/Swagger - kompatible Version für Spring Boot 3.x
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    
     // Jackson support for Java 8 date/time types
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     // Jackson support for Hibernate (fix ByteBuddy proxy serialization)
@@ -58,7 +61,6 @@ dependencies {
     // Add alternative JAI-ImageIO core from JitPack to increase chance of WebP writer availability
     implementation 'com.github.jai-imageio:jai-imageio-core:1.4.0'
     // Spring AI
-    implementation platform('org.springframework.ai:spring-ai-bom:1.0.0')
     implementation 'org.springframework.ai:spring-ai-ollama-spring-boot-starter'
 
     compileOnly 'org.projectlombok:lombok'
@@ -73,7 +75,7 @@ dependencies {
 // Spring AI BOM (Bill of Materials) um Versionen zu verwalten
 dependencyManagement {
     imports {
-        mavenBom "org.springframework.ai:spring-ai-bom:1.0.0-M5" // Version für Ende 2025
+        mavenBom "org.springframework.ai:spring-ai-bom:1.0.0-M5"
     }
 }
 

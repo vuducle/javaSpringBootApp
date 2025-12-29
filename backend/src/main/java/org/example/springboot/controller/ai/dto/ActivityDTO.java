@@ -1,12 +1,14 @@
-package org.example.springboot.dto;
+package org.example.springboot.controller.ai.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 
 /**
  * DTO für Activity-Daten zum Übermitteln an die KI
  */
 @Schema(description = "Aktivität eines einzelnen Tages im Ausbildungsnachweis")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record ActivityDTO(
         @Schema(description = "Wochentag der Aktivität", example = "Montag") String day,
 

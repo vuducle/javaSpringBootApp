@@ -1,5 +1,7 @@
 package org.example.springboot.controller.nachweisController.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -11,6 +13,7 @@ import org.example.springboot.model.enums.Weekday;
 import java.math.BigDecimal;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ActivityDTO {
     @NotNull(message = "Wochentag darf nicht null sein")
     @Schema(description = "Wochentag für die Aktivität", example = "MONDAY")
@@ -19,6 +22,7 @@ public class ActivityDTO {
     @NotNull(message = "Slot darf nicht null sein")
     @Min(value = 1, message = "Slot muss mindestens 1 sein")
     @Schema(description = "Zeitschlitz für die Aktivität (z.B. 1 für die erste Aufgabe des Tages)", example = "1")
+    @JsonProperty("slot")
     private Integer slot;
 
     @NotBlank(message = "Beschreibung darf nicht leer sein")

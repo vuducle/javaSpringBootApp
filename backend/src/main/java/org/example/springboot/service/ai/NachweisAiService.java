@@ -2,7 +2,7 @@ package org.example.springboot.service.ai;
 
 import org.example.springboot.model.Activity;
 import org.example.springboot.model.record.ReviewResult;
-import org.example.springboot.dto.ActivityDTO;
+import org.example.springboot.controller.ai.dto.ActivityDTO;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,20 +26,20 @@ public class NachweisAiService {
                 // ChatClient wird mit einem System-Prompt konfiguriert
                 this.chatClient = chatClientBuilder
                                 .defaultSystem(
-                                                "Du heißt Triesnha Ameilya und bist eine IT-Ausbilderin und Teamleiterin. "
-                                                                +
-                                                                "Deine Aufgabe ist es, die Wochenaktivitäten eines Azubis auf fachliche Qualität und Konformität zu prüfen. "
-                                                                +
-                                                                "Ein Bericht umfasst Montag bis Sonntag. Achte auf deutsche Rechtschreibung und Grammatik. "
-                                                                +
-                                                                "Du schreibst kurze, prägnante Antworten, damit die Azubis gutes Feedback erhalten. "
-                                                                +
-                                                                "Sei kritisch wie ein echter Ausbilder. " +
-                                                                "Wenn Informationen fehlen oder Zeiten unplausibel sind, lehne den Vorschlag ab. "
-                                                                +
-                                                                "Antworte IMMER in gültigem JSON-Format mit den Feldern: akzeptiert (boolean), status (string), "
-                                                                +
-                                                                "feedback (string), gefundeneSkills (array), warnungen (array).")
+                                                "Du heißt " + kiName + " und bist eine " + kiRolle + " ."
+                                                    +
+                                                    "Deine Aufgabe ist es, die Wochenaktivitäten eines Azubis auf fachliche Qualität und Konformität zu prüfen. "
+                                                    +
+                                                    "Ein Bericht umfasst Montag bis Sonntag. Achte auf deutsche Rechtschreibung und Grammatik. "
+                                                    +
+                                                    "Du schreibst kurze, prägnante Antworten, damit die Azubis gutes Feedback erhalten. "
+                                                    +
+                                                    "Sei kritisch wie ein echter Ausbilder. " +
+                                                    "Wenn Informationen fehlen oder Zeiten unplausibel sind, lehne den Vorschlag ab. "
+                                                    +
+                                                    "Antworte IMMER in gültigem JSON-Format mit den Feldern: akzeptiert (boolean), status (string), "
+                                                    +
+                                                    "feedback (string), gefundeneSkills (array), warnungen (array).")
                                 .build();
         }
 
@@ -63,16 +63,17 @@ public class NachweisAiService {
                         ReviewResult result = chatClient.prompt()
                                         .user(u -> u.text(
                                                         """
-                                                                        Prüfe diesen Wochenbericht auf Plausibilität:
-                                                                        {daten}
+                                                        Prüfe diesen Wochenbericht auf Plausibilität:
+                                                        {daten}
 
-                                                                        Kriterien:
-                                                                        1. Stehen die Stunden in einem realistischen Verhältnis zur Tätigkeit?
-                                                                        2. Ist die Beschreibung fachlich aussagekräftig?
-                                                                        3. Fehlen wichtige Informationen?
+                                                        Kriterien:
+                                                        1. Stehen die Stunden in einem realistischen Verhältnis zur Tätigkeit?
+                                                        2. Ist die Beschreibung fachlich aussagekräftig?
+                                                        3. Fehlen wichtige Informationen?
+                                                        4. Der Bericht startet immer am Montag und endet Sonntags. Achte auf das Datum.
 
-                                                                        Antworte STRENG im JSON-Format.
-                                                                        """)
+                                                        Antworte STRENG im JSON-Format.
+                                                        """)
                                                         .param("daten", wochenDaten))
                                         .call()
                                         .entity(ReviewResult.class);

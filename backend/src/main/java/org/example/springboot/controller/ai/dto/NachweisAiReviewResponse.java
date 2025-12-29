@@ -1,4 +1,4 @@
-package org.example.springboot.dto;
+package org.example.springboot.controller.ai.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;

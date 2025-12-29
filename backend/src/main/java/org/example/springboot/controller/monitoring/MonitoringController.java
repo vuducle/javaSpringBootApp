@@ -1,4 +1,4 @@
-package org.example.springboot.controller;
+package org.example.springboot.controller.monitoring;
 
 import org.example.springboot.monitoring.CacheMonitoring;
 import org.springframework.web.bind.annotation.*;

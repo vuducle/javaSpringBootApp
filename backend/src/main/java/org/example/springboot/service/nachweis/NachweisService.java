@@ -305,7 +305,7 @@ public class NachweisService {
         Sort sort = Sort.by(sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Specification<Nachweis> spec = Specification.where(NachweisSpecification.hasStatus(status))
+        Specification<Nachweis> spec = NachweisSpecification.hasStatus(status)
                 .and(NachweisSpecification.hasAusbilderId(ausbilderId));
 
         return nachweisRepository.findAll(spec, pageable);

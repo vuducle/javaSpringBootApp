@@ -22,35 +22,36 @@ public interface NachweisRepository extends JpaRepository<Nachweis, UUID>, JpaSp
      * 🚀 Optimiert - Eager loads azubi, ausbilder und activities
      */
     @EntityGraph(attributePaths = { "azubi", "ausbilder", "activities" })
-    Optional<Nachweis> findWithActivitiesById(UUID id);
+    Optional<Nachweis> findWithActivitiesById(@Param("id") UUID id);
 
     /**
      * 🚀 Optimiert - Eager loads azubi und ausbilder um N+1 zu vermeiden
      */
     @EntityGraph(attributePaths = { "azubi", "ausbilder" })
-    List<Nachweis> findAllByAzubiId(UUID azubiId);
+    List<Nachweis> findAllByAzubiId(@Param("azubiId") UUID azubiId);
 
     /**
      * 🚀 Optimiert - Paginated mit eager loaded Users
      */
     @EntityGraph(attributePaths = { "azubi", "ausbilder" })
-    Page<Nachweis> findAllByAzubiId(UUID azubiId, Pageable pageable);
+    Page<Nachweis> findAllByAzubiId(@Param("azubiId") UUID azubiId, Pageable pageable);
 
     /**
      * 🚀 Optimiert - Filter mit Status
      */
     @EntityGraph(attributePaths = { "azubi", "ausbilder" })
-    Page<Nachweis> findAllByAzubiIdAndStatus(UUID azubiId, EStatus status, Pageable pageable);
+    Page<Nachweis> findAllByAzubiIdAndStatus(@Param("azubiId") UUID azubiId, @Param("status") EStatus status,
+            Pageable pageable);
 
     /**
      * 🚀 Optimiert - Status Filter mit Pagination
      */
     @EntityGraph(attributePaths = { "azubi", "ausbilder" })
-    Page<Nachweis> findAllByStatus(EStatus status, Pageable pageable);
+    Page<Nachweis> findAllByStatus(@Param("status") EStatus status, Pageable pageable);
 
-    boolean existsByAusbilderUsername(String username);
+    boolean existsByAusbilderUsername(@Param("username") String username);
 
-    boolean existsByNummerAndAzubiId(int nummer, UUID azubiId);
+    boolean existsByNummerAndAzubiId(@Param("nummer") int nummer, @Param("azubiId") UUID azubiId);
 
     /**
      * 🚀 Optimiert - COUNT Query (efficient, keine N+1)

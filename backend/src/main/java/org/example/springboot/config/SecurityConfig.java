@@ -131,24 +131,5 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // -- 3. CORS KONFIGURATION (Um den hartnäckigen 401 zu beheben) --
-    // Dadurch wird eine globale CORS-Regel für alle Endpunkte erstellt.
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                String[] origins = Arrays.stream(frontendOrigins.split(","))
-                        .map(String::trim)
-                        .filter(s -> !s.isEmpty())
-                        .toArray(String[]::new);
 
-                registry.addMapping("/**")
-                        .allowedOrigins(origins)
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-            }
-        };
-    }
 }
