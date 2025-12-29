@@ -1,5 +1,6 @@
 package org.example.springboot.controller.ai;
 
+import org.example.springboot.dto.NachweisAiValidationResponse;
 import org.example.springboot.service.ai.NachweisAiService;
 import org.example.springboot.controller.ai.dto.NachweisAiReviewRequest;
 import org.example.springboot.controller.ai.dto.ActivityDTO;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,19 +79,19 @@ public class NachweisAiController {
         try {
             // Beispiel-Aktivitäten für einen Test
             List<ActivityDTO> testActivities = List.of(
-                    new ActivityDTO("Montag", java.math.BigDecimal.valueOf(8),
+                    new ActivityDTO("Montag", BigDecimal.valueOf(8),
                             "Entwicklung eines REST-APIs für Benutzerregistrierung mit Spring Boot",
                             "Backend"),
-                    new ActivityDTO("Dienstag", java.math.BigDecimal.valueOf(8),
+                    new ActivityDTO("Dienstag", BigDecimal.valueOf(8),
                             "Testing und Debugging des APIs, Unit-Tests mit JUnit5 geschrieben",
                             "Backend"),
-                    new ActivityDTO("Mittwoch", java.math.BigDecimal.valueOf(6),
+                    new ActivityDTO("Mittwoch", BigDecimal.valueOf(6),
                             "Code-Review und Dokumentation der API-Endpoints",
                             "Backend"),
-                    new ActivityDTO("Donnerstag", java.math.BigDecimal.valueOf(8),
+                    new ActivityDTO("Donnerstag", BigDecimal.valueOf(8),
                             "Migration auf PostgreSQL und Hibernate-Mapping",
                             "Backend"),
-                    new ActivityDTO("Freitag", java.math.BigDecimal.valueOf(4),
+                    new ActivityDTO("Freitag", BigDecimal.valueOf(4),
                             "Vorbereitung für nächste Woche, Gespräch mit Ausbilder Sebastian Preuschoff",
                             "Allgemein"));
 
@@ -225,5 +227,95 @@ public class NachweisAiController {
         info.put("base_url", "http://localhost:11434/");
 
         return ResponseEntity.ok(info);
+    }
+
+    /**
+     * Vollständige Validierung eines Nachweises mit Metadaten
+     * POST /api/nachweis/ai/validate
+     * Überprüft nicht nur die Aktivitäten, sondern auch Datum, Ausbildungsjahr und
+     * weitere Metadaten
+     * 
+     * @param request NachweisAiValidationRequest mit kompletten Nachweisdaten
+     * @return Detaillierte Validierungsergebnisse
+     */
+    @PostMapping("/validate")
+    @Operation(summary = "Vollständige Nachweis-Validierung durchführen", description = "Analysiert einen kompletten Ausbildungsnachweis mit allen Metadaten (Datum, Ausbildungsjahr, Nummer, etc.) und gibt detaillierte Validierungsergebnisse")
+    @ApiResponse(responseCode = "200", description = "Validierung erfolgreich abgeschlossen", content = @Content(schema = @Schema(implementation = Map.class)))
+    @ApiResponse(responseCode = "400", description = "Ungültige Request - Pflichtfelder fehlen", content = @Content(schema = @Schema(implementation = Map.class)))
+    @ApiResponse(responseCode = "500", description = "Fehler bei der KI-Validierung", content = @Content(schema = @Schema(implementation = Map.class)))
+    public ResponseEntity<Map<String, Object>> validateNachweisComplete(
+            @RequestBody org.example.springboot.dto.NachweisAiValidationRequest request) {
+
+        logger.info("Vollständige Nachweis-Validierung angefordert für Nachweis-ID: {}", request.nachweisId());
+
+        // Validierung der Request-Parameter
+        if (request.activities() == null || request.activities().isEmpty()) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "ERROR");
+            errorResponse.put("message", "Keine Aktivitäten im Request vorhanden");
+            errorResponse.put("timestamp", System.currentTimeMillis());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        if (request.datumStart() == null || request.datumEnde() == null) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "ERROR");
+            errorResponse.put("message", "Startdatum oder Enddatum fehlt");
+            errorResponse.put("timestamp", System.currentTimeMillis());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        try {
+            NachweisAiValidationResponse validationResult = nachweisAiService.validateNachweisComplete(request);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "SUCCESS");
+            response.put("message", "Nachweis-Validierung erfolgreich abgeschlossen");
+            response.put("nachweisId", request.nachweisId());
+            response.put("azubiName", request.azubiName());
+            response.put("ausbildungsjahr", request.ausbildungsjahr());
+            response.put("aktivitätenAnzahl", request.activities().size());
+
+            // Validierungsergebnisse
+            response.put("akzeptiert", validationResult.akzeptiert());
+            response.put("status", validationResult.status());
+            response.put("feedback", validationResult.feedback());
+
+            // Detaillierte Validierungen
+            Map<String, Object> metadataVal = new HashMap<>();
+            metadataVal.put("datumStartValid", validationResult.metadataValidation().datumStartValid());
+            metadataVal.put("datumEndeValid", validationResult.metadataValidation().datumEndeValid());
+            metadataVal.put("datumRangeValid", validationResult.metadataValidation().datumRangeValid());
+            metadataVal.put("ausbildungsjährValid", validationResult.metadataValidation().ausbildungsjährValid());
+            metadataVal.put("nummerValid", validationResult.metadataValidation().nummerValid());
+            metadataVal.put("feedback", validationResult.metadataValidation().feedback());
+            response.put("metadataValidation", metadataVal);
+
+            Map<String, Object> activitiesVal = new HashMap<>();
+            activitiesVal.put("anzahlAktivitäten", validationResult.activitiesValidation().anzahlAktivitäten());
+            activitiesVal.put("durchschnittlicheStunden",
+                    validationResult.activitiesValidation().durchschnittlicheStunden());
+            activitiesVal.put("alleTageCovered", validationResult.activitiesValidation().alleTageCovered());
+            activitiesVal.put("stundenRealistisch", validationResult.activitiesValidation().stundenRealistisch());
+            activitiesVal.put("feedback", validationResult.activitiesValidation().feedback());
+            response.put("activitiesValidation", activitiesVal);
+
+            response.put("gefundeneSkills", validationResult.gefundeneSkills());
+            response.put("warnungen", validationResult.warnungen());
+            response.put("timestamp", System.currentTimeMillis());
+
+            logger.info("Vollständige Nachweis-Validierung abgeschlossen - akzeptiert: {}",
+                    validationResult.akzeptiert());
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            logger.error("Fehler bei vollständiger Nachweis-Validierung", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "ERROR");
+            errorResponse.put("message", "Validierung fehlgeschlagen: " + e.getMessage());
+            errorResponse.put("nachweisId", request.nachweisId());
+            errorResponse.put("timestamp", System.currentTimeMillis());
+            return ResponseEntity.internalServerError().body(errorResponse);
+        }
     }
 }

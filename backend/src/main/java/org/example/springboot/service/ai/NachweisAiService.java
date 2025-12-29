@@ -1,5 +1,7 @@
 package org.example.springboot.service.ai;
 
+import org.example.springboot.dto.NachweisAiValidationRequest;
+import org.example.springboot.dto.NachweisAiValidationResponse;
 import org.example.springboot.model.Activity;
 import org.example.springboot.model.record.ReviewResult;
 import org.example.springboot.controller.ai.dto.ActivityDTO;
@@ -9,8 +11,13 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
 public class NachweisAiService {
@@ -27,19 +34,19 @@ public class NachweisAiService {
                 this.chatClient = chatClientBuilder
                                 .defaultSystem(
                                                 "Du heißt " + kiName + " und bist eine " + kiRolle + " ."
-                                                    +
-                                                    "Deine Aufgabe ist es, die Wochenaktivitäten eines Azubis auf fachliche Qualität und Konformität zu prüfen. "
-                                                    +
-                                                    "Ein Bericht umfasst Montag bis Sonntag. Achte auf deutsche Rechtschreibung und Grammatik. "
-                                                    +
-                                                    "Du schreibst kurze, prägnante Antworten, damit die Azubis gutes Feedback erhalten. "
-                                                    +
-                                                    "Sei kritisch wie ein echter Ausbilder. " +
-                                                    "Wenn Informationen fehlen oder Zeiten unplausibel sind, lehne den Vorschlag ab. "
-                                                    +
-                                                    "Antworte IMMER in gültigem JSON-Format mit den Feldern: akzeptiert (boolean), status (string), "
-                                                    +
-                                                    "feedback (string), gefundeneSkills (array), warnungen (array).")
+                                                                +
+                                                                "Deine Aufgabe ist es, die Wochenaktivitäten eines Azubis auf fachliche Qualität und Konformität zu prüfen. "
+                                                                +
+                                                                "Ein Bericht umfasst Montag bis Sonntag. Achte auf deutsche Rechtschreibung und Grammatik. "
+                                                                +
+                                                                "Du schreibst kurze, prägnante Antworten, damit die Azubis gutes Feedback erhalten. "
+                                                                +
+                                                                "Sei kritisch wie ein echter Ausbilder. " +
+                                                                "Wenn Informationen fehlen oder Zeiten unplausibel sind, lehne den Vorschlag ab. "
+                                                                +
+                                                                "Antworte IMMER in gültigem JSON-Format mit den Feldern: akzeptiert (boolean), status (string), "
+                                                                +
+                                                                "feedback (string), gefundeneSkills (array), warnungen (array).")
                                 .build();
         }
 
@@ -63,17 +70,17 @@ public class NachweisAiService {
                         ReviewResult result = chatClient.prompt()
                                         .user(u -> u.text(
                                                         """
-                                                        Prüfe diesen Wochenbericht auf Plausibilität:
-                                                        {daten}
+                                                                        Prüfe diesen Wochenbericht auf Plausibilität:
+                                                                        {daten}
 
-                                                        Kriterien:
-                                                        1. Stehen die Stunden in einem realistischen Verhältnis zur Tätigkeit?
-                                                        2. Ist die Beschreibung fachlich aussagekräftig?
-                                                        3. Fehlen wichtige Informationen?
-                                                        4. Der Bericht startet immer am Montag und endet Sonntags. Achte auf das Datum.
+                                                                        Kriterien:
+                                                                        1. Stehen die Stunden in einem realistischen Verhältnis zur Tätigkeit?
+                                                                        2. Ist die Beschreibung fachlich aussagekräftig?
+                                                                        3. Fehlen wichtige Informationen?
+                                                                        4. Der Bericht startet immer am Montag und endet Sonntags. Achte auf das Datum.
 
-                                                        Antworte STRENG im JSON-Format.
-                                                        """)
+                                                                        Antworte STRENG im JSON-Format.
+                                                                        """)
                                                         .param("daten", wochenDaten))
                                         .call()
                                         .entity(ReviewResult.class);
@@ -133,5 +140,113 @@ public class NachweisAiService {
                         logger.error("Fehler bei KI-Analyse", e);
                         throw new RuntimeException("KI-Analyse fehlgeschlagen: " + e.getMessage(), e);
                 }
+        }
+
+        /**
+         * Validiert einen kompletten Nachweis mit Metadaten
+         * Überprüft nicht nur Aktivitäten, sondern auch Datum, Ausbildungsjahr, etc.
+         * 
+         * @param request Der komplette Nachweis mit Metadaten
+         * @return Detaillierte Validierungsergebnisse
+         */
+        public NachweisAiValidationResponse validateNachweisComplete(
+                        NachweisAiValidationRequest request) {
+
+                logger.info("Starte vollständige Nachweis-Validierung für Nachweis-ID: {}", request.nachweisId());
+
+                // Metadaten-Validierungen
+                boolean datumStartValid = request.datumStart() != null &&
+                                request.datumStart().isBefore(LocalDate.now());
+                boolean datumEndeValid = request.datumEnde() != null &&
+                                request.datumEnde().isAfter(request.datumStart());
+                boolean datumRangeValid = datumStartValid && datumEndeValid &&
+                                DAYS.between(request.datumStart(), request.datumEnde()) <= 7;
+
+                boolean ausbildungsjahrValid = request.ausbildungsjahr() != null &&
+                                !request.ausbildungsjahr().isEmpty() &&
+                                (request.ausbildungsjahr().contains("1") || request.ausbildungsjahr().contains("2")
+                                                || request.ausbildungsjahr().contains("3"));
+
+                boolean nummerValid = request.nummer() > 0;
+
+                // Aktivitäten-Validierungen
+                int anzahlAktivitaeten = request.activities() != null ? request.activities().size() : 0;
+
+                BigDecimal totalHours = request.activities() != null ? request.activities().stream()
+                                .map(a -> a.hours() != null ? a.hours() : BigDecimal.ZERO)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                                : BigDecimal.ZERO;
+
+                double durchschnittlicheStunden = anzahlAktivitaeten > 0 ? totalHours.doubleValue() / anzahlAktivitaeten
+                                : 0;
+
+                boolean stundenRealistisch = durchschnittlicheStunden >= 6 && durchschnittlicheStunden <= 10;
+
+                boolean alleTageCovered = anzahlAktivitaeten >= 5; // Mindestens 5 Tage
+
+                // Gesamtvermischung
+                boolean gesamtValid = datumStartValid && datumEndeValid && datumRangeValid &&
+                                ausbildungsjahrValid && nummerValid && stundenRealistisch && alleTageCovered;
+
+                // KI-Analyse der Aktivitäten - konvertiere die ActivityDTO
+                List<ActivityDTO> convertedActivities = request.activities().stream()
+                                .map(dto -> {
+                                        // Die day ist String in der Input-DTO, aber der Service nimmt auch String
+                                        return new ActivityDTO(
+                                                        dto.day(),
+                                                        dto.hours(),
+                                                        dto.description(),
+                                                        dto.section());
+                                })
+                                .collect(Collectors.toList());
+
+                ReviewResult aktivitaetenAnalyse = analysiereWocheFromDTO(convertedActivities);
+
+                // Warnungen sammeln
+                List<String> warnungen = new ArrayList<>();
+                if (!datumStartValid)
+                        warnungen.add("Startdatum ist ungültig oder liegt in der Zukunft");
+                if (!datumEndeValid)
+                        warnungen.add("Enddatum liegt vor dem Startdatum");
+                if (!datumRangeValid)
+                        warnungen.add("Zeitraum ist länger als 7 Tage");
+                if (!ausbildungsjahrValid)
+                        warnungen.add("Ausbildungsjahr ist nicht gültig");
+                if (!nummerValid)
+                        warnungen.add("Nachweisen-Nummer muss > 0 sein");
+                if (!stundenRealistisch)
+                        warnungen.add("Durchschnittliche Stunden sind unrealistisch");
+                if (!alleTageCovered)
+                        warnungen.add("Weniger als 5 Tage mit Aktivitäten");
+                warnungen.addAll(aktivitaetenAnalyse.warnungen());
+
+                // Feedback zusammenstellen
+                String feedback = gesamtValid
+                                ? "Nachweis ist vollständig und konsistent. " + aktivitaetenAnalyse.feedback()
+                                : "Nachweis hat Validierungsfehler. Bitte überprüfen: " + String.join(", ", warnungen);
+
+                NachweisAiValidationResponse.MetadataValidation metadataValidation = new NachweisAiValidationResponse.MetadataValidation(
+                                datumStartValid,
+                                datumEndeValid,
+                                datumRangeValid,
+                                ausbildungsjahrValid,
+                                nummerValid,
+                                "Metadaten-Validierung durchgeführt");
+
+                NachweisAiValidationResponse.ActivitiesValidation activitiesValidation = new NachweisAiValidationResponse.ActivitiesValidation(
+                                anzahlAktivitaeten,
+                                durchschnittlicheStunden,
+                                alleTageCovered,
+                                stundenRealistisch,
+                                "Aktivitäten-Validierung durchgeführt");
+
+                return new NachweisAiValidationResponse(
+                                gesamtValid && aktivitaetenAnalyse.akzeptiert(),
+                                gesamtValid && aktivitaetenAnalyse.akzeptiert() ? "VALIDIERT" : "FEHLER",
+                                feedback,
+                                metadataValidation,
+                                activitiesValidation,
+                                aktivitaetenAnalyse.gefundeneSkills(),
+                                warnungen);
         }
 }
