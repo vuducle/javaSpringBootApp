@@ -318,4 +318,65 @@ public class NachweisAiController {
             return ResponseEntity.internalServerError().body(errorResponse);
         }
     }
+
+    /**
+     * Generischer Chat-Endpoint für direkten Austausch mit dem LLM
+     * POST /api/nachweis/ai/chat
+     * 
+     * @param request Chat-Request mit Nachricht und optionalem Kontext
+     * @return Chat-Response vom LLM
+     */
+    @PostMapping("/chat")
+    @Operation(summary = "Chat mit dem LLM", description = "Ermöglicht einen direkten Chat-Austausch mit dem LLM. Der Azubi/Ausbilder kann Fragen stellen und erhält Antworten vom KI-System")
+    @ApiResponse(responseCode = "200", description = "Chat erfolgreich verarbeitet", content = @Content(schema = @Schema(implementation = Map.class)))
+    @ApiResponse(responseCode = "400", description = "Ungültige Request - Nachricht fehlt", content = @Content(schema = @Schema(implementation = Map.class)))
+    @ApiResponse(responseCode = "500", description = "Fehler bei der KI-Verarbeitung", content = @Content(schema = @Schema(implementation = Map.class)))
+    public ResponseEntity<Map<String, Object>> chat(@RequestBody org.example.springboot.dto.AiChatRequest request) {
+        logger.info("Chat-Request erhalten: {}", request.message());
+
+        // Validierung
+        if (request.message() == null || request.message().trim().isEmpty()) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "ERROR");
+            errorResponse.put("message", "Nachricht darf nicht leer sein");
+            errorResponse.put("timestamp", System.currentTimeMillis());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        try {
+            org.example.springboot.dto.AiChatResponse chatResponse = nachweisAiService.chat(request.message(),
+                    request.context());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", chatResponse.success() ? "SUCCESS" : "ERROR");
+            response.put("message", chatResponse.response());
+
+            if (!chatResponse.success()) {
+                response.put("error", chatResponse.error());
+            }
+
+            response.put("userMessage", request.message());
+            if (request.context() != null && !request.context().isEmpty()) {
+                response.put("context", request.context());
+            }
+            response.put("timestamp", System.currentTimeMillis());
+
+            if (chatResponse.success()) {
+                logger.info("Chat erfolgreich verarbeitet");
+                return ResponseEntity.ok(response);
+            } else {
+                logger.warn("Chat fehlgeschlagen: {}", chatResponse.error());
+                return ResponseEntity.internalServerError().body(response);
+            }
+
+        } catch (Exception e) {
+            logger.error("Fehler beim Chat-Verarbeiten", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "ERROR");
+            errorResponse.put("message", "Chat fehlgeschlagen");
+            errorResponse.put("error", e.getMessage());
+            errorResponse.put("timestamp", System.currentTimeMillis());
+            return ResponseEntity.internalServerError().body(errorResponse);
+        }
+    }
 }

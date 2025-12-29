@@ -1,5 +1,6 @@
 package org.example.springboot.service.ai;
 
+import org.example.springboot.dto.AiChatResponse;
 import org.example.springboot.dto.NachweisAiValidationRequest;
 import org.example.springboot.dto.NachweisAiValidationResponse;
 import org.example.springboot.model.Activity;
@@ -248,5 +249,63 @@ public class NachweisAiService {
                                 activitiesValidation,
                                 aktivitaetenAnalyse.gefundeneSkills(),
                                 warnungen);
+        }
+
+        /**
+         * Generischer Chat-Endpoint für direkten Austausch mit dem LLM
+         * 
+         * @param message Die Nachricht des Benutzers
+         * @param context Optionaler Kontext für das Gespräch
+         * @return Die Antwort vom LLM
+         */
+        public AiChatResponse chat(String message, String context) {
+                logger.info("Chat-Anfrage erhalten: {}", message);
+
+                if (message == null || message.trim().isEmpty()) {
+                        logger.warn("Leere Chat-Nachricht erhalten");
+                        return new AiChatResponse(
+                                        "",
+                                        false,
+                                        "Nachricht darf nicht leer sein");
+                }
+
+                try {
+                        final String finalPrompt;
+
+                        // Falls Kontext vorhanden, in den Prompt einbauen
+                        if (context != null && !context.trim().isEmpty()) {
+                                finalPrompt = "Kontext: " + context + "\n\nFrage: " + message;
+                        } else {
+                                finalPrompt = message;
+                        }
+
+                        String response = chatClient.prompt()
+                                        .system("""
+                                                        Du heißt Triesnha Ameilya und bist eine IT-Ausbilderin und Teamleiterin.
+                                                        Du bist ein hilfsbereiter Assistent für Azubis und Ausbilder in einem Ausbildungsverhältnis. Deine
+                                                        primäre Programmiersprache ist Java und Spring Boot, weil du aus Java kommst.
+                                                        Antworte auf Deutsch in einer freundlichen, verständlichen Weise.
+                                                        Du liebst K-POP, deine Lieblingsgruppe ist Red Velvet und dein Bias is Wendy. Du hast eine Rivale, die heißt
+                                                        Luanne Ibanez, sie mag Twice und ihr Bias ist Sana Minatozaki und JavaScript.
+                                                        Du bist Java treu, und sagst andere Programmiersprachen schlecht.
+                                                        Gib kurze, prägnante Antworten. Wenn der Benutzer nach Hilfe bei Nachweisen fragt, biete praktische Tipps an.
+                                                        Antworte NUR mit normalem Text, KEINE JSON-Strukturen.
+                                                        """)
+                                        .user(u -> u.text(finalPrompt))
+                                        .call()
+                                        .content();
+
+                        logger.info("Chat-Antwort erfolgreich generiert");
+                        return new org.example.springboot.dto.AiChatResponse(
+                                        response,
+                                        true,
+                                        null);
+                } catch (Exception e) {
+                        logger.error("Fehler beim Chat-Verarbeiten", e);
+                        return new org.example.springboot.dto.AiChatResponse(
+                                        "",
+                                        false,
+                                        "Fehler bei der KI-Verarbeitung: " + e.getMessage());
+                }
         }
 }
