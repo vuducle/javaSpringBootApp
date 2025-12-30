@@ -393,17 +393,16 @@ public class NachweisAiController {
      * @return Liste von Vorschlägen für die Beschreibung
      */
     @PostMapping("/autocomplete")
-    @Operation(
-        summary = "Autocomplete für Tätigkeitsbeschreibungen",
-        description = "Generiert intelligente Vorschläge für Tätigkeitsbeschreibungen basierend auf Sektion und bisherigem Text"
-    )
+    @Operation(summary = "Autocomplete für Tätigkeitsbeschreibungen", description = "Generiert intelligente Vorschläge für Tätigkeitsbeschreibungen basierend auf Sektion und bisherigem Text")
     @ApiResponse(responseCode = "200", description = "Vorschläge erfolgreich generiert", content = @Content(schema = @Schema(implementation = Map.class)))
     @ApiResponse(responseCode = "400", description = "Ungültige Request - Sektion oder Text fehlt", content = @Content(schema = @Schema(implementation = Map.class)))
     @ApiResponse(responseCode = "500", description = "Fehler bei der Vorschlagsgenerierung", content = @Content(schema = @Schema(implementation = Map.class)))
     public ResponseEntity<Map<String, Object>> getSuggestions(@RequestBody ActivityDTO activityDTO) {
-        logger.info("Autocomplete angefordert für Sektion: {}, Partial Text: {}", 
-                   activityDTO.section(), 
-                   activityDTO.description() != null ? activityDTO.description().substring(0, Math.min(20, activityDTO.description().length())) : "");
+        logger.info("Autocomplete angefordert für Sektion: {}, Partial Text: {}",
+                activityDTO.section(),
+                activityDTO.description() != null
+                        ? activityDTO.description().substring(0, Math.min(20, activityDTO.description().length()))
+                        : "");
 
         if (activityDTO.section() == null || activityDTO.section().trim().isEmpty()) {
             Map<String, Object> errorResponse = new HashMap<>();
@@ -434,9 +433,11 @@ public class NachweisAiController {
             Map<String, Object> response = new HashMap<>();
             response.put("status", "SUCCESS");
             response.put("suggestions", suggestions);
-            response.put("mode", suggestions.isEmpty() ? "NONE" : 
-                        (activityDTO.description() != null && !activityDTO.description().trim().isEmpty() 
-                            ? "PREDICTIVE_TEXT" : "CONTEXTUAL"));
+            response.put("mode",
+                    suggestions.isEmpty() ? "NONE"
+                            : (activityDTO.description() != null && !activityDTO.description().trim().isEmpty()
+                                    ? "PREDICTIVE_TEXT"
+                                    : "CONTEXTUAL"));
             response.put("section", activityDTO.section());
             response.put("day", activityDTO.day());
             response.put("timestamp", System.currentTimeMillis());

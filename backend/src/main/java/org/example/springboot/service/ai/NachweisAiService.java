@@ -115,23 +115,23 @@ public class NachweisAiService {
                         ReviewResult result = chatClient.prompt()
                                         .user(u -> u.text(
                                                         """
-                                                        Prüfe diesen Wochenbericht auf Plausibilität und gebe detailliertes Feedback:
-                                                        {daten}
+                                                                        Prüfe diesen Wochenbericht auf Plausibilität und gebe detailliertes Feedback:
+                                                                        {daten}
 
-                                                        Kriterien:
-                                                        1. Stunden in realistischem Verhältnis zur Tätigkeit?
-                                                        2. Fachlich aussagekräftige Beschreibung?
-                                                        3. Fehlende Informationen?
-                                                        4. Welche Fachkompetenz wurde demonstriert?
+                                                                        Kriterien:
+                                                                        1. Stunden in realistischem Verhältnis zur Tätigkeit?
+                                                                        2. Fachlich aussagekräftige Beschreibung?
+                                                                        3. Fehlende Informationen?
+                                                                        4. Welche Fachkompetenz wurde demonstriert?
 
-                                                        Antworte STRENG im JSON-Format mit: {{
-                                                            "akzeptiert": boolean,
-                                                            "status": "string",
-                                                            "feedback": "string",
-                                                            "gefundeneSkills": ["skill1", "skill2"],
-                                                            "warnungen": ["warnung1"]
-                                                        }}
-                                                        """)
+                                                                        Antworte STRENG im JSON-Format mit: {{
+                                                                            "akzeptiert": boolean,
+                                                                            "status": "string",
+                                                                            "feedback": "string",
+                                                                            "gefundeneSkills": ["skill1", "skill2"],
+                                                                            "warnungen": ["warnung1"]
+                                                                        }}
+                                                                        """)
                                                         .param("daten", wochenDaten))
                                         .call()
                                         .entity(ReviewResult.class);
@@ -314,7 +314,7 @@ public class NachweisAiService {
          * Predictive Text - Vervollständigung für angefangene Sätze
          * 
          * @param partialText Der bisherige Text (z.B. "Feh...")
-         * @param section Die Ausbildungssektion
+         * @param section     Die Ausbildungssektion
          * @return Liste mit bis zu 3 Vorschlägen für Vervollständigung
          */
         public List<String> getPredictiveTextSuggestions(String partialText, String section) {
@@ -326,22 +326,22 @@ public class NachweisAiService {
 
                 try {
                         String prompt = String.format(
-                                """
-                                Vervollständige den folgenden Text für einen Ausbildungsnachweis im Bereich %s.
-                                Der Text beginnt mit: '%s'
-                                
-                                Gib nur die 3 wahrscheinlichsten Ergänzungen zurück, kurz und prägnant.
-                                Format: Eine Vervollständigung pro Zeile, ohne Nummerierung.
-                                """,
-                                section != null ? section : "Allgemein",
-                                partialText);
+                                        """
+                                                        Vervollständige den folgenden Text für einen Ausbildungsnachweis im Bereich %s.
+                                                        Der Text beginnt mit: '%s'
+
+                                                        Gib nur die 3 wahrscheinlichsten Ergänzungen zurück, kurz und prägnant.
+                                                        Format: Eine Vervollständigung pro Zeile, ohne Nummerierung.
+                                                        """,
+                                        section != null ? section : "Allgemein",
+                                        partialText);
 
                         String response = chatClient.prompt()
                                         .system("""
-                                                Du bist ein hilfreicher Assistent für Ausbildungsnachweise.
-                                                Vervollständige Tätigkeitsbeschreibungen realistisch und präzise.
-                                                Antworte NUR mit den Vervollständigungen, nicht mit Erklärungen.
-                                                """)
+                                                        Du bist ein hilfreicher Assistent für Ausbildungsnachweise.
+                                                        Vervollständige Tätigkeitsbeschreibungen realistisch und präzise.
+                                                        Antworte NUR mit den Vervollständigungen, nicht mit Erklärungen.
+                                                        """)
                                         .user(u -> u.text(prompt))
                                         .call()
                                         .content();
@@ -368,7 +368,7 @@ public class NachweisAiService {
          * Wenn description leer ist, gibt das Modell passende Tätigkeiten vor
          * 
          * @param section Die Ausbildungssektion (z.B. "IT-Infrastruktur", "Backend")
-         * @param day Der Wochentag
+         * @param day     Der Wochentag
          * @return Liste mit bis zu 5 Tätigkeitsvorschlägen für diese Sektion
          */
         public List<String> getContextualSuggestions(String section, String day) {
@@ -382,22 +382,22 @@ public class NachweisAiService {
                         String dayInfo = (day != null && !day.isEmpty()) ? "am " + day : "an einem Arbeitstag";
 
                         String prompt = String.format(
-                                """
-                                Generiere 5 realistische Tätigkeitsbeschreibungen für einen Azubi im Bereich '%s' %s.
-                                Die Beschreibungen sollten konkret, kurz und relevant für einen Ausbildungsnachweis sein.
-                                
-                                Gib nur die Tätigkeiten zurück, eine pro Zeile, ohne Nummerierung oder Erklärungen.
-                                """,
-                                section,
-                                dayInfo);
+                                        """
+                                                        Generiere 5 realistische Tätigkeitsbeschreibungen für einen Azubi im Bereich '%s' %s.
+                                                        Die Beschreibungen sollten konkret, kurz und relevant für einen Ausbildungsnachweis sein.
+
+                                                        Gib nur die Tätigkeiten zurück, eine pro Zeile, ohne Nummerierung oder Erklärungen.
+                                                        """,
+                                        section,
+                                        dayInfo);
 
                         String response = chatClient.prompt()
                                         .system("""
-                                                Du bist ein erfahrener Ausbilder.
-                                                Generiere realistische, spezifische Tätigkeiten für Auszubildende.
-                                                Die Tätigkeiten sollten konkret, lehrreich und berufsnah sein.
-                                                Antworte NUR mit den Tätigkeiten, keine Nummerierung, keine Erklärungen.
-                                                """)
+                                                        Du bist ein erfahrener Ausbilder.
+                                                        Generiere realistische, spezifische Tätigkeiten für Auszubildende.
+                                                        Die Tätigkeiten sollten konkret, lehrreich und berufsnah sein.
+                                                        Antworte NUR mit den Tätigkeiten, keine Nummerierung, keine Erklärungen.
+                                                        """)
                                         .user(u -> u.text(prompt))
                                         .call()
                                         .content();
