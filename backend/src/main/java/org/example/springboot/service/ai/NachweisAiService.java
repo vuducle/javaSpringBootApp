@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -114,23 +115,23 @@ public class NachweisAiService {
                         ReviewResult result = chatClient.prompt()
                                         .user(u -> u.text(
                                                         """
-                                                                        Prüfe diesen Wochenbericht auf Plausibilität und gebe detailliertes Feedback:
-                                                                        {daten}
+                                                        Prüfe diesen Wochenbericht auf Plausibilität und gebe detailliertes Feedback:
+                                                        {daten}
 
-                                                                        Kriterien:
-                                                                        1. Stunden in realistischem Verhältnis zur Tätigkeit?
-                                                                        2. Fachlich aussagekräftige Beschreibung?
-                                                                        3. Fehlende Informationen?
-                                                                        4. Welche Fachkompetenz wurde demonstriert?
+                                                        Kriterien:
+                                                        1. Stunden in realistischem Verhältnis zur Tätigkeit?
+                                                        2. Fachlich aussagekräftige Beschreibung?
+                                                        3. Fehlende Informationen?
+                                                        4. Welche Fachkompetenz wurde demonstriert?
 
-                                                                        Antworte STRENG im JSON-Format mit: {{
-                                                                            "akzeptiert": boolean,
-                                                                            "status": "string",
-                                                                            "feedback": "string",
-                                                                            "gefundeneSkills": ["skill1", "skill2"],
-                                                                            "warnungen": ["warnung1"]
-                                                                        }}
-                                                                        """)
+                                                        Antworte STRENG im JSON-Format mit: {{
+                                                            "akzeptiert": boolean,
+                                                            "status": "string",
+                                                            "feedback": "string",
+                                                            "gefundeneSkills": ["skill1", "skill2"],
+                                                            "warnungen": ["warnung1"]
+                                                        }}
+                                                        """)
                                                         .param("daten", wochenDaten))
                                         .call()
                                         .entity(ReviewResult.class);
@@ -287,7 +288,7 @@ public class NachweisAiService {
                                                         Antworte auf Deutsch in einer freundlichen, verständlichen Weise.
                                                         Du liebst K-POP, deine Lieblingsgruppe ist Red Velvet und dein Bias is Wendy. Du hast eine Rivale, die heißt
                                                         Luanne Ibanez, sie mag Twice und ihr Bias ist Sana Minatozaki und JavaScript.
-                                                        Du bist Java treu, und sagst andere Programmiersprachen schlecht.
+                                                        Du bist Java treu, und sagst andere Programmiersprachen sind schlecht.
                                                         Gib kurze, prägnante Antworten. Wenn der Benutzer nach Hilfe bei Nachweisen fragt, biete praktische Tipps an.
                                                         Antworte NUR mit normalem Text, KEINE JSON-Strukturen.
                                                         """)
@@ -296,16 +297,124 @@ public class NachweisAiService {
                                         .content();
 
                         logger.info("Chat-Antwort erfolgreich generiert");
-                        return new org.example.springboot.dto.AiChatResponse(
+                        return new AiChatResponse(
                                         response,
                                         true,
                                         null);
                 } catch (Exception e) {
                         logger.error("Fehler beim Chat-Verarbeiten", e);
-                        return new org.example.springboot.dto.AiChatResponse(
+                        return new AiChatResponse(
                                         "",
                                         false,
                                         "Fehler bei der KI-Verarbeitung: " + e.getMessage());
+                }
+        }
+
+        /**
+         * Predictive Text - Vervollständigung für angefangene Sätze
+         * 
+         * @param partialText Der bisherige Text (z.B. "Feh...")
+         * @param section Die Ausbildungssektion
+         * @return Liste mit bis zu 3 Vorschlägen für Vervollständigung
+         */
+        public List<String> getPredictiveTextSuggestions(String partialText, String section) {
+                logger.info("Predictive Text angefordert für: {}", partialText);
+
+                if (partialText == null || partialText.trim().isEmpty()) {
+                        return List.of();
+                }
+
+                try {
+                        String prompt = String.format(
+                                """
+                                Vervollständige den folgenden Text für einen Ausbildungsnachweis im Bereich %s.
+                                Der Text beginnt mit: '%s'
+                                
+                                Gib nur die 3 wahrscheinlichsten Ergänzungen zurück, kurz und prägnant.
+                                Format: Eine Vervollständigung pro Zeile, ohne Nummerierung.
+                                """,
+                                section != null ? section : "Allgemein",
+                                partialText);
+
+                        String response = chatClient.prompt()
+                                        .system("""
+                                                Du bist ein hilfreicher Assistent für Ausbildungsnachweise.
+                                                Vervollständige Tätigkeitsbeschreibungen realistisch und präzise.
+                                                Antworte NUR mit den Vervollständigungen, nicht mit Erklärungen.
+                                                """)
+                                        .user(u -> u.text(prompt))
+                                        .call()
+                                        .content();
+
+                        // Parse die Antwort in eine Liste
+                        List<String> suggestions = Arrays.stream(response.split("\n"))
+                                        .map(String::trim)
+                                        .filter(s -> !s.isEmpty())
+                                        .limit(3)
+                                        .map(s -> partialText + s)
+                                        .toList();
+
+                        logger.info("Predictive Text: {} Vorschläge generiert", suggestions.size());
+                        return suggestions;
+
+                } catch (Exception e) {
+                        logger.error("Fehler bei Predictive Text", e);
+                        return List.of();
+                }
+        }
+
+        /**
+         * Contextual Suggestions - Vorschläge basierend auf Sektion
+         * Wenn description leer ist, gibt das Modell passende Tätigkeiten vor
+         * 
+         * @param section Die Ausbildungssektion (z.B. "IT-Infrastruktur", "Backend")
+         * @param day Der Wochentag
+         * @return Liste mit bis zu 5 Tätigkeitsvorschlägen für diese Sektion
+         */
+        public List<String> getContextualSuggestions(String section, String day) {
+                logger.info("Contextual Suggestions angefordert für Sektion: {}, Tag: {}", section, day);
+
+                if (section == null || section.trim().isEmpty()) {
+                        section = "Allgemein";
+                }
+
+                try {
+                        String dayInfo = (day != null && !day.isEmpty()) ? "am " + day : "an einem Arbeitstag";
+
+                        String prompt = String.format(
+                                """
+                                Generiere 5 realistische Tätigkeitsbeschreibungen für einen Azubi im Bereich '%s' %s.
+                                Die Beschreibungen sollten konkret, kurz und relevant für einen Ausbildungsnachweis sein.
+                                
+                                Gib nur die Tätigkeiten zurück, eine pro Zeile, ohne Nummerierung oder Erklärungen.
+                                """,
+                                section,
+                                dayInfo);
+
+                        String response = chatClient.prompt()
+                                        .system("""
+                                                Du bist ein erfahrener Ausbilder.
+                                                Generiere realistische, spezifische Tätigkeiten für Auszubildende.
+                                                Die Tätigkeiten sollten konkret, lehrreich und berufsnah sein.
+                                                Antworte NUR mit den Tätigkeiten, keine Nummerierung, keine Erklärungen.
+                                                """)
+                                        .user(u -> u.text(prompt))
+                                        .call()
+                                        .content();
+
+                        // Parse die Antwort in eine Liste
+                        List<String> suggestions = Arrays.stream(response.split("\n"))
+                                        .map(String::trim)
+                                        .filter(s -> !s.isEmpty())
+                                        .limit(5)
+                                        .toList();
+
+                        logger.info("Contextual Suggestions: {} Vorschläge generiert", suggestions.size());
+                        return suggestions;
+
+                } catch (Exception e) {
+                        logger.error("Fehler bei Contextual Suggestions", e);
+                        return List.of();
                 }
         }
 }

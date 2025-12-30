@@ -418,7 +418,7 @@ V2__Add_profile_images.sql
 V3__Add_batch_operations.sql
 ```
 
-Siehe [FLYWAY_GUIDE.md](FLYWAY_GUIDE.md) für Details.
+Siehe [FLYWAY_GUIDE.md](docs/FLYWAY_GUIDE.md) für Details.
 
 ## 🧪 Testing
 
@@ -579,8 +579,8 @@ Siehe [../DEPLOYMENT.md](../DEPLOYMENT.md) für vollständige Deployment-Anleitu
 
 ## 📚 Weitere Dokumentation
 
-- [USER_API_DOCUMENTATION.md](USER_API_DOCUMENTATION.md) - Detaillierte API-Docs
-- [FLYWAY_GUIDE.md](FLYWAY_GUIDE.md) - Datenbank-Migrationen
+- [USER_API_DOCUMENTATION.md](docs/USER_API_DOCUMENTATION.md) - Detaillierte API-Docs
+- [FLYWAY_GUIDE.md](docs/FLYWAY_GUIDE.md) - Datenbank-Migrationen
 - [../DEPLOYMENT.md](../DEPLOYMENT.md) - Production Deployment
 - [../CICD_SETUP.md](../CICD_SETUP.md) - CI/CD Pipeline
 

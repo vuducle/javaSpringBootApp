@@ -1,5 +1,6 @@
 package org.example.springboot.controller.ai;
 
+import org.example.springboot.dto.AiChatRequest;
 import org.example.springboot.dto.NachweisAiValidationResponse;
 import org.example.springboot.service.ai.NachweisAiService;
 import org.example.springboot.controller.ai.dto.NachweisAiReviewRequest;
@@ -331,7 +332,7 @@ public class NachweisAiController {
     @ApiResponse(responseCode = "200", description = "Chat erfolgreich verarbeitet", content = @Content(schema = @Schema(implementation = Map.class)))
     @ApiResponse(responseCode = "400", description = "Ungültige Request - Nachricht fehlt", content = @Content(schema = @Schema(implementation = Map.class)))
     @ApiResponse(responseCode = "500", description = "Fehler bei der KI-Verarbeitung", content = @Content(schema = @Schema(implementation = Map.class)))
-    public ResponseEntity<Map<String, Object>> chat(@RequestBody org.example.springboot.dto.AiChatRequest request) {
+    public ResponseEntity<Map<String, Object>> chat(@RequestBody AiChatRequest request) {
         logger.info("Chat-Request erhalten: {}", request.message());
 
         // Validierung
@@ -375,6 +376,80 @@ public class NachweisAiController {
             errorResponse.put("status", "ERROR");
             errorResponse.put("message", "Chat fehlgeschlagen");
             errorResponse.put("error", e.getMessage());
+            errorResponse.put("timestamp", System.currentTimeMillis());
+            return ResponseEntity.internalServerError().body(errorResponse);
+        }
+    }
+
+    /**
+     * Autocomplete-Endpoint für intelligente Vorschläge
+     * POST /api/nachweis/ai/autocomplete
+     * 
+     * Unterstützt zwei Modi:
+     * 1. Predictive Text: Vervollständigung angefangener Sätze
+     * 2. Contextual Suggestions: Vorschläge basierend auf Sektion
+     * 
+     * @param activityDTO ActivityDTO mit (teilweise) gefüllten Feldern
+     * @return Liste von Vorschlägen für die Beschreibung
+     */
+    @PostMapping("/autocomplete")
+    @Operation(
+        summary = "Autocomplete für Tätigkeitsbeschreibungen",
+        description = "Generiert intelligente Vorschläge für Tätigkeitsbeschreibungen basierend auf Sektion und bisherigem Text"
+    )
+    @ApiResponse(responseCode = "200", description = "Vorschläge erfolgreich generiert", content = @Content(schema = @Schema(implementation = Map.class)))
+    @ApiResponse(responseCode = "400", description = "Ungültige Request - Sektion oder Text fehlt", content = @Content(schema = @Schema(implementation = Map.class)))
+    @ApiResponse(responseCode = "500", description = "Fehler bei der Vorschlagsgenerierung", content = @Content(schema = @Schema(implementation = Map.class)))
+    public ResponseEntity<Map<String, Object>> getSuggestions(@RequestBody ActivityDTO activityDTO) {
+        logger.info("Autocomplete angefordert für Sektion: {}, Partial Text: {}", 
+                   activityDTO.section(), 
+                   activityDTO.description() != null ? activityDTO.description().substring(0, Math.min(20, activityDTO.description().length())) : "");
+
+        if (activityDTO.section() == null || activityDTO.section().trim().isEmpty()) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "ERROR");
+            errorResponse.put("message", "Sektion ist erforderlich");
+            errorResponse.put("timestamp", System.currentTimeMillis());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        try {
+            List<String> suggestions;
+
+            // Mode 1: Predictive Text - wenn bereits Text vorhanden ist
+            if (activityDTO.description() != null && !activityDTO.description().trim().isEmpty()) {
+                logger.info("Mode: Predictive Text");
+                suggestions = nachweisAiService.getPredictiveTextSuggestions(
+                        activityDTO.description(),
+                        activityDTO.section());
+            }
+            // Mode 2: Contextual Suggestions - wenn Sektion vorhanden aber description leer
+            else {
+                logger.info("Mode: Contextual Suggestions");
+                suggestions = nachweisAiService.getContextualSuggestions(
+                        activityDTO.section(),
+                        activityDTO.day());
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "SUCCESS");
+            response.put("suggestions", suggestions);
+            response.put("mode", suggestions.isEmpty() ? "NONE" : 
+                        (activityDTO.description() != null && !activityDTO.description().trim().isEmpty() 
+                            ? "PREDICTIVE_TEXT" : "CONTEXTUAL"));
+            response.put("section", activityDTO.section());
+            response.put("day", activityDTO.day());
+            response.put("timestamp", System.currentTimeMillis());
+
+            logger.info("Autocomplete erfolgreich - {} Vorschläge generiert", suggestions.size());
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            logger.error("Fehler bei Autocomplete", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "ERROR");
+            errorResponse.put("message", "Fehler bei der Vorschlagsgenerierung: " + e.getMessage());
+            errorResponse.put("section", activityDTO.section());
             errorResponse.put("timestamp", System.currentTimeMillis());
             return ResponseEntity.internalServerError().body(errorResponse);
         }
