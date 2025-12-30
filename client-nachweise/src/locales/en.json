@@ -11,6 +11,7 @@
     "registerLinkText": "Register here",
     "error": {
       "invalid": "Invalid email or password.",
+      "userNotFound": "User not found. Please create an account.",
       "locked": "Your account is temporarily locked due to too many failed login attempts. Please wait 15 minutes.",
       "unexpected": "An unexpected error occurred.",
       "unverified": "Please verify your email address before logging in. Check your inbox for the verification email."

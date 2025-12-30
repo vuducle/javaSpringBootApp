@@ -88,6 +88,8 @@ export default function LoginForm() {
           return;
         } else if (err.response.status === 423) {
           errorMessage = t('login.error.locked');
+        } else if (err.response.status === 404) {
+          errorMessage = t('login.error.userNotFound');
         } else {
           errorMessage = t('login.error.invalid');
         }

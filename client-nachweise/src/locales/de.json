@@ -11,6 +11,7 @@
     "registerLinkText": "Hier registrieren",
     "error": {
       "invalid": "Ungültige E-Mail oder Passwort.",
+      "userNotFound": "Benutzer nicht gefunden. Bitte erstelle einen Account.",
       "locked": "Dein Konto ist vorübergehend gesperrt aufgrund zu vieler fehlgeschlagener Anmeldeversuche. Bitte warte 15 Minuten.",
       "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
       "unverified": "Bitte verifiziere deine E-Mail-Adresse, bevor du dich anmeldest. Überprüfe deinen Posteingang für die Verifizierungs-E-Mail."

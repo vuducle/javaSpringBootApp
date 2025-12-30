@@ -171,6 +171,13 @@ public class AuthController {
                     "Ihr Account ist aufgrund zu vieler Fehlversuche temporär gesperrt für 15 Minuten.",
                     HttpStatus.LOCKED);
         }
+        // Prüfen, ob der Benutzer überhaupt existiert
+        if (!userRepository.existsByEmail(request.getEmail())) {
+            return new ResponseEntity<>(
+            "Es wurde kein Account mit dieser E-Mail-Adresse gefunden.",
+                HttpStatus.NOT_FOUND
+            );
+        }
 
         try {
             Authentication authentication = authenticationManager.authenticate(
